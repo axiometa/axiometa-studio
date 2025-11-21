@@ -18,23 +18,23 @@ export const lesson = {
       "title": "What You'll Need",
       "items": [
         { 
-          "name": "LED", 
-          "image": "public/images/ax22-components/AX22-0006.png", 
+          "name": "LED",
+          "image": "/images/ax22-components/AX22-0006.png",   
           "description": "Light Emitting Diode Module!" 
         },
         { 
-          "name": "220Ω Resistor", 
-          "image": "public/images/dev-boards/mta0007.png",  
+          "name": "Pixie M1", 
+          "image": "/images/dev-boards/mta0007.png",  
           "description": "Development Board" 
         },
         { 
           "name": "Breadboard", 
-          "image": "public/images/misc/breadboard.png", 
+          "image": "/images/misc/breadboard.png", 
           "description": "For easy connections" 
         },
         { 
           "name": "Jumper Wires", 
-          "image": "public/images/misc/jumper-wires.png", 
+          "image": "/images/misc/jumper-wires.png", 
           "description": "2 wires needed" 
         }
       ]
@@ -42,36 +42,36 @@ export const lesson = {
     {
       "id": "wiring-1",
       "type": "wiring-step",
-      "title": "Step 1: Identify LED Legs",
-      "instruction": "Take your LED. The long leg is positive (+), short leg is negative (-).",
-      "image": "public/images/lessons/lesson-1/bb-pixie-l1s1.png",
+      "title": "Step 1: Insert Pixie M1",
+      "instruction": "Place your Pixie M1 on the breadboard, straddling the center gap.",
+      "image": "/images/lessons/lesson-1/bb-pixie-l1s1.png", 
       "stepNumber": 1,
       "totalSteps": 5
     },
     {
       "id": "wiring-2",
       "type": "wiring-step",
-      "title": "Step 2: Connect GPIO to LED",
-      "instruction": "Connect GPIO 2 to the LED long leg (positive) with a jumper wire.",
-      "image": "public/images/lessons/lesson-1/bb-pixie-l1s2.png",
+      "title": "Step 2: Connect Power",
+      "instruction": "Connect 3.3V and GND from Pixie M1 to the power rails.",
+      "image": "/images/lessons/lesson-1/bb-pixie-l1s2.png",
       "stepNumber": 2,
       "totalSteps": 5
     },
     {
       "id": "wiring-3",
       "type": "wiring-step",
-      "title": "Step 3: LED to Resistor",
-      "instruction": "Connect the LED short leg to one end of the 220Ω resistor.",
-      "image": "public/images/lessons/lesson-1/bb-pixie-l1s3.png.png",
+      "title": "Step 3: Place LED Module",
+      "instruction": "Insert the LED module into the breadboard and connect to GPIO 12.",
+      "image": "/images/lessons/lesson-1/bb-pixie-l1s3.png",
       "stepNumber": 3,
       "totalSteps": 5
     },
     {
       "id": "wiring-4",
       "type": "wiring-step",
-      "title": "Step 4: Resistor to Ground",
-      "instruction": "Connect the other end of the resistor to GND on your ESP32.",
-      "image": "public/images/lessons/lesson-1/bb-pixie-l1s4.png",
+      "title": "Step 4: Connect Ground",
+      "instruction": "Connect the LED module's GND to the ground rail.",
+      "image": "/images/lessons/lesson-1/bb-pixie-l1s4.png",
       "stepNumber": 4,
       "totalSteps": 5
     },
@@ -80,7 +80,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 5: Complete!",
       "instruction": "Done! Your circuit is complete. Let's move on to understanding the code.",
-      "image": "public/images/lessons/lesson-1/bb-pixie-l1s4.png",
+      "image": "/images/lessons/lesson-1/bb-pixie-l1s4.png",
       "stepNumber": 5,
       "totalSteps": 5
     },
@@ -103,18 +103,18 @@ void loop() {
       "explanations": [
         {
           "line": 0,
-          "highlight": "#define LED_PIN 2",
-          "explanation": "This creates a name 'LED_PIN' for pin number 2. Makes code easier to read!"
+          "highlight": "#define LED_PIN 12",
+          "explanation": "This creates a name 'LED_PIN' for pin 12. This is the pin we'll control!"
         },
         {
           "line": 3,
           "highlight": "pinMode(LED_PIN, OUTPUT);",
-          "explanation": "Tells the ESP32 that pin 2 will be used to send power OUT (not read sensors in)."
+          "explanation": "Tells the ESP32 that pin 12 will be used to send power OUT."
         },
         {
           "line": 7,
           "highlight": "digitalWrite(LED_PIN, HIGH);",
-          "explanation": "Turn the LED ON by sending power (HIGH = 3.3V) to pin 2."
+          "explanation": "Turn the LED ON by sending power (HIGH = 3.3V) to pin 12."
         },
         {
           "line": 8,
@@ -124,7 +124,7 @@ void loop() {
         {
           "line": 9,
           "highlight": "digitalWrite(LED_PIN, LOW);",
-          "explanation": "Turn the LED OFF by stopping power (LOW = 0V) to pin 2."
+          "explanation": "Turn the LED OFF by stopping power (LOW = 0V) to pin 12."
         }
       ]
     },
