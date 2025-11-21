@@ -44,7 +44,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 1: Insert Pixie M1",
       "instruction": "Place your Pixie M1 on the breadboard, straddling the center gap.",
-      "image": "/images/lessons/lesson-1/bb-pixie-l1s1.png", 
+      "image": "/images/lessons/lesson-1/pixie-m1/bb-pixie-l1s1.png", 
       "stepNumber": 1,
       "totalSteps": 5
     },
@@ -53,7 +53,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 2: Connect Power",
       "instruction": "Connect 3.3V and GND from Pixie M1 to the power rails.",
-      "image": "/images/lessons/lesson-1/bb-pixie-l1s2.png",
+      "image": "/images/lessons/lesson-1/pixie-m1/bb-pixie-l1s2.png",
       "stepNumber": 2,
       "totalSteps": 5
     },
@@ -62,7 +62,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 3: Place LED Module",
       "instruction": "Insert the LED module into the breadboard and connect to GPIO 12.",
-      "image": "/images/lessons/lesson-1/bb-pixie-l1s3.png",
+      "image": "/images/lessons/lesson-1/pixie-m1/bb-pixie-l1s3.png",
       "stepNumber": 3,
       "totalSteps": 5
     },
@@ -71,7 +71,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 4: Connect Ground",
       "instruction": "Connect the LED module's GND to the ground rail.",
-      "image": "/images/lessons/lesson-1/bb-pixie-l1s4.png",
+      "image": "/images/lessons/lesson-1/pixie-m1/bb-pixie-l1s4.png",
       "stepNumber": 4,
       "totalSteps": 5
     },
@@ -80,7 +80,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 5: Complete!",
       "instruction": "Done! Your circuit is complete. Let's move on to understanding the code.",
-      "image": "/images/lessons/lesson-1/bb-pixie-l1s4.png",
+      "image": "/images/lessons/lesson-1/pixie-m1/bb-pixie-l1s4.png",
       "stepNumber": 5,
       "totalSteps": 5
     },
