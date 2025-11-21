@@ -1,0 +1,1 @@
+web: export PATH=$HOME/.local/bin:$PATH && python main.py
