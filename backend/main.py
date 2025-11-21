@@ -1,18 +1,25 @@
+import os
+import sys
+
+# Add Arduino CLI to PATH FIRST (before any other imports)
+ARDUINO_BIN = "/app/.arduino/bin"
+os.environ['PATH'] = f"{ARDUINO_BIN}:{os.environ.get('PATH', '')}"
+os.environ['ARDUINO_DATA_DIR'] = "/app/.arduino/data"
+os.environ['ARDUINO_SKETCHBOOK_DIR'] = "/app/.arduino/sketchbook"
+
+print("🚀 Starting ESP32 Academy API...")
+print(f"📍 Python executable: {sys.executable}")
+print(f"🔧 PATH: {os.environ['PATH'][:200]}...")
+print(f"🎯 PORT: {os.getenv('PORT', '8000')}")
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import subprocess
 import tempfile
-import os
 import shutil
 from pathlib import Path
 import base64
-
-# Add Arduino CLI to PATH
-ARDUINO_BIN = "/app/.arduino/bin"
-os.environ['PATH'] = f"{ARDUINO_BIN}:{os.environ.get('PATH', '')}"
-os.environ['ARDUINO_DATA_DIR'] = "/app/.arduino/data"
-os.environ['ARDUINO_SKETCHBOOK_DIR'] = "/app/.arduino/sketchbook"
 
 app = FastAPI(title="ESP32 Academy API")
 
