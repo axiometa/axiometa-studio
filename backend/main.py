@@ -8,7 +8,21 @@ import shutil
 from pathlib import Path
 import base64
 
+# Add Arduino CLI to PATH
+os.environ['PATH'] = f"{os.path.expanduser('~/.local/bin')}:{os.environ.get('PATH', '')}"
+
 app = FastAPI(title="ESP32 Academy API")
+
+# Debug: Check Arduino CLI installation
+try:
+    result = subprocess.run(['arduino-cli', 'version'], capture_output=True, text=True)
+    print(f"✅ Arduino CLI found: {result.stdout.strip()}")
+    
+    # Check installed boards
+    boards_result = subprocess.run(['arduino-cli', 'core', 'list'], capture_output=True, text=True)
+    print(f"📦 Installed boards:\n{boards_result.stdout}")
+except Exception as e:
+    print(f"❌ Arduino CLI check failed: {e}")
 
 # CORS - allow all origins for now
 app.add_middleware(
