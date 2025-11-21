@@ -181,6 +181,27 @@ export default function LessonView({ lesson, onComplete, onBack }) {
           </div>
         )}
 
+        {currentStep.type === 'wiring-step' && (
+          <div style={styles.wiringCard}>
+            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
+            <div style={styles.wiringStep}>
+              <div style={styles.stepNumber}>{currentStep.stepNumber}</div>
+              <div style={styles.wiringContent}>
+                <p style={styles.wiringInstruction}>{currentStep.instruction}</p>
+                <div style={styles.wiringImagePlaceholder}>
+                  [Image: {currentStep.image}]
+                </div>
+              </div>
+            </div>
+            <div style={{textAlign: 'center', marginTop: '1rem', color: '#888'}}>
+              Step {currentStep.stepNumber} of {currentStep.totalSteps}
+            </div>
+            <button style={styles.nextButton} onClick={handleNext}>
+              {currentStep.stepNumber < currentStep.totalSteps ? 'Next Step →' : 'Wiring Complete →'}
+            </button>
+          </div>
+        )}
+
         {currentStep.type === 'code-explanation' && (
           <div style={styles.codeExplanationCard}>
             <h1 style={styles.stepTitle}>{currentStep.title}</h1>
