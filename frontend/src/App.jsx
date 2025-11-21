@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Dashboard from './components/Dashboard';
 import LessonView from './components/LessonView';
+import Sandbox from './components/Sandbox';
 import { lessons } from './data/lessons';
 
 export default function App() {
@@ -23,6 +24,10 @@ export default function App() {
     setCurrentLesson(null);
   };
 
+  const handleOpenSandbox = () => {
+    setCurrentView('sandbox');
+  };
+
   const handleCompleteLesson = (xpReward) => {
     setUserProgress(prev => {
       const newXp = prev.xp + xpReward;
@@ -38,7 +43,6 @@ export default function App() {
       };
     });
 
-    // Show completion and return to dashboard
     setTimeout(() => {
       handleBackToDashboard();
     }, 2000);
@@ -50,6 +54,7 @@ export default function App() {
         <Dashboard 
           userProgress={userProgress}
           onStartLesson={handleStartLesson}
+          onOpenSandbox={handleOpenSandbox}
         />
       )}
       
@@ -59,6 +64,10 @@ export default function App() {
           onComplete={handleCompleteLesson}
           onBack={handleBackToDashboard}
         />
+      )}
+
+      {currentView === 'sandbox' && (
+        <Sandbox onBack={handleBackToDashboard} />
       )}
     </>
   );

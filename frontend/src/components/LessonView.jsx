@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { connectionService } from '../services/connection';
 import { api } from '../services/api';
+import { browserFlasher } from '../services/flasher'; // ← Import at top
 
 export default function LessonView({ lesson, onComplete, onBack }) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -72,10 +73,8 @@ export default function LessonView({ lesson, onComplete, onBack }) {
       setUploadLogs(prev => prev + '✅ Compilation successful!\n');
       setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
 
-      // Step 2: Flash using browser
+      // Step 2: Flash using browser - NO dynamic import!
       setUploadLogs(prev => prev + '📡 Starting browser-based upload...\n');
-      
-      const { browserFlasher } = await import('../services/flasher.js');
       
       await browserFlasher.flash(compileResult.binaries, (message) => {
         setUploadLogs(prev => prev + message + '\n');
@@ -92,7 +91,9 @@ export default function LessonView({ lesson, onComplete, onBack }) {
     } catch (error) {
       setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);
       
-      if (error.message.includes('No port selected')) {
+      if (error.message.includes('user gesture') || error.message.includes('requestPort')) {
+        setUploadLogs(prev => prev + '💡 Tip: Click the Upload button again when prompted for serial port\n');
+      } else if (error.message.includes('No port selected')) {
         setUploadLogs(prev => prev + '💡 Tip: Make sure to select your ESP32 when prompted\n');
       }
     } finally {
@@ -106,6 +107,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
     }
   };
 
+  // ... rest of the component stays the same
   return (
     <div style={styles.container}>
       {/* Header */}
@@ -285,13 +287,13 @@ export default function LessonView({ lesson, onComplete, onBack }) {
 
             {hintLevel < currentStep.hints.length && (
               <button style={styles.hintButton} onClick={showHint}>
-                💡 Show Hint ({hintLevel}/{currentStep.hints.length})
+                Show Hint ({hintLevel + 1}/{currentStep.hints.length})
               </button>
             )}
 
             <div style={styles.editorContainer}>
               <Editor
-                height="300px"
+                height="400px"
                 defaultLanguage="cpp"
                 theme="vs-dark"
                 value={code}
@@ -309,11 +311,20 @@ export default function LessonView({ lesson, onComplete, onBack }) {
               onClick={handleUpload}
               disabled={isUploading}
             >
-              {isUploading ? '⏳ Uploading...' : '⚡ Upload & Test'}
+              {isUploading ? '⏳ Testing...' : '🧪 Test Code'}
             </button>
 
             {uploadLogs && (
               <pre style={styles.uploadLogs}>{uploadLogs}</pre>
+            )}
+
+            {serialLogs.length > 0 && (
+              <div style={styles.serialMonitor}>
+                <h4>📊 Serial Monitor:</h4>
+                {serialLogs.map((log, i) => (
+                  <div key={i} style={styles.serialLine}>{log}</div>
+                ))}
+              </div>
             )}
 
             <button style={styles.nextButton} onClick={handleNext}>
@@ -326,7 +337,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
           <div style={styles.completionCard}>
             <h1 style={styles.completionTitle}>{currentStep.title}</h1>
             <p style={styles.completionContent}>{currentStep.content}</p>
-            <button style={styles.finishButton} onClick={handleNext}>
+            <button style={styles.finishButton} onClick={() => onComplete(lesson.xp_reward)}>
               Finish Lesson
             </button>
           </div>
@@ -339,27 +350,25 @@ export default function LessonView({ lesson, onComplete, onBack }) {
 const styles = {
   container: {
     minHeight: '100vh',
-    background: '#0a0a0a',
-    color: '#fff',
+    background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '1rem 2rem',
-    background: '#111',
-    borderBottom: '1px solid #333',
+    padding: '1.5rem 2rem',
+    borderBottom: '1px solid #222',
   },
   backButton: {
-    background: 'transparent',
+    background: 'none',
     border: '1px solid #555',
-    color: '#aaa',
+    color: '#fff',
     padding: '0.5rem 1rem',
     borderRadius: '6px',
     cursor: 'pointer',
   },
   title: {
-    margin: 0,
+    color: '#00ff88',
     fontSize: '1.25rem',
   },
   connectButton: {
