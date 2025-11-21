@@ -7,7 +7,7 @@ export default function Dashboard({ userProgress, onStartLesson }) {
   return (
     <div style={styles.dashboard}>
       <div style={styles.header}>
-        <h1 style={styles.title}>🎓 ESP32 Academy</h1>
+        <h1 style={styles.title}>Axiometa Studio</h1>
         <div style={styles.stats}>
           <div style={styles.statItem}>
             <span style={styles.statLabel}>Level</span>
