@@ -36,6 +36,13 @@ void loop() {
     setUploadLogs('');
 
     try {
+      // Get the already-connected port from connectionService
+      const device = connectionService.getPort();
+      
+      if (!device) {
+        throw new Error('Device not connected. Please connect from the dashboard first.');
+      }
+      
       setUploadLogs(prev => prev + '⏳ Compiling code...\n');
       const compileResult = await api.compile(code);
       
@@ -47,11 +54,20 @@ void loop() {
       setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
       setUploadLogs(prev => prev + '📡 Starting upload...\n');
       
-      await browserFlasher.flash(compileResult.binaries, (message) => {
+      // Disconnect serial monitor temporarily for flashing
+      await connectionService.disconnect();
+      
+      // Flash with the existing device
+      await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
         setUploadLogs(prev => prev + message + '\n');
       });
 
       setUploadLogs(prev => prev + '🎉 Upload complete!\n');
+      
+      // Reconnect serial monitor
+      setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
+      await new Promise(r => setTimeout(r, 1000));
+      await connectionService.connect();
 
     } catch (error) {
       setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);

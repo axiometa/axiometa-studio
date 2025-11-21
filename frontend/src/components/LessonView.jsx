@@ -62,7 +62,13 @@ export default function LessonView({ lesson, onComplete, onBack }) {
     setUploadLogs('');
 
     try {
-      // Step 1: Compile on backend
+      // Get the already-connected port
+      const device = connectionService.getPort();
+      
+      if (!device) {
+        throw new Error('Device not connected. Please connect your ESP32 first.');
+      }
+      
       setUploadLogs(prev => prev + '⏳ Compiling code...\n');
       const compileResult = await api.compile(code);
       
@@ -72,30 +78,27 @@ export default function LessonView({ lesson, onComplete, onBack }) {
 
       setUploadLogs(prev => prev + '✅ Compilation successful!\n');
       setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
-
-      // Step 2: Flash using browser - NO dynamic import!
-      setUploadLogs(prev => prev + '📡 Starting browser-based upload...\n');
+      setUploadLogs(prev => prev + '📡 Starting upload...\n');
       
-      await browserFlasher.flash(compileResult.binaries, (message) => {
+      // Disconnect serial monitor temporarily
+      await connectionService.disconnect();
+      
+      // Flash with existing device
+      await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
         setUploadLogs(prev => prev + message + '\n');
       });
 
       setUploadLogs(prev => prev + '🎉 Upload complete!\n');
       
-      // Reconnect serial monitor after upload
-      if (!isConnected) {
-        setUploadLogs(prev => prev + '🔌 Reconnecting serial monitor...\n');
-        await handleConnect();
+      // Reconnect serial monitor
+      if (isConnected) {
+        setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
+        await new Promise(r => setTimeout(r, 1000));
+        await connectionService.connect();
       }
 
     } catch (error) {
       setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);
-      
-      if (error.message.includes('user gesture') || error.message.includes('requestPort')) {
-        setUploadLogs(prev => prev + '💡 Tip: Click the Upload button again when prompted for serial port\n');
-      } else if (error.message.includes('No port selected')) {
-        setUploadLogs(prev => prev + '💡 Tip: Make sure to select your ESP32 when prompted\n');
-      }
     } finally {
       setIsUploading(false);
     }

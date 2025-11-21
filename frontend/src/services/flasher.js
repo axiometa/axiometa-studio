@@ -23,13 +23,9 @@ class BrowserFlasher {
     console.log(message);
   }
 
-  async flash(binaries, onLog) {
+  // New method: flash with pre-selected device
+  async flashWithDevice(device, binaries, onLog) {
     try {
-      this.log('🔌 Requesting serial port...', onLog);
-      
-      // Request port from user
-      const device = await navigator.serial.requestPort();
-      
       this.log('⚡ Opening connection...', onLog);
       this.transport = new Transport(device, true);
       
@@ -120,6 +116,23 @@ class BrowserFlasher {
         }
       }
       
+      throw error;
+    }
+  }
+
+  // Original method: request port internally
+  async flash(binaries, onLog) {
+    try {
+      this.log('🔌 Requesting serial port...', onLog);
+      
+      // Request port from user
+      const device = await navigator.serial.requestPort();
+      
+      // Use the new method
+      return await this.flashWithDevice(device, binaries, onLog);
+
+    } catch (error) {
+      this.log(`❌ Error: ${error.message}`, onLog);
       throw error;
     }
   }
