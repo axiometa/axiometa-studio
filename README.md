@@ -1,4 +1,4 @@
-# ESP32 Academy
+# Axiometa Studio
 
 Interactive learning platform for ESP32 hardware programming.
 
