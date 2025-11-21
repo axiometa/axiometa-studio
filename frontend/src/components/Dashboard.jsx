@@ -35,25 +35,25 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   const boards = [
     {
       id: 'axiometa_pixie_m1',
-      name: 'Axiometa Pixie M1',
+      name: 'PIXIE M1',
       available: true,
       fqbn: 'esp32:esp32:axiometa_pixie_m1:CDCOnBoot=cdc'
     },
     {
       id: 'spark_3',
-      name: 'Spark 3',
+      name: 'SPARK 3',
       available: false,
       fqbn: null
     },
     {
       id: 'genesis_mini',
-      name: 'GENESIS Mini',
+      name: 'GENESIS MINI',
       available: false,
       fqbn: null
     },
     {
       id: 'genesis_one',
-      name: 'GENESIS One',
+      name: 'GENESIS ONE',
       available: false,
       fqbn: null
     }
