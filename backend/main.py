@@ -12,7 +12,7 @@ os.environ['ARDUINO_SKETCHBOOK_DIR'] = "/app/.arduino/sketchbook"
 print("🚀 Starting ESP32 Academy API...")
 print(f"🔍 Python executable: {sys.executable}")
 print(f"🔧 PATH: {os.environ['PATH'][:200]}...")
-print(f"🎯 PORT: {os.getenv('PORT', '8000')}")
+print(f"🎯 PORT: {os.getenv('PORT', '8080')}")
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
