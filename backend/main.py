@@ -9,7 +9,10 @@ from pathlib import Path
 import base64
 
 # Add Arduino CLI to PATH
-os.environ['PATH'] = f"{os.path.expanduser('~/.local/bin')}:{os.environ.get('PATH', '')}"
+ARDUINO_BIN = "/app/.arduino/bin"
+os.environ['PATH'] = f"{ARDUINO_BIN}:{os.environ.get('PATH', '')}"
+os.environ['ARDUINO_DATA_DIR'] = "/app/.arduino/data"
+os.environ['ARDUINO_SKETCHBOOK_DIR'] = "/app/.arduino/sketchbook"
 
 app = FastAPI(title="ESP32 Academy API")
 
