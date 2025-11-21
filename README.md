@@ -2,41 +2,62 @@
 
 Interactive learning platform for ESP32 hardware programming.
 
-## Live Site
+🌐 **Live:** https://studio.axiometa.io
 
-**https://studio.axiometa.io**
+## Project Structure
 
-## Features
+```
+axiometa-studio/
+├── frontend/          # React + Vite app (Vercel)
+├── backend/           # FastAPI compiler service (Railway)
+└── README.md
+```
 
-- 🎓 Step-by-step guided lessons
-- 💻 Monaco code editor
-- ⚡ Direct ESP32 upload
-- 📊 Live serial monitor
-- 🏆 XP and leveling system
+## Architecture
+
+- **Frontend (Vercel):** React app with code editor, lessons, and browser-based ESP32 flashing
+- **Backend (Railway):** Compiles Arduino code and returns .bin files
+- **Flashing:** Happens in browser via Web Serial API (esptool-js)
 
 ## Local Development
 
-### Setup
+### Frontend
 ```bash
+cd frontend
 npm install
-cd backend && pip install -r requirements.txt
-```
-
-### Run
-```bash
-# Terminal 1 - Backend
-cd backend
-python main.py
-
-# Terminal 2 - Frontend
 npm run dev
 ```
+Runs at http://localhost:3000
+
+Set `VITE_API_URL=http://localhost:8000` in `.env.local`
+
+### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+python main.py
+```
+Runs at http://localhost:8000
+
+Requires Arduino CLI with ESP32 support installed.
 
 ## Deployment
 
-- **Frontend:** Vercel (auto-deploy from main branch)
-- **Backend:** Railway (auto-deploy from main branch)
+- **Backend:** Auto-deploys to Railway from `backend/` folder
+- **Frontend:** Auto-deploys to Vercel from `frontend/` folder
+- **Domain:** studio.axiometa.io points to Vercel
 
 ## Tech Stack
 
-React + Vite, FastAPI, Arduino CLI, Web Serial API
+- React 18 + Vite
+- FastAPI (Python)
+- Monaco Editor
+- Web Serial API
+- esptool-js
+- Arduino CLI
+
+## Browser Support
+
+✅ Chrome/Edge (Web Serial API required)  
+❌ Firefox/Safari (no Web Serial support)
+
