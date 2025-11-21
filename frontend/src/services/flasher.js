@@ -98,7 +98,7 @@ class BrowserFlasher {
       this.log('✅ Reset complete!', onLog);
       this.log('⏳ Waiting for device to boot...', onLog);
       
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 100));
 
       await this.transport.disconnect();
       this.log('🎉 Upload successful! Your code is running!', onLog);
