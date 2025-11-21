@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { connectionService } from '../services/connection';
 import { api } from '../services/api';
-import { browserFlasher } from '../services/flasher'; // ← Import at top
+import { browserFlasher } from '../services/flasher';
 
 export default function LessonView({ lesson, onComplete, onBack }) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -12,6 +12,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
   const [serialLogs, setSerialLogs] = useState([]);
   const [uploadLogs, setUploadLogs] = useState('');
   const [hintLevel, setHintLevel] = useState(0);
+  const [imageErrors, setImageErrors] = useState({});
 
   const currentStep = lesson.steps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / lesson.steps.length) * 100;
@@ -23,12 +24,16 @@ export default function LessonView({ lesson, onComplete, onBack }) {
     return () => unsubscribe();
   }, []);
 
+  const handleImageError = (imagePath) => {
+    setImageErrors(prev => ({ ...prev, [imagePath]: true }));
+    console.error(`Failed to load image: ${imagePath}`);
+  };
+
   const handleNext = () => {
     if (currentStepIndex < lesson.steps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
       setHintLevel(0);
       
-      // Set code when reaching code step
       const nextStep = lesson.steps[currentStepIndex + 1];
       if (nextStep.type === 'upload' || nextStep.type === 'challenge') {
         setCode(nextStep.code || lesson.steps.find(s => s.type === 'upload')?.code || '');
@@ -62,7 +67,6 @@ export default function LessonView({ lesson, onComplete, onBack }) {
     setUploadLogs('');
 
     try {
-      // Get the already-connected port
       const device = connectionService.getPort();
       
       if (!device) {
@@ -80,17 +84,14 @@ export default function LessonView({ lesson, onComplete, onBack }) {
       setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
       setUploadLogs(prev => prev + '📡 Starting upload...\n');
       
-      // Disconnect serial monitor temporarily
       await connectionService.disconnect();
       
-      // Flash with existing device
       await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
         setUploadLogs(prev => prev + message + '\n');
       });
 
       setUploadLogs(prev => prev + '🎉 Upload complete!\n');
       
-      // Reconnect serial monitor
       if (isConnected) {
         setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
         await new Promise(r => setTimeout(r, 1000));
@@ -110,7 +111,28 @@ export default function LessonView({ lesson, onComplete, onBack }) {
     }
   };
 
-  // ... rest of the component stays the same
+  // Component to render images with fallback
+  const ImageWithFallback = ({ src, alt, style }) => {
+    if (imageErrors[src]) {
+      return (
+        <div style={styles.imageFallback}>
+          <div style={styles.fallbackIcon}>🖼️</div>
+          <div style={styles.fallbackText}>Image not found</div>
+          <code style={styles.fallbackPath}>{src}</code>
+        </div>
+      );
+    }
+
+    return (
+      <img
+        src={src}
+        alt={alt}
+        style={style}
+        onError={() => handleImageError(src)}
+      />
+    );
+  };
+
   return (
     <div style={styles.container}>
       {/* Header */}
@@ -154,34 +176,24 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             <div style={styles.hardwareGrid}>
               {currentStep.items.map((item, i) => (
                 <div key={i} style={styles.hardwareItem}>
-                  <div style={styles.hardwareIcon}>📦</div>
-                  <h3>{item.name}</h3>
-                  <p>{item.description}</p>
+                  {item.image ? (
+                    <div style={styles.hardwareImageContainer}>
+                      <ImageWithFallback 
+                        src={item.image} 
+                        alt={item.name}
+                        style={styles.hardwareImage}
+                      />
+                    </div>
+                  ) : (
+                    <div style={styles.hardwareIcon}>📦</div>
+                  )}
+                  <h3 style={styles.hardwareItemName}>{item.name}</h3>
+                  <p style={styles.hardwareItemDesc}>{item.description}</p>
                 </div>
               ))}
             </div>
             <button style={styles.nextButton} onClick={handleNext}>
               I Have These →
-            </button>
-          </div>
-        )}
-
-        {currentStep.type === 'wiring' && (
-          <div style={styles.wiringCard}>
-            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
-            {currentStep.substeps.map((substep, i) => (
-              <div key={i} style={styles.wiringStep}>
-                <div style={styles.stepNumber}>{i + 1}</div>
-                <div style={styles.wiringContent}>
-                  <p style={styles.wiringInstruction}>{substep.instruction}</p>
-                  <div style={styles.wiringImagePlaceholder}>
-                    [Image: {substep.image}]
-                  </div>
-                </div>
-              </div>
-            ))}
-            <button style={styles.nextButton} onClick={handleNext}>
-              Wiring Complete →
             </button>
           </div>
         )}
@@ -193,9 +205,15 @@ export default function LessonView({ lesson, onComplete, onBack }) {
               <div style={styles.stepNumber}>{currentStep.stepNumber}</div>
               <div style={styles.wiringContent}>
                 <p style={styles.wiringInstruction}>{currentStep.instruction}</p>
-                <div style={styles.wiringImagePlaceholder}>
-                  [Image: {currentStep.image}]
-                </div>
+                {currentStep.image && (
+                  <div style={styles.wiringImageContainer}>
+                    <ImageWithFallback 
+                      src={currentStep.image}
+                      alt={currentStep.title}
+                      style={styles.wiringImage}
+                    />
+                  </div>
+                )}
               </div>
             </div>
             <div style={{textAlign: 'center', marginTop: '1rem', color: '#888'}}>
@@ -260,7 +278,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
 
             {serialLogs.length > 0 && (
               <div style={styles.serialMonitor}>
-                <h4>📊 Serial Monitor:</h4>
+                <h4 style={styles.serialTitle}>📊 Serial Monitor:</h4>
                 {serialLogs.map((log, i) => (
                   <div key={i} style={styles.serialLine}>{log}</div>
                 ))}
@@ -268,7 +286,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             )}
 
             <button style={styles.nextButton} onClick={handleNext}>
-              Code Uploaded →
+              Next Challenge →
             </button>
           </div>
         )}
@@ -277,7 +295,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
           <div style={styles.challengeCard}>
             <h1 style={styles.stepTitle}>{currentStep.title}</h1>
             <p style={styles.challengeInstruction}>{currentStep.instruction}</p>
-
+            
             {hintLevel > 0 && (
               <div style={styles.hintsContainer}>
                 {currentStep.hints.slice(0, hintLevel).map((hint, i) => (
@@ -290,13 +308,13 @@ export default function LessonView({ lesson, onComplete, onBack }) {
 
             {hintLevel < currentStep.hints.length && (
               <button style={styles.hintButton} onClick={showHint}>
-                Show Hint ({hintLevel + 1}/{currentStep.hints.length})
+                💡 Show Hint ({hintLevel + 1}/{currentStep.hints.length})
               </button>
             )}
 
             <div style={styles.editorContainer}>
               <Editor
-                height="400px"
+                height="300px"
                 defaultLanguage="cpp"
                 theme="vs-dark"
                 value={code}
@@ -314,7 +332,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
               onClick={handleUpload}
               disabled={isUploading}
             >
-              {isUploading ? '⏳ Testing...' : '🧪 Test Code'}
+              {isUploading ? '⏳ Uploading...' : '⚡ Upload & Test'}
             </button>
 
             {uploadLogs && (
@@ -323,7 +341,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
 
             {serialLogs.length > 0 && (
               <div style={styles.serialMonitor}>
-                <h4>📊 Serial Monitor:</h4>
+                <h4 style={styles.serialTitle}>📊 Serial Monitor:</h4>
                 {serialLogs.map((log, i) => (
                   <div key={i} style={styles.serialLine}>{log}</div>
                 ))}
@@ -331,7 +349,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             )}
 
             <button style={styles.nextButton} onClick={handleNext}>
-              Challenge Complete →
+              Next Challenge →
             </button>
           </div>
         )}
@@ -341,7 +359,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             <h1 style={styles.completionTitle}>{currentStep.title}</h1>
             <p style={styles.completionContent}>{currentStep.content}</p>
             <button style={styles.finishButton} onClick={() => onComplete(lesson.xp_reward)}>
-              Finish Lesson
+              Complete Lesson 🎉
             </button>
           </div>
         )}
@@ -354,13 +372,19 @@ const styles = {
   container: {
     minHeight: '100vh',
     background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
+    paddingBottom: '4rem',
+    fontFamily: 'DM Sans, sans-serif',
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '1.5rem 2rem',
-    borderBottom: '1px solid #222',
+    background: 'rgba(0, 0, 0, 0.5)',
+    backdropFilter: 'blur(10px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+    flexWrap: 'wrap',
+    gap: '1rem',
   },
   backButton: {
     background: 'none',
@@ -369,23 +393,30 @@ const styles = {
     padding: '0.5rem 1rem',
     borderRadius: '6px',
     cursor: 'pointer',
+    fontFamily: 'DM Sans',
   },
   title: {
-    color: '#00ff88',
-    fontSize: '1.25rem',
+    fontSize: '1.5rem',
+    color: '#fff',
+    margin: 0,
+    flex: 1,
+    textAlign: 'center',
+    fontFamily: 'DM Sans',
   },
   connectButton: {
-    background: '#00ff88',
-    border: 'none',
+    background: 'linear-gradient(90deg, #00ff88, #00ccff)',
     color: '#000',
-    padding: '0.5rem 1rem',
+    border: 'none',
+    padding: '0.5rem 1.5rem',
     borderRadius: '6px',
     cursor: 'pointer',
     fontWeight: 'bold',
+    fontFamily: 'DM Sans',
   },
   connectedBadge: {
     color: '#00ff88',
     fontWeight: 'bold',
+    fontFamily: 'DM Sans',
   },
   progressContainer: {
     position: 'relative',
@@ -404,6 +435,7 @@ const styles = {
     right: '2rem',
     fontSize: '0.875rem',
     color: '#888',
+    fontFamily: 'DM Sans',
   },
   content: {
     maxWidth: '800px',
@@ -421,6 +453,7 @@ const styles = {
     fontSize: '2rem',
     marginBottom: '1.5rem',
     color: '#00ff88',
+    fontFamily: 'DM Sans',
   },
   stepContent: {
     fontSize: '1.125rem',
@@ -428,6 +461,7 @@ const styles = {
     color: '#ccc',
     marginBottom: '2rem',
     whiteSpace: 'pre-line',
+    fontFamily: 'DM Sans',
   },
   nextButton: {
     background: 'linear-gradient(90deg, #00ff88, #00ccff)',
@@ -439,6 +473,7 @@ const styles = {
     fontWeight: 'bold',
     cursor: 'pointer',
     margin: '1rem 0',
+    fontFamily: 'DM Sans',
   },
   hardwareCard: {
     background: 'rgba(255, 255, 255, 0.05)',
@@ -455,9 +490,36 @@ const styles = {
   hardwareItem: {
     textAlign: 'center',
   },
+  hardwareImageContainer: {
+    width: '100%',
+    height: '150px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '1rem',
+    background: 'rgba(255, 255, 255, 0.02)',
+    borderRadius: '8px',
+    overflow: 'hidden',
+  },
+  hardwareImage: {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    objectFit: 'contain',
+  },
   hardwareIcon: {
     fontSize: '3rem',
     marginBottom: '1rem',
+  },
+  hardwareItemName: {
+    fontSize: '1.125rem',
+    color: '#fff',
+    marginBottom: '0.5rem',
+    fontFamily: 'DM Sans',
+  },
+  hardwareItemDesc: {
+    color: '#aaa',
+    fontSize: '0.95rem',
+    fontFamily: 'DM Sans',
   },
   wiringCard: {
     background: 'rgba(255, 255, 255, 0.05)',
@@ -491,13 +553,44 @@ const styles = {
     fontSize: '1.125rem',
     marginBottom: '1rem',
     color: '#fff',
+    fontFamily: 'DM Sans',
   },
-  wiringImagePlaceholder: {
+  wiringImageContainer: {
     background: '#222',
-    padding: '2rem',
+    padding: '1rem',
     borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '300px',
+  },
+  wiringImage: {
+    maxWidth: '100%',
+    maxHeight: '500px',
+    objectFit: 'contain',
+    borderRadius: '4px',
+  },
+  imageFallback: {
+    width: '100%',
+    padding: '2rem',
     textAlign: 'center',
     color: '#666',
+  },
+  fallbackIcon: {
+    fontSize: '3rem',
+    marginBottom: '1rem',
+  },
+  fallbackText: {
+    fontSize: '1rem',
+    marginBottom: '0.5rem',
+    color: '#888',
+  },
+  fallbackPath: {
+    fontSize: '0.75rem',
+    color: '#555',
+    wordBreak: 'break-all',
+    display: 'block',
+    marginTop: '0.5rem',
   },
   codeExplanationCard: {
     background: 'rgba(255, 255, 255, 0.05)',
@@ -513,6 +606,8 @@ const styles = {
     fontSize: '0.95rem',
     lineHeight: '1.6',
     marginBottom: '2rem',
+    color: '#fff',
+    fontFamily: 'monospace',
   },
   explanations: {
     display: 'flex',
@@ -540,6 +635,7 @@ const styles = {
     color: '#ccc',
     lineHeight: '1.6',
     margin: 0,
+    fontFamily: 'DM Sans',
   },
   uploadCard: {
     background: 'rgba(255, 255, 255, 0.05)',
@@ -558,6 +654,7 @@ const styles = {
     color: '#fff',
     marginBottom: '1.5rem',
     lineHeight: '1.6',
+    fontFamily: 'DM Sans',
   },
   hintsContainer: {
     margin: '1.5rem 0',
@@ -568,6 +665,7 @@ const styles = {
     borderRadius: '8px',
     marginBottom: '0.5rem',
     color: '#ccc',
+    fontFamily: 'DM Sans',
   },
   hintButton: {
     background: 'rgba(255, 255, 255, 0.1)',
@@ -577,6 +675,7 @@ const styles = {
     borderRadius: '6px',
     cursor: 'pointer',
     marginBottom: '1.5rem',
+    fontFamily: 'DM Sans',
   },
   editorContainer: {
     marginBottom: '1.5rem',
@@ -595,6 +694,7 @@ const styles = {
     cursor: 'pointer',
     width: '100%',
     marginBottom: '1rem',
+    fontFamily: 'DM Sans',
   },
   uploadLogs: {
     background: '#000',
@@ -615,6 +715,12 @@ const styles = {
     maxHeight: '200px',
     overflow: 'auto',
   },
+  serialTitle: {
+    color: '#00ff88',
+    marginBottom: '0.5rem',
+    fontSize: '1rem',
+    fontFamily: 'DM Sans',
+  },
   serialLine: {
     color: '#0f0',
     fontFamily: 'monospace',
@@ -632,6 +738,7 @@ const styles = {
     fontSize: '2.5rem',
     marginBottom: '1.5rem',
     color: '#00ff88',
+    fontFamily: 'DM Sans',
   },
   completionContent: {
     fontSize: '1.25rem',
@@ -639,6 +746,7 @@ const styles = {
     color: '#ccc',
     marginBottom: '2rem',
     whiteSpace: 'pre-line',
+    fontFamily: 'DM Sans',
   },
   finishButton: {
     background: 'linear-gradient(90deg, #00ff88, #00ccff)',
@@ -649,5 +757,6 @@ const styles = {
     fontSize: '1.25rem',
     fontWeight: 'bold',
     cursor: 'pointer',
+    fontFamily: 'DM Sans',
   },
 };
