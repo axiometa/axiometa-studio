@@ -19,22 +19,22 @@ export const lesson = {
       "items": [
         { 
           "name": "LED", 
-          "image": "/images/components/led.png", 
-          "description": "Any color works!" 
+          "image": "public/images/ax22-components/AX22-0006.png", 
+          "description": "Light Emitting Diode Module!" 
         },
         { 
           "name": "220Ω Resistor", 
-          "image": "/images/components/resistor-220.png", 
-          "description": "Protects the LED" 
+          "image": "public/images/dev-boards/mta0007.png",  
+          "description": "Development Board" 
         },
         { 
           "name": "Breadboard", 
-          "image": "/images/misc/breadboard.png", 
+          "image": "public/images/misc/breadboard.png", 
           "description": "For easy connections" 
         },
         { 
           "name": "Jumper Wires", 
-          "image": "/images/misc/jumper-wires.png", 
+          "image": "public/images/misc/jumper-wires.png", 
           "description": "2 wires needed" 
         }
       ]
@@ -44,7 +44,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 1: Identify LED Legs",
       "instruction": "Take your LED. The long leg is positive (+), short leg is negative (-).",
-      "image": "/images/components/led-legs.png",
+      "image": "public/images/lessons/lesson-1/bb-pixie-l1s1.png",
       "stepNumber": 1,
       "totalSteps": 5
     },
@@ -53,7 +53,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 2: Connect GPIO to LED",
       "instruction": "Connect GPIO 2 to the LED long leg (positive) with a jumper wire.",
-      "image": "/images/mcu-breadboard-lesson-1/wiring-pixie-m1/step-2.png",
+      "image": "public/images/lessons/lesson-1/bb-pixie-l1s2.png",
       "stepNumber": 2,
       "totalSteps": 5
     },
@@ -62,7 +62,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 3: LED to Resistor",
       "instruction": "Connect the LED short leg to one end of the 220Ω resistor.",
-      "image": "/images/mcu-breadboard-lesson-1/wiring-pixie-m1/step-3.png",
+      "image": "public/images/lessons/lesson-1/bb-pixie-l1s3.png.png",
       "stepNumber": 3,
       "totalSteps": 5
     },
@@ -71,7 +71,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 4: Resistor to Ground",
       "instruction": "Connect the other end of the resistor to GND on your ESP32.",
-      "image": "/images/mcu-breadboard-lesson-1/wiring-pixie-m1/step-4.png",
+      "image": "public/images/lessons/lesson-1/bb-pixie-l1s4.png",
       "stepNumber": 4,
       "totalSteps": 5
     },
@@ -80,7 +80,7 @@ export const lesson = {
       "type": "wiring-step",
       "title": "Step 5: Complete!",
       "instruction": "Done! Your circuit is complete. Let's move on to understanding the code.",
-      "image": "/images/mcu-breadboard-lesson-1/wiring-pixie-m1/step-5.png",
+      "image": "public/images/lessons/lesson-1/bb-pixie-l1s4.png",
       "stepNumber": 5,
       "totalSteps": 5
     },
@@ -88,7 +88,7 @@ export const lesson = {
       "id": "code-intro",
       "type": "code-explanation",
       "title": "Understanding the Code",
-      "code": `#define LED_PIN 2
+      "code": `#define LED_PIN 12
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -133,7 +133,7 @@ void loop() {
       "type": "upload",
       "title": "Upload Your Code",
       "instruction": "Click the 'Upload Code' button below to flash your ESP32!",
-      "code": `#define LED_PIN 2
+      "code": `#define LED_PIN 12
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -158,7 +158,7 @@ void loop() {
       ],
       "highlightLine": 8,
       "solution": "Change both delay(1000) to delay(500)",
-      "code": `#define LED_PIN 2
+      "code": `#define LED_PIN 12
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -181,7 +181,7 @@ void loop() {
         "Remember to change both delays"
       ],
       "highlightLine": 8,
-      "code": `#define LED_PIN 2
+      "code": `#define LED_PIN 12
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -204,7 +204,7 @@ void loop() {
         "Long blink = 600ms ON, 200ms OFF",
         "You'll need to write multiple digitalWrite() and delay() lines in sequence"
       ],
-      "code": `#define LED_PIN 2
+      "code": `#define LED_PIN 12
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
