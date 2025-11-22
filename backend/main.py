@@ -3,6 +3,12 @@ import sys
 import asyncio
 from pathlib import Path
 
+# Load environment variables for local development
+from dotenv import load_dotenv
+if os.path.exists('.env.local'):
+    load_dotenv('.env.local')
+    print("🔧 Loaded .env.local for local development")
+
 # Add Arduino CLI to PATH FIRST (before any other imports)
 ARDUINO_BIN = "/app/.arduino/bin"
 os.environ['PATH'] = f"{ARDUINO_BIN}:{os.environ.get('PATH', '')}"
@@ -13,6 +19,10 @@ print("🚀 Starting ESP32 Academy API...")
 print(f"🔍 Python executable: {sys.executable}")
 print(f"🔧 PATH: {os.environ['PATH'][:200]}...")
 print(f"🎯 PORT: {os.getenv('PORT', '8080')}")
+
+# Check if API key is loaded (for debugging)
+api_key_status = "✅ Loaded" if os.getenv("ANTHROPIC_API_KEY") else "❌ Missing"
+print(f"🔑 ANTHROPIC_API_KEY: {api_key_status}")
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
