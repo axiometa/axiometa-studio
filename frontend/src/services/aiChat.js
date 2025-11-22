@@ -1,13 +1,20 @@
 // AI Chat Service using Anthropic Claude API
-// This service provides context-aware assistance for the learning platform
+// Production-ready with API key support
 
 const API_ENDPOINT = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-20250514';
+
+// Get API key from environment variable
+const getApiKey = () => {
+  // In production, this should come from backend proxy or env var
+  return import.meta.env.VITE_ANTHROPIC_API_KEY || '';
+};
 
 export class AIChatService {
   constructor() {
     this.conversationHistory = [];
     this.currentContext = null;
+    this.useProxy = !getApiKey(); // Use backend proxy if no direct API key
   }
 
   setContext(context) {
@@ -70,37 +77,88 @@ IMPORTANT:
     });
 
     try {
-      const response = await fetch(API_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 1000,
-          system: this.buildSystemPrompt(),
-          messages: this.conversationHistory
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+      if (this.useProxy) {
+        // Use backend proxy (recommended for production)
+        const response = await this.sendViaProxy(userMessage);
+        return response;
+      } else {
+        // Direct API call with key
+        const response = await this.sendDirect(userMessage);
+        return response;
       }
-
-      const data = await response.json();
-      const assistantMessage = data.content[0].text;
-
-      // Add assistant response to history
-      this.conversationHistory.push({
-        role: 'assistant',
-        content: assistantMessage
-      });
-
-      return assistantMessage;
     } catch (error) {
       console.error('AI Chat Error:', error);
       throw new Error(`Failed to get AI response: ${error.message}`);
     }
+  }
+
+  async sendDirect(userMessage) {
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      throw new Error('No API key configured. Set VITE_ANTHROPIC_API_KEY or use backend proxy.');
+    }
+
+    const response = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 1000,
+        system: this.buildSystemPrompt(),
+        messages: this.conversationHistory
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || `API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const assistantMessage = data.content[0].text;
+
+    // Add assistant response to history
+    this.conversationHistory.push({
+      role: 'assistant',
+      content: assistantMessage
+    });
+
+    return assistantMessage;
+  }
+
+  async sendViaProxy(userMessage) {
+    // Call your backend proxy endpoint
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    
+    const response = await fetch(`${apiUrl}/api/ai-chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        system: this.buildSystemPrompt(),
+        messages: this.conversationHistory
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend proxy failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const assistantMessage = data.message;
+
+    // Add assistant response to history
+    this.conversationHistory.push({
+      role: 'assistant',
+      content: assistantMessage
+    });
+
+    return assistantMessage;
   }
 
   clearHistory() {
@@ -110,17 +168,7 @@ IMPORTANT:
   // Get a quick code analysis without chat history
   async analyzeCode(userCode, expectedCode, stepInstruction) {
     try {
-      const response = await fetch(API_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: 500,
-          messages: [{
-            role: 'user',
-            content: `Compare this ESP32 code to the expected solution and provide brief feedback:
+      const prompt = `Compare this ESP32 code to the expected solution and provide brief feedback:
 
 USER CODE:
 \`\`\`cpp
@@ -134,13 +182,37 @@ ${expectedCode}
 
 INSTRUCTION: ${stepInstruction}
 
-Provide: 1) What's correct, 2) What needs fixing (if anything), 3) One helpful hint.`
-          }]
-        })
-      });
+Provide: 1) What's correct, 2) What needs fixing (if anything), 3) One helpful hint.`;
 
-      const data = await response.json();
-      return data.content[0].text;
+      if (this.useProxy) {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${apiUrl}/api/ai-chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        const data = await response.json();
+        return data.message;
+      } else {
+        const apiKey = getApiKey();
+        const response = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            max_tokens: 500,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        const data = await response.json();
+        return data.content[0].text;
+      }
     } catch (error) {
       console.error('Code analysis error:', error);
       return null;

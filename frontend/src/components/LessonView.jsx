@@ -3,7 +3,6 @@ import Editor from '@monaco-editor/react';
 import { connectionService } from '../services/connection';
 import { api } from '../services/api';
 import { browserFlasher } from '../services/flasher';
-import AIAssistant from './AIAssistant';
 
 export default function LessonView({ lesson, onComplete, onBack }) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -14,7 +13,6 @@ export default function LessonView({ lesson, onComplete, onBack }) {
   const [uploadLogs, setUploadLogs] = useState('');
   const [hintLevel, setHintLevel] = useState(0);
   const [imageErrors, setImageErrors] = useState({});
-  const [showAI, setShowAI] = useState(false);
 
   const currentStep = lesson.steps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / lesson.steps.length) * 100;
@@ -143,18 +141,13 @@ export default function LessonView({ lesson, onComplete, onBack }) {
           ← {currentStepIndex === 0 ? 'Back to Dashboard' : 'Previous'}
         </button>
         <h2 style={styles.title}>{lesson.title}</h2>
-        <div style={styles.headerActions}>
-          <button style={styles.aiButton} onClick={() => setShowAI(!showAI)}>
-            🤖 AI Tutor
+        {!isConnected ? (
+          <button style={styles.connectButton} onClick={handleConnect}>
+            🔌 Connect ESP32
           </button>
-          {!isConnected ? (
-            <button style={styles.connectButton} onClick={handleConnect}>
-              🔌 Connect ESP32
-            </button>
-          ) : (
-            <div style={styles.connectedBadge}>✅ Connected</div>
-          )}
-        </div>
+        ) : (
+          <div style={styles.connectedBadge}>✅ Connected</div>
+        )}
       </div>
 
       {/* Progress Bar */}
@@ -385,15 +378,6 @@ export default function LessonView({ lesson, onComplete, onBack }) {
           </div>
         )}
       </div>
-
-      {/* AI Assistant Panel */}
-      <AIAssistant
-        lesson={lesson}
-        currentStep={currentStep}
-        userCode={code}
-        isVisible={showAI}
-        onClose={() => setShowAI(false)}
-      />
     </div>
   );
 }
