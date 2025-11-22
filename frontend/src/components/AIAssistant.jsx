@@ -151,6 +151,7 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
           <div ref={messagesEndRef} />
         </div>
 
+
         {messages.length <= 1 && (
           <div style={styles.quickQuestions}>
             <div style={styles.quickQuestionsLabel}>Quick questions:</div>

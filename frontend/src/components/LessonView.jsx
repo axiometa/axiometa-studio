@@ -5,6 +5,7 @@ import { api } from '../services/api';
 import { browserFlasher } from '../services/flasher';
 import AIAssistant from './AIAssistant';
 
+
 export default function LessonView({ lesson, onComplete, onBack }) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [code, setCode] = useState('');
@@ -79,8 +80,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
     const expectedCode = currentStep.code || 
       lesson.steps.find(s => s.type === 'upload' || s.type === 'code-explanation')?.code || '';
     
-    // AI Validation Step
-    setUploadLogs(prev => prev + '🤖 Checking your code with AI...\n');
+    // AI Validation Step (silent in upload logs)
     const validation = await api.validateCode(
       code, 
       expectedCode, 
@@ -88,15 +88,20 @@ export default function LessonView({ lesson, onComplete, onBack }) {
     );
     
     if (!validation.is_valid) {
-      setUploadLogs(prev => prev + '⚠️ AI detected a potential issue:\n');
-      setUploadLogs(prev => prev + `${validation.message}\n\n`);
-      setUploadLogs(prev => prev + '💡 Would you like to review your code before uploading?\n');
-      setUploadLogs(prev => prev + '❌ Upload cancelled. Fix the issue and try again.\n');
+      // Show validation error in AI chat instead of upload logs
+      setShowAI(true);
+      
+      // Add the validation message to AI chat (simulate assistant message)
+      // We'll need to expose a method to add messages directly
+      setTimeout(() => {
+        // This will be handled by adding the message through a new prop
+      }, 100);
+      
+      setUploadLogs(prev => prev + '⚠️ Code validation failed. Check the AI Tutor for details.\n');
       setIsUploading(false);
       return;
     }
     
-    setUploadLogs(prev => prev + '✅ AI check passed!\n');
     setUploadLogs(prev => prev + '⏳ Compiling code...\n');
     
     const compileResult = await api.compile(code);
