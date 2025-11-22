@@ -64,10 +64,22 @@ async def check_arduino_cli():
             else:
                 # Install ESP32 on first use
                 print("📦 Installing ESP32 core (first time only, 2-3 min)...")
-                subprocess.run([
-                    'arduino-cli', 'config', 'init',
-                    '--additional-urls', 'https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json'
-                ], check=True, timeout=30)
+                
+                # Check if config exists first
+                config_check = subprocess.run(
+                    ['arduino-cli', 'config', 'dump'],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                
+                # Only init if config doesn't exist
+                if config_check.returncode != 0:
+                    subprocess.run([
+                        'arduino-cli', 'config', 'init',
+                        '--additional-urls', 'https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json'
+                    ], check=True, timeout=30)
+                
                 subprocess.run(['arduino-cli', 'core', 'update-index'], check=True, timeout=60)
                 subprocess.run(['arduino-cli', 'core', 'install', 'esp32:esp32'], check=True, timeout=300)
                 ARDUINO_CLI_READY = True
@@ -269,22 +281,30 @@ async def compile_code(request: CompileRequest):
 async def ai_chat(request: AIChatRequest):
     """Proxy endpoint for AI chat - keeps API key secure on backend"""
     
+    print(f"📨 AI Chat request received")
+    
     if not ANTHROPIC_AVAILABLE:
+        print("❌ Anthropic package not available")
         raise HTTPException(
             status_code=503,
             detail="AI chat not available - anthropic package not installed"
         )
     
     api_key = os.getenv("ANTHROPIC_API_KEY")
+    print(f"🔑 API Key loaded: {bool(api_key)}")
+    
     if not api_key:
+        print("❌ No API key found in environment")
         raise HTTPException(
             status_code=500,
             detail="ANTHROPIC_API_KEY not configured on server"
         )
     
     try:
+        print(f"🤖 Creating Anthropic client...")
         client = anthropic.Anthropic(api_key=api_key)
         
+        print(f"📤 Sending request to Claude API...")
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=1000,
@@ -292,13 +312,17 @@ async def ai_chat(request: AIChatRequest):
             messages=request.messages
         )
         
+        print(f"✅ Got response from Claude API")
         return {
             "success": True,
             "message": response.content[0].text
         }
         
     except Exception as e:
-        print(f"AI Chat error: {str(e)}")
+        print(f"❌ AI Chat error: {str(e)}")
+        print(f"❌ Error type: {type(e).__name__}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=500,
             detail=f"AI chat failed: {str(e)}"
