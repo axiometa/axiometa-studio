@@ -17,8 +17,7 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
         lesson,
         currentStep,
         userCode,
-        expectedCode,
-        wiringComplete: currentStep.type !== 'wiring-step'
+        expectedCode
       });
     }
   }, [lesson, currentStep, userCode]);
@@ -31,18 +30,16 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
     if (isOpen && messages.length === 0 && currentStep) {
       setMessages([{
         role: 'assistant',
-        content: `Hi! I'm Axie, your AI tutor for this lesson. I can see you're working on "${currentStep.title}". Ask me anything about the code, wiring, or concepts!`
+        content: `Hi! I'm Axie, your AI tutor. I can see you're working on "${currentStep.title}". Ask me anything!`
       }]);
     }
   }, [isOpen, currentStep]);
 
   useEffect(() => {
     if (validationError) {
-      const errorMessage = `I found an issue in your code!\n\n${validationError}\n\nFix the issue in your code editor and try uploading again. If you're stuck, feel free to ask me for help!`;
-      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: errorMessage
+        content: `I found an issue in your code!\n\n${validationError}\n\nFix it and try again!`
       }]);
       setIsOpen(true);
     }
@@ -70,25 +67,10 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
     }
   };
 
-  const quickQuestions = [
-    "What does this code do?",
-    "Why isn't my LED working?",
-    "Explain digitalWrite()",
-    "What does delay() do?"
-  ];
-
   if (!isOpen) {
     return (
       <button style={styles.floatingButton} onClick={() => setIsOpen(true)}>
-        <img 
-          src="/images/axie-robot.png" 
-          alt="Axie"
-          style={styles.floatingIcon}
-          onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = '<div style="color: #fff; font-weight: bold;">AI</div>';
-          }}
-        />
+        <div style={{ color: '#fff', fontWeight: 'bold' }}>AI</div>
       </button>
     );
   }
@@ -98,12 +80,6 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
       <div style={styles.panel}>
         <div style={styles.header}>
           <div style={styles.headerTitle}>
-            <img 
-              src="/images/axie-robot.png" 
-              alt="Axie"
-              style={styles.aiIcon}
-              onError={(e) => e.target.style.display = 'none'}
-            />
             <div>
               <h3 style={styles.title}>Axie</h3>
               <p style={styles.subtitle}>Your AI Tutor</p>
@@ -112,55 +88,18 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
           <button style={styles.closeButton} onClick={() => setIsOpen(false)}>×</button>
         </div>
 
-        <div style={styles.context}>
-          <div style={styles.contextItem}>
-            <strong>{lesson?.title}</strong>
-          </div>
-          <div style={styles.contextItem}>
-            Step: {currentStep?.title}
-          </div>
-          {userCode && (
-            <div style={styles.contextItem}>
-              Tracking your code
-            </div>
-          )}
-        </div>
-
         <div style={styles.messages}>
           {messages.map((msg, i) => (
             <div 
               key={i} 
-              style={msg.role === 'user' ? styles.userMessageContainer : styles.assistantMessageContainer}
+              style={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}
             >
-              <div style={msg.role === 'user' ? styles.userMessageContent : styles.assistantMessageContent}>
-                {msg.content}
-              </div>
+              {msg.content}
             </div>
           ))}
-          {isLoading && (
-            <div style={styles.assistantMessageContainer}>
-              <div style={styles.assistantMessageContent}>
-                <span style={styles.typing}>Thinking...</span>
-              </div>
-            </div>
-          )}
+          {isLoading && <div style={styles.typing}>Thinking...</div>}
           <div ref={messagesEndRef} />
         </div>
-
-        {messages.length <= 1 && (
-          <div style={styles.quickQuestions}>
-            <div style={styles.quickQuestionsLabel}>Quick questions:</div>
-            {quickQuestions.map((q, i) => (
-              <button
-                key={i}
-                style={styles.quickQuestionButton}
-                onClick={() => setInput(q)}
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
 
         <div style={styles.inputContainer}>
           <input
@@ -200,13 +139,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0 8px 24px rgba(0, 212, 170, 0.3)',
-    transition: 'all 0.3s ease',
     zIndex: 999,
-  },
-  floatingIcon: {
-    width: '50px',
-    height: '50px',
-    borderRadius: '50%',
   },
   overlay: {
     position: 'fixed',
@@ -240,11 +173,6 @@ const styles = {
     alignItems: 'center',
     gap: '0.75rem',
   },
-  aiIcon: {
-    width: '48px',
-    height: '48px',
-    borderRadius: '50%',
-  },
   title: {
     fontSize: '1.25rem',
     fontWeight: 'bold',
@@ -265,16 +193,6 @@ const styles = {
     padding: '0.5rem',
     lineHeight: 1,
   },
-  context: {
-    padding: '1rem 1.5rem',
-    background: 'rgba(0, 212, 170, 0.05)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-  },
-  contextItem: {
-    fontSize: '0.875rem',
-    color: '#ccc',
-    marginBottom: '0.5rem',
-  },
   messages: {
     flex: 1,
     overflowY: 'auto',
@@ -283,29 +201,19 @@ const styles = {
     flexDirection: 'column',
     gap: '1rem',
   },
-  userMessageContainer: {
+  userMessage: {
     alignSelf: 'flex-end',
     maxWidth: '80%',
-  },
-  assistantMessageContainer: {
-    alignSelf: 'flex-start',
-    maxWidth: '85%',
-  },
-  userMessageContent: {
     padding: '0.75rem 1rem',
     borderRadius: '12px',
-    lineHeight: '1.6',
-    fontSize: '0.95rem',
-    whiteSpace: 'pre-wrap',
     background: 'linear-gradient(135deg, #00d4aa, #7c3aed)',
     color: '#fff',
   },
-  assistantMessageContent: {
+  assistantMessage: {
+    alignSelf: 'flex-start',
+    maxWidth: '85%',
     padding: '0.75rem 1rem',
     borderRadius: '12px',
-    lineHeight: '1.6',
-    fontSize: '0.95rem',
-    whiteSpace: 'pre-wrap',
     background: 'rgba(255, 255, 255, 0.05)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     color: '#fff',
@@ -313,26 +221,6 @@ const styles = {
   typing: {
     color: '#888',
     fontStyle: 'italic',
-  },
-  quickQuestions: {
-    padding: '0 1.5rem 1rem 1.5rem',
-  },
-  quickQuestionsLabel: {
-    fontSize: '0.875rem',
-    color: '#888',
-    marginBottom: '0.5rem',
-  },
-  quickQuestionButton: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    color: '#ccc',
-    padding: '0.5rem 0.75rem',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    marginRight: '0.5rem',
-    marginBottom: '0.5rem',
-    fontFamily: 'DM Sans',
   },
   inputContainer: {
     display: 'flex',

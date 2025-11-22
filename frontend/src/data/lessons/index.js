@@ -1,26 +1,33 @@
-// Import all lesson types
-import { lesson as mcuBreadboardPixieM1Blinky } from './mcu-breadboard/pixie-m1/lesson-1-blinky';
-// import { lesson as mcuBreadboardSpark3Blinky } from './mcu-breadboard/spark-3/lesson-1-blinky';
-// import { lesson as rawBreadboardPixieM1Blinky } from './raw-breadboard/pixie-m1/lesson-1-blinky';
+import { lesson as lesson1Blinky } from './mcu-breadboard/pixie-m1/lesson-1-blinky';
+import { lesson as lesson2Button } from './mcu-breadboard/pixie-m1/lesson-2-button';
+// Add more imports as you create lessons...
 
-// Export lessons array - can be filtered by board type
 export const lessons = [
-  mcuBreadboardPixieM1Blinky,
-  // mcuBreadboardSpark3Blinky,
-  // rawBreadboardPixieM1Blinky,
+  lesson1Blinky,
+  lesson2Button,
+  // Add more lessons...
 ];
 
-// Helper to get lessons by board
+// Helper functions (no need to edit these)
 export const getLessonsByBoard = (boardId) => {
   return lessons.filter(lesson => lesson.board === boardId);
 };
 
-// Helper to get lessons by type
-export const getLessonsByType = (type) => {
-  return lessons.filter(lesson => lesson.type === type);
-};
-
-// Helper to get specific lesson
 export const getLesson = (id) => {
   return lessons.find(lesson => lesson.id === id);
+};
+
+// Auto-calculate lesson metadata from lesson data
+export const getLessonMetadata = (lesson) => {
+  const challengeSteps = lesson.steps.filter(s => s.type === 'challenge').length;
+  const totalMinutes = Math.max(15, lesson.steps.length * 3); // Estimate 3min per step, min 15
+  
+  return {
+    id: lesson.id,
+    title: lesson.title,
+    board: lesson.board,
+    xpReward: lesson.xp_reward,
+    challenges: challengeSteps,
+    duration: totalMinutes
+  };
 };

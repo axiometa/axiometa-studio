@@ -1,6 +1,6 @@
 export const lesson = {
-  id: "mcu-breadboard-blinky",
-  title: "Blinky - Your First LED",
+  id: "mcu-breadboard-button",
+  title: "Button - Use a button!",
   board: "pixie-m1",
   type: "mcu-breadboard",
   xp_reward: 100,
@@ -9,8 +9,8 @@ export const lesson = {
     {
       id: "welcome",
       type: "info",
-      title: "Welcome to Your First Lesson!",
-      content: "You're about to learn how to control an LED - the 'Hello World' of hardware programming.\n\nBy the end of this lesson, you'll understand:\n• Digital output pins\n• Timing with delay()\n• How to control LEDs"
+      title: "Welcome to Your Second Lesson!",
+      content: "You're about to learn how to control an button - the 'Hello World' of hardware programming.\n\nBy the end of this lesson, you'll understand:\n• Digital output pins\n• Timing with delay()\n• How to control LEDs"
     },
     {
       id: "hardware",
