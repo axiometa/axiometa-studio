@@ -5,7 +5,6 @@ import { api } from '../services/api';
 import { browserFlasher } from '../services/flasher';
 import AIAssistant from './AIAssistant';
 
-
 export default function LessonView({ lesson, onComplete, onBack }) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [code, setCode] = useState('');
@@ -16,7 +15,8 @@ export default function LessonView({ lesson, onComplete, onBack }) {
   const [hintLevel, setHintLevel] = useState(0);
   const [imageErrors, setImageErrors] = useState({});
   const [showAI, setShowAI] = useState(false);
-
+  const [validationError, setValidationError] = useState(null);
+  
   const currentStep = lesson.steps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / lesson.steps.length) * 100;
 
@@ -64,76 +64,70 @@ export default function LessonView({ lesson, onComplete, onBack }) {
   };
 
   const handleUpload = async () => {
-  if (!code.trim()) return;
+    if (!code.trim()) return;
 
-  setIsUploading(true);
-  setUploadLogs('');
+    setIsUploading(true);
+    setUploadLogs('');
+    setValidationError(null);
 
-  try {
-    const device = connectionService.getPort();
-    
-    if (!device) {
-      throw new Error('Device not connected. Please connect your ESP32 first.');
-    }
-    
-    // Get expected code for validation
-    const expectedCode = currentStep.code || 
-      lesson.steps.find(s => s.type === 'upload' || s.type === 'code-explanation')?.code || '';
-    
-    // AI Validation Step (silent in upload logs)
-    const validation = await api.validateCode(
-      code, 
-      expectedCode, 
-      currentStep.instruction || currentStep.title
-    );
-    
-    if (!validation.is_valid) {
-      // Show validation error in AI chat instead of upload logs
-      setShowAI(true);
+    try {
+      const device = connectionService.getPort();
       
-      // Add the validation message to AI chat (simulate assistant message)
-      // We'll need to expose a method to add messages directly
-      setTimeout(() => {
-        // This will be handled by adding the message through a new prop
-      }, 100);
+      if (!device) {
+        throw new Error('Device not connected. Please connect your ESP32 first.');
+      }
       
-      setUploadLogs(prev => prev + '⚠️ Code validation failed. Check the AI Tutor for details.\n');
+      // Get expected code for validation
+      const expectedCode = currentStep.code || 
+        lesson.steps.find(s => s.type === 'upload' || s.type === 'code-explanation')?.code || '';
+      
+      // AI Validation Step
+      const validation = await api.validateCode(
+        code, 
+        expectedCode, 
+        currentStep.instruction || currentStep.title
+      );
+      
+      if (!validation.is_valid) {
+        setValidationError(validation.message);
+        setShowAI(true);
+        setUploadLogs(prev => prev + '⚠️ Code validation failed. Check the AI Tutor for details.\n');
+        setIsUploading(false);
+        return;
+      }
+      
+      setUploadLogs(prev => prev + '⏳ Compiling code...\n');
+      
+      const compileResult = await api.compile(code);
+      
+      if (!compileResult.success) {
+        throw new Error('Compilation failed');
+      }
+
+      setUploadLogs(prev => prev + '✅ Compilation successful!\n');
+      setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
+      setUploadLogs(prev => prev + '📡 Starting upload...\n');
+      
+      await connectionService.disconnect();
+      
+      await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
+        setUploadLogs(prev => prev + message + '\n');
+      });
+
+      setUploadLogs(prev => prev + '🎉 Upload complete!\n');
+      
+      if (isConnected) {
+        setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
+        await new Promise(r => setTimeout(r, 1000));
+        await connectionService.connect();
+      }
+
+    } catch (error) {
+      setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);
+    } finally {
       setIsUploading(false);
-      return;
     }
-    
-    setUploadLogs(prev => prev + '⏳ Compiling code...\n');
-    
-    const compileResult = await api.compile(code);
-    
-    if (!compileResult.success) {
-      throw new Error('Compilation failed');
-    }
-
-    setUploadLogs(prev => prev + '✅ Compilation successful!\n');
-    setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
-    setUploadLogs(prev => prev + '📡 Starting upload...\n');
-    
-    await connectionService.disconnect();
-    
-    await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
-      setUploadLogs(prev => prev + message + '\n');
-    });
-
-    setUploadLogs(prev => prev + '🎉 Upload complete!\n');
-    
-    if (isConnected) {
-      setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
-      await new Promise(r => setTimeout(r, 1000));
-      await connectionService.connect();
-    }
-
-  } catch (error) {
-    setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);
-  } finally {
-    setIsUploading(false);
-  }
-};
+  };
 
   const showHint = () => {
     if (currentStep.type === 'challenge' && hintLevel < currentStep.hints.length) {
@@ -406,7 +400,11 @@ export default function LessonView({ lesson, onComplete, onBack }) {
         currentStep={currentStep}
         userCode={code}
         isVisible={showAI}
-        onClose={() => setShowAI(false)}
+        onClose={() => {
+          setShowAI(false);
+          setValidationError(null);
+        }}
+        validationError={validationError}
       />
     </div>
   );

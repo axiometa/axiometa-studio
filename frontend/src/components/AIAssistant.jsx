@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { aiChatService } from '../services/aiChat';
 
-export default function AIAssistant({ lesson, currentStep, userCode, isVisible, onClose }) {
+export default function AIAssistant({ lesson, currentStep, userCode, isVisible, onClose, validationError }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +35,18 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
     }
   }, [isVisible, currentStep]);
 
+  // NEW: Handle validation errors
+  useEffect(() => {
+    if (validationError) {
+      const errorMessage = `⚠️ **I found an issue in your code!**\n\n${validationError}\n\n💡 **Next steps:** Fix the issue in your code editor and try uploading again. If you're stuck, feel free to ask me for help!`;
+      
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: errorMessage
+      }]);
+    }
+  }, [validationError]);
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -55,41 +66,6 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
       }]);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleAnalyzeCode = async () => {
-    if (!userCode || !currentStep || isAnalyzing) return;
-
-    setIsAnalyzing(true);
-    setMessages(prev => [...prev, { 
-      role: 'user', 
-      content: '🔍 Analyze my code' 
-    }]);
-
-    try {
-      const expectedCode = currentStep.code || 
-        lesson.steps.find(s => s.type === 'upload' || s.type === 'code-explanation')?.code;
-      
-      const analysis = await aiChatService.analyzeCode(
-        userCode,
-        expectedCode,
-        currentStep.instruction || currentStep.title
-      );
-
-      if (analysis) {
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: analysis 
-        }]);
-      }
-    } catch (error) {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: '❌ Failed to analyze code. Please try asking me directly!' 
-      }]);
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
@@ -150,7 +126,6 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
           )}
           <div ref={messagesEndRef} />
         </div>
-
 
         {messages.length <= 1 && (
           <div style={styles.quickQuestions}>
