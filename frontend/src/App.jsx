@@ -15,8 +15,8 @@ export default function App() {
   const [currentLesson, setCurrentLesson] = useState(null);
   const [challengeStars, setChallengeStars] = useState({});
 
-  const handleStartLesson = () => {
-    setCurrentLesson(lessons[0]);
+  const handleStartLesson = (lesson) => {  // ✅ Now accepts lesson parameter
+    setCurrentLesson(lesson);
     setCurrentView('lesson');
   };
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { colors, borderRadius, fontFamily } from '../../styles/theme';
 
 const styles = {
@@ -54,41 +54,96 @@ const styles = {
     maxHeight: '100%',
     objectFit: 'contain'
   },
-  name: {
-    fontSize: '1rem',
-    color: '#fff',
-    marginBottom: '0.5rem',
-    fontFamily,
-    fontWeight: '600'
-  },
-  description: {
-    color: colors.text.muted,
-    fontSize: '0.85rem',
-    marginBottom: '0.75rem',
-    fontFamily
-  },
-  requiredFor: {
-    fontSize: '0.75rem',
-    color: colors.primary,
-    fontFamily
-  },
-  purchaseLink: {
+  nameContainer: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '0.5rem',
-    marginTop: '1rem',
-    padding: '0.5rem',
-    background: 'rgba(0, 212, 170, 0.1)',
-    border: '1px solid rgba(0, 212, 170, 0.3)',
-    borderRadius: borderRadius.sm,
-    color: colors.primary,
-    textDecoration: 'none',
-    fontSize: '0.85rem',
-    fontWeight: '500',
+    marginBottom: '0.5rem'
+  },
+  name: {
+    fontSize: '1rem',
+    color: '#fff',
     fontFamily,
-    transition: 'all 0.2s'
-  }
+    fontWeight: '600'
+  },
+  infoIcon: {
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '18px',
+    height: '18px',
+    borderRadius: '50%',
+    border: '1.5px solid rgba(255, 255, 255, 0.4)',
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: '0.75rem',
+    fontWeight: 'bold',
+    cursor: 'help',
+    flexShrink: 0
+  },
+  tooltip: {
+    position: 'absolute',
+    bottom: '100%',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    marginBottom: '0.5rem',
+    padding: '0.75rem',
+    background: 'rgba(0, 0, 0, 0.95)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: borderRadius.md,
+    color: '#fff',
+    fontSize: '0.85rem',
+    lineHeight: '1.4',
+    width: '220px',
+    textAlign: 'left',
+    zIndex: 1000,
+    pointerEvents: 'none',
+    fontFamily
+  },
+  tooltipArrow: {
+    position: 'absolute',
+    top: '100%',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 0,
+    height: 0,
+    borderLeft: '6px solid transparent',
+    borderRight: '6px solid transparent',
+    borderTop: '6px solid rgba(0, 0, 0, 0.95)'
+  },
+  requiredFor: {
+    fontSize: '0.75rem',
+    color: colors.primary,
+    fontFamily,
+    marginBottom: '0.75rem'
+  },
+  cornerIcons: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 'auto',
+    paddingTop: '0.75rem'
+  },
+  iconButton: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '50%',
+    background: 'rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    fontSize: '0.9rem',
+    textDecoration: 'none'
+  },
+  iconButtonHover: {
+    background: 'rgba(0, 212, 170, 0.1)',
+    borderColor: 'rgba(0, 212, 170, 0.3)',
+    transform: 'scale(1.1)'
+  },
 };
 
 export default function ModuleCard({ 
@@ -96,6 +151,14 @@ export default function ModuleCard({
   isOwned, 
   onToggle 
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [isHoveringInfo, setIsHoveringInfo] = useState(false);
+  const [isHoveringCart, setIsHoveringCart] = useState(false);
+  
+  const usageCount = typeof module.requiredFor === 'number' 
+    ? module.requiredFor 
+    : (module.requiredFor?.length || 0);
+
   return (
     <div style={{
       ...styles.card,
@@ -114,22 +177,61 @@ export default function ModuleCard({
           />
         </div>
         <h4 style={styles.name}>{module.name}</h4>
-        <p style={styles.description}>{module.description}</p>
-        {module.requiredFor.length > 0 && (
+        {usageCount > 0 && (
           <div style={styles.requiredFor}>
-            Required for {module.requiredFor.length} lesson(s)
+            Required for {usageCount} lesson{usageCount !== 1 ? 's' : ''}
           </div>
         )}
       </div>
-      <a 
-        href={module.purchaseUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={styles.purchaseLink}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>ⓘ</span> Learn More
-      </a>
+      
+      <div style={styles.cornerIcons}>
+        {/* Info icon - bottom left */}
+        {module.description && (
+          <div 
+            style={{
+              ...styles.iconButton,
+              ...(isHoveringInfo ? styles.iconButtonHover : {})
+            }}
+            onMouseEnter={() => {
+              setShowTooltip(true);
+              setIsHoveringInfo(true);
+            }}
+            onMouseLeave={() => {
+              setShowTooltip(false);
+              setIsHoveringInfo(false);
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            ⓘ
+            {showTooltip && (
+              <div style={styles.tooltip}>
+                {module.description}
+                <div style={styles.tooltipArrow} />
+              </div>
+            )}
+          </div>
+        )}
+        
+        <div style={{ flex: 1 }} />
+        
+        {/* Cart icon - bottom right */}
+        {(module.productUrl || module.purchaseUrl) && (
+          <a 
+            href={module.productUrl || module.purchaseUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              ...styles.iconButton,
+              ...(isHoveringCart ? styles.iconButtonHover : {})
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onMouseEnter={() => setIsHoveringCart(true)}
+            onMouseLeave={() => setIsHoveringCart(false)}
+          >
+            🛒
+          </a>
+        )}
+      </div>
     </div>
   );
 }

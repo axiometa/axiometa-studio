@@ -4,6 +4,7 @@ export const lesson = {
   board: "pixie-m1",
   type: "mcu-breadboard",
   xp_reward: 100,
+  requiredModules: ['LED', 'BREADBOARD', 'JUMPER_WIRES'],
   
   steps: [
     {
@@ -16,28 +17,9 @@ export const lesson = {
       id: "hardware",
       type: "hardware",
       title: "What You'll Need",
-      items: [
-        { 
-          name: "LED",
-          image: "/images/ax22-components/AX22-0006.png",   
-          description: "Light Emitting Diode Module!" 
-        },
-        { 
-          name: "Pixie M1", 
-          image: "/images/dev-boards/mta0007.png",  
-          description: "Development Board" 
-        },
-        { 
-          name: "Breadboard", 
-          image: "/images/misc/breadboard.png", 
-          description: "For easy connections" 
-        },
-        { 
-          name: "Jumper Wires", 
-          image: "/images/misc/jumper-wires.png", 
-          description: "2 wires needed" 
-        }
-      ]
+      // Use module IDs instead of hardcoded items
+      moduleIds: ['LED', 'BREADBOARD', 'JUMPER_WIRES']
+      // The HardwareStep component will fetch details from modules.js
     },
     {
       id: "wiring-1",

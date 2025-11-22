@@ -110,7 +110,8 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     uploadStatus, 
     compilationLogs, 
     validationError,
-    upload 
+    upload,
+    setCompilationLogs  // FIXED: Added missing destructure
   } = useUpload();
   
   const currentStep = lesson.steps[currentStepIndex];
@@ -139,7 +140,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     if (currentStepIndex < lesson.steps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
       setHintLevel(0);
-      setUploadStatus('');
+      setCompilationLogs('');  // FIXED: Now properly defined
       
       const nextStep = lesson.steps[currentStepIndex + 1];
       if (nextStep.type === 'upload' || nextStep.type === 'challenge') {

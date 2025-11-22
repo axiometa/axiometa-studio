@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getModuleById } from '../../../constants/modules';
 import { colors, borderRadius, fontFamily } from '../../../styles/theme';
 
 const styles = {
@@ -46,12 +47,34 @@ const styles = {
   }
 };
 
-export default function HardwareStep({ title, items }) {
+export default function HardwareStep({ title, items, moduleIds }) {
+  const [modules, setModules] = useState([]);
+
+  useEffect(() => {
+    // If moduleIds provided, fetch from modules.js
+    if (moduleIds && moduleIds.length > 0) {
+      const fetchedModules = moduleIds.map(id => {
+        const module = getModuleById(id);
+        return module ? {
+          name: module.name,
+          image: module.image,
+          description: module.description
+        } : null;
+      }).filter(Boolean);
+      
+      setModules(fetchedModules);
+    } 
+    // Otherwise use provided items (legacy support)
+    else if (items) {
+      setModules(items);
+    }
+  }, [moduleIds, items]);
+
   return (
     <>
       <h1 style={styles.title}>{title}</h1>
       <div style={styles.grid}>
-        {items.map((item, i) => (
+        {modules.map((item, i) => (
           <div key={i} style={styles.item}>
             <div style={styles.imageContainer}>
               <img 

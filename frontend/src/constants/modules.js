@@ -3,42 +3,15 @@ export const MODULE_CATEGORIES = {
   TOOLS: 'Tools'
 };
 
-export const ALL_MODULES = [
-  {
-    id: 'LED',
-    name: 'LED Module',
-    image: '/images/ax22-components/AX22-0006.png',
-    description: 'Light Emitting Diode',
-    category: MODULE_CATEGORIES.MODULES,
-    requiredFor: ['lesson-1'],
-    purchaseUrl: 'https://axiometa.com/products/led-module'
-  },
-  {
-    id: 'BUTTON',
-    name: 'Button Module',
-    image: '/images/ax22-components/button.png',
-    description: 'Push Button Sensor',
-    category: MODULE_CATEGORIES.MODULES,
-    requiredFor: ['lesson-2'],
-    purchaseUrl: 'https://axiometa.com/products/button-module'
-  },
-  {
-    id: 'POTENTIOMETER',
-    name: 'Potentiometer',
-    image: '/images/ax22-components/pot.png',
-    description: 'Variable Resistor',
-    category: MODULE_CATEGORIES.MODULES,
-    requiredFor: ['lesson-3'],
-    purchaseUrl: 'https://axiometa.com/products/potentiometer'
-  },
+// Only define non-Shopify items here (like generic tools)
+export const STATIC_MODULES = [
   {
     id: 'BREADBOARD',
     name: 'Breadboard',
     image: '/images/misc/breadboard.png',
     description: 'Solderless Prototyping Board',
     category: MODULE_CATEGORIES.TOOLS,
-    requiredFor: ['lesson-1'],
-    purchaseUrl: 'https://axiometa.com/products/breadboard'
+    purchaseUrl: 'https://www.amazon.com/s?k=breadboard'
   },
   {
     id: 'JUMPER_WIRES',
@@ -46,13 +19,25 @@ export const ALL_MODULES = [
     image: '/images/misc/jumper-wires.png',
     description: 'Connection Wires',
     category: MODULE_CATEGORIES.TOOLS,
-    requiredFor: ['lesson-1'],
-    purchaseUrl: 'https://axiometa.com/products/jumper-wires'
+    purchaseUrl: 'https://www.amazon.com/s?k=jumper+wires'
   }
 ];
+
+// Will be populated from Shopify
+export let ALL_MODULES = [...STATIC_MODULES];
+
+export function setModules(modules) {
+  ALL_MODULES = [...STATIC_MODULES, ...modules];
+}
 
 export const getModulesByCategory = (category) => 
   ALL_MODULES.filter(m => m.category === category);
 
-export const getRequiredModulesForLesson = (lessonId) =>
-  ALL_MODULES.filter(m => m.requiredFor.includes(lessonId)).map(m => m.id);
+export const getModuleById = (id) => 
+  ALL_MODULES.find(m => m.id === id);
+
+export const getModuleUsageCount = (moduleId, lessons) => {
+  return lessons.filter(lesson => 
+    lesson.requiredModules && lesson.requiredModules.includes(moduleId)
+  ).length;
+};

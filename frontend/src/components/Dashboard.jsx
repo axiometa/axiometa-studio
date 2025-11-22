@@ -10,7 +10,8 @@ import Button from './common/Button';
 import TabNavigation from './common/TabNavigation';
 import AIAssistant from './AIAssistant';
 import { BOARDS, getBoardById } from '../constants/boards';
-import { ALL_MODULES, getModulesByCategory, getRequiredModulesForLesson, MODULE_CATEGORIES } from '../constants/modules';
+import { ALL_MODULES, setModules, getModulesByCategory, MODULE_CATEGORIES, getModuleUsageCount } from '../constants/modules';
+import { fetchAllModulesFromShopify } from '../utils/shopifyCollectionFetcher';
 import { lessons, getLessonsByBoard, getLessonMetadata } from '../data/lessons';
 import { colors, gradients, fontFamily } from '../styles/theme';
 
@@ -112,8 +113,26 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeTab, setActiveTab] = useState('lessons');
   const [ownedModules, setOwnedModules] = useState(['LED', 'BREADBOARD', 'JUMPER_WIRES']);
+  const [displayModules, setDisplayModules] = useState(ALL_MODULES);
+  const [loadingModules, setLoadingModules] = useState(true);
 
   const currentBoard = getBoardById(selectedBoard);
+
+  // Fetch ALL modules from Shopify collection on mount
+  useEffect(() => {
+    async function loadModules() {
+      setLoadingModules(true);
+      const shopifyModules = await fetchAllModulesFromShopify();
+      
+      if (shopifyModules.length > 0) {
+        setModules(shopifyModules);
+        setDisplayModules([...ALL_MODULES]);
+      }
+      
+      setLoadingModules(false);
+    }
+    loadModules();
+  }, []);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -145,9 +164,9 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
     );
   };
 
-  const hasRequiredModules = (lessonId) => {
-    const required = getRequiredModulesForLesson(lessonId);
-    return required.every(id => ownedModules.includes(id));
+  const hasRequiredModules = (lesson) => {
+    if (!lesson.requiredModules) return true;
+    return lesson.requiredModules.every(id => ownedModules.includes(id));
   };
 
   return (
@@ -209,8 +228,11 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
           
           {activeTab === 'modules' && (
             <ModulesTab 
+              modules={displayModules}
               ownedModules={ownedModules}
               onToggleModule={toggleModule}
+              lessons={lessons}
+              loadingModules={loadingModules}
             />
           )}
           
@@ -240,7 +262,6 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   );
 }
 
-// Sub-components for each tab
 function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
   if (!board?.available) {
     return (
@@ -259,7 +280,6 @@ function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
     );
   }
 
-  // Get lessons for this board
   const boardLessons = getLessonsByBoard(board.lessonBoard);
   
   return (
@@ -271,7 +291,6 @@ function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
       >
         {boardLessons.map((lesson, index) => {
           const metadata = getLessonMetadata(lesson);
-          const lessonId = `lesson-${index + 1}`;
           
           return (
             <LessonCard
@@ -283,14 +302,13 @@ function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
               duration={metadata.duration}
               xp={metadata.xpReward}
               challenges={metadata.challenges}
-              hasRequiredParts={hasRequiredModules(lessonId)}
+              hasRequiredParts={hasRequiredModules(lesson)}
               onStart={() => onStartLesson(lesson)}
             />
           );
         })}
       </LevelSection>
 
-      {/* Coming soon section */}
       <LevelSection 
         title="Coming Soon"
         description="More lessons are being created!"
@@ -336,41 +354,53 @@ function LevelSection({ title, description, lessonCount, children }) {
   );
 }
 
-function ModulesTab({ ownedModules, onToggleModule }) {
+function ModulesTab({ modules, ownedModules, onToggleModule, lessons, loadingModules }) {
   return (
     <div>
       <p style={{ color: colors.text.tertiary, marginBottom: '1.5rem', fontSize: '0.95rem', fontFamily }}>
-        Track your sensor modules and tools to see which lessons you can complete.
+        {loadingModules 
+          ? '🔄 Loading modules from your Shopify store...' 
+          : `✓ Loaded ${modules.length} modules from your store. Track which ones you own to see available lessons.`
+        }
       </p>
-      {Object.values(MODULE_CATEGORIES).map(category => (
-        <div key={category} style={{ marginBottom: '3rem' }}>
-          <h3 style={{
-            fontSize: '1.25rem',
-            color: colors.primary,
-            marginBottom: '1rem',
-            fontWeight: '600',
-            fontFamily,
-            paddingBottom: '0.5rem',
-            borderBottom: '2px solid rgba(0, 212, 170, 0.2)'
-          }}>
-            {category}
-          </h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '1rem'
-          }}>
-            {getModulesByCategory(category).map(module => (
-              <ModuleCard
-                key={module.id}
-                module={module}
-                isOwned={ownedModules.includes(module.id)}
-                onToggle={() => onToggleModule(module.id)}
-              />
-            ))}
+      {Object.values(MODULE_CATEGORIES).map(category => {
+        const categoryModules = getModulesByCategory(category);
+        
+        if (categoryModules.length === 0) return null;
+        
+        return (
+          <div key={category} style={{ marginBottom: '3rem' }}>
+            <h3 style={{
+              fontSize: '1.25rem',
+              color: colors.primary,
+              marginBottom: '1rem',
+              fontWeight: '600',
+              fontFamily,
+              paddingBottom: '0.5rem',
+              borderBottom: '2px solid rgba(0, 212, 170, 0.2)'
+            }}>
+              {category}
+            </h3>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gap: '1rem'
+            }}>
+              {categoryModules.map(module => {
+                const usageCount = getModuleUsageCount(module.id, lessons);
+                return (
+                  <ModuleCard
+                    key={module.id}
+                    module={{ ...module, requiredFor: usageCount }}
+                    isOwned={ownedModules.includes(module.id)}
+                    onToggle={() => onToggleModule(module.id)}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
