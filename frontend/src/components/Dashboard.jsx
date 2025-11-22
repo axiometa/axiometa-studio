@@ -363,8 +363,8 @@ function ModulesTab({ modules, ownedModules, onToggleModule, lessons, loadingMod
     <div>
       <p style={{ color: colors.text.tertiary, marginBottom: '1.5rem', fontSize: '0.95rem', fontFamily }}>
         {loadingModules 
-          ? '🔄 Loading modules from your Shopify store...' 
-          : `✓ Loaded ${modules.length} modules from your store. Track which ones you own to see available lessons.`
+          ? '🔄 Loading modules...' 
+          : `✓ Loaded ${modules.length} items. Track which ones you own to see available lessons.`
         }
       </p>
       {Object.values(MODULE_CATEGORIES).map(category => {
