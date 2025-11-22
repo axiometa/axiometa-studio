@@ -22,6 +22,7 @@ void loop() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadLogs, setUploadLogs] = useState('');
   const [serialLogs, setSerialLogs] = useState([]);
+  const [showAI, setShowAI] = useState(false);
 
   // Create a pseudo-lesson for AI context in sandbox mode
   const sandboxLesson = {
@@ -96,7 +97,12 @@ void loop() {
           ← Back to Dashboard
         </button>
         <h1 style={styles.title}>🎨 Creative Sandbox</h1>
-        <div style={styles.betaBadge}>BETA</div>
+        <div style={styles.headerActions}>
+          <button style={styles.aiButton} onClick={() => setShowAI(!showAI)}>
+            🤖 AI Tutor
+          </button>
+          <div style={styles.betaBadge}>BETA</div>
+        </div>
       </div>
 
       <div style={styles.content}>

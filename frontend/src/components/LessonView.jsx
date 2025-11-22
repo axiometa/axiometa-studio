@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import { connectionService } from '../services/connection';
 import { api } from '../services/api';
 import { browserFlasher } from '../services/flasher';
+import AIAssistant from './AIAssistant';
 
 export default function LessonView({ lesson, onComplete, onBack }) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -13,6 +14,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
   const [uploadLogs, setUploadLogs] = useState('');
   const [hintLevel, setHintLevel] = useState(0);
   const [imageErrors, setImageErrors] = useState({});
+  const [showAI, setShowAI] = useState(false);
 
   const currentStep = lesson.steps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / lesson.steps.length) * 100;
@@ -141,13 +143,18 @@ export default function LessonView({ lesson, onComplete, onBack }) {
           ← {currentStepIndex === 0 ? 'Back to Dashboard' : 'Previous'}
         </button>
         <h2 style={styles.title}>{lesson.title}</h2>
-        {!isConnected ? (
-          <button style={styles.connectButton} onClick={handleConnect}>
-            🔌 Connect ESP32
+        <div style={styles.headerActions}>
+          <button style={styles.aiButton} onClick={() => setShowAI(!showAI)}>
+            🤖 AI Tutor
           </button>
-        ) : (
+          {!isConnected ? (
+            <button style={styles.connectButton} onClick={handleConnect}>
+              🔌 Connect ESP32
+            </button>
+          ) : (
           <div style={styles.connectedBadge}>✅ Connected</div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Progress Bar */}
@@ -158,21 +165,20 @@ export default function LessonView({ lesson, onComplete, onBack }) {
         </div>
       </div>
 
-      {/* Main Content - with AI Assistant layout for coding steps */}
-      <div style={showAI ? styles.contentWithAI : styles.content}>
-        <div style={showAI ? styles.mainColumn : {}}>
-          {currentStep.type === 'info' && (
-            <div style={styles.infoCard}>
-              <h1 style={styles.stepTitle}>{currentStep.title}</h1>
-              <p style={styles.stepContent}>{currentStep.content}</p>
-              <button style={styles.nextButton} onClick={handleNext}>
-                Next →
-              </button>
-            </div>
-          )}
+      {/* Main Content */}
+      <div style={styles.content}>
+        {currentStep.type === 'info' && (
+          <div style={styles.infoCard}>
+            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
+            <p style={styles.stepContent}>{currentStep.content}</p>
+            <button style={styles.nextButton} onClick={handleNext}>
+              Next →
+            </button>
+          </div>
+        )}
 
-          {currentStep.type === 'hardware' && (
-            <div style={styles.hardwareCard}>
+        {currentStep.type === 'hardware' && (
+          <div style={styles.hardwareCard}>
               <h1 style={styles.stepTitle}>{currentStep.title}</h1>
               <div style={styles.hardwareGrid}>
                 {currentStep.items.map((item, i) => (
@@ -199,8 +205,8 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             </div>
           )}
 
-          {currentStep.type === 'wiring-step' && (
-            <div style={styles.wiringCard}>
+        {currentStep.type === 'wiring-step' && (
+          <div style={styles.wiringCard}>
               <h1 style={styles.stepTitle}>{currentStep.title}</h1>
               <div style={styles.wiringStep}>
                 <div style={styles.stepNumber}>{currentStep.stepNumber}</div>
@@ -226,8 +232,8 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             </div>
           )}
 
-          {currentStep.type === 'code-explanation' && (
-            <div style={styles.codeExplanationCard}>
+        {currentStep.type === 'code-explanation' && (
+          <div style={styles.codeExplanationCard}>
               <h1 style={styles.stepTitle}>{currentStep.title}</h1>
               <pre style={styles.codeBlock}>{currentStep.code}</pre>
               <div style={styles.explanations}>
@@ -244,8 +250,8 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             </div>
           )}
 
-          {currentStep.type === 'upload' && (
-            <div style={styles.uploadCard}>
+        {currentStep.type === 'upload' && (
+          <div style={styles.uploadCard}>
               <h1 style={styles.stepTitle}>{currentStep.title}</h1>
               <p style={styles.stepContent}>{currentStep.instruction}</p>
               
@@ -292,8 +298,8 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             </div>
           )}
 
-          {currentStep.type === 'challenge' && (
-            <div style={styles.challengeCard}>
+        {currentStep.type === 'challenge' && (
+          <div style={styles.challengeCard}>
               <h1 style={styles.stepTitle}>{currentStep.title}</h1>
               <p style={styles.challengeInstruction}>{currentStep.instruction}</p>
               
@@ -355,29 +361,25 @@ export default function LessonView({ lesson, onComplete, onBack }) {
             </div>
           )}
 
-          {currentStep.type === 'completion' && (
-            <div style={styles.completionCard}>
-              <h1 style={styles.completionTitle}>{currentStep.title}</h1>
-              <p style={styles.completionContent}>{currentStep.content}</p>
-              <button style={styles.finishButton} onClick={() => onComplete(lesson.xp_reward)}>
-                Complete Lesson 🎉
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* AI Assistant - shown only for coding steps */}
-        {showAI && (
-          <div style={styles.aiColumn}>
-            <AIAssistant 
-              lesson={lesson}
-              currentStepIndex={currentStepIndex}
-              currentCode={code}
-              isVisible={showAI}
-            />
+        {currentStep.type === 'completion' && (
+          <div style={styles.completionCard}>
+            <h1 style={styles.completionTitle}>{currentStep.title}</h1>
+            <p style={styles.completionContent}>{currentStep.content}</p>
+            <button style={styles.finishButton} onClick={() => onComplete(lesson.xp_reward)}>
+              Complete Lesson 🎉
+            </button>
           </div>
         )}
       </div>
+
+      {/* AI Assistant Overlay */}
+      <AIAssistant
+        lesson={lesson}
+        currentStep={currentStep}
+        userCode={code}
+        isVisible={showAI}
+        onClose={() => setShowAI(false)}
+      />
     </div>
   );
 }

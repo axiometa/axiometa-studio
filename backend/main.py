@@ -22,6 +22,14 @@ import tempfile
 import shutil
 import base64
 
+# Import anthropic for AI chat
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
+    print("⚠️  anthropic package not installed - AI features disabled")
+
 app = FastAPI(title="ESP32 Academy API")
 
 # Global flag for Arduino CLI status
@@ -109,14 +117,19 @@ BUILD_DIR.mkdir(exist_ok=True)
 class CompileRequest(BaseModel):
     code: str
 
+class AIChatRequest(BaseModel):
+    system: str = ""
+    messages: list
+
 @app.get("/")
 async def root():
     return {
         "message": "ESP32 Academy API",
         "status": "running" if ARDUINO_CLI_READY else "initializing",
         "arduino_cli": "ready" if ARDUINO_CLI_READY else "not ready",
+        "ai_chat": "available" if ANTHROPIC_AVAILABLE else "disabled",
         "error": ARDUINO_CLI_ERROR,
-        "version": "1.1"
+        "version": "1.2"
     }
 
 @app.get("/health")
@@ -124,7 +137,8 @@ async def health():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "arduino_ready": ARDUINO_CLI_READY
+        "arduino_ready": ARDUINO_CLI_READY,
+        "ai_ready": ANTHROPIC_AVAILABLE
     }
 
 @app.post("/api/compile")
@@ -249,6 +263,45 @@ async def compile_code(request: CompileRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Error: {str(e)}"
+        )
+
+@app.post("/api/ai-chat")
+async def ai_chat(request: AIChatRequest):
+    """Proxy endpoint for AI chat - keeps API key secure on backend"""
+    
+    if not ANTHROPIC_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="AI chat not available - anthropic package not installed"
+        )
+    
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="ANTHROPIC_API_KEY not configured on server"
+        )
+    
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=1000,
+            system=request.system if request.system else None,
+            messages=request.messages
+        )
+        
+        return {
+            "success": True,
+            "message": response.content[0].text
+        }
+        
+    except Exception as e:
+        print(f"AI Chat error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"AI chat failed: {str(e)}"
         )
 
 if __name__ == "__main__":
