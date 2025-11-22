@@ -151,18 +151,6 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
           <div ref={messagesEndRef} />
         </div>
 
-        {userCode && (
-          <div style={styles.quickActions}>
-            <button 
-              style={styles.analyzeButton}
-              onClick={handleAnalyzeCode}
-              disabled={isAnalyzing}
-            >
-              {isAnalyzing ? '⏳ Analyzing...' : '🔍 Analyze My Code'}
-            </button>
-          </div>
-        )}
-
         {messages.length <= 1 && (
           <div style={styles.quickQuestions}>
             <div style={styles.quickQuestionsLabel}>Quick questions:</div>

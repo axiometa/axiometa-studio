@@ -44,51 +44,61 @@ void loop() {
   }, []);
 
   const handleUpload = async () => {
-    if (!code.trim()) return;
+  if (!code.trim()) return;
 
-    setIsUploading(true);
-    setUploadLogs('');
+  setIsUploading(true);
+  setUploadLogs('');
 
-    try {
-      // Get the already-connected port from connectionService
-      const device = connectionService.getPort();
-      
-      if (!device) {
-        throw new Error('Device not connected. Please connect from the dashboard first.');
-      }
-      
-      setUploadLogs(prev => prev + '⏳ Compiling code...\n');
-      const compileResult = await api.compile(code);
-      
-      if (!compileResult.success) {
-        throw new Error('Compilation failed');
-      }
-
-      setUploadLogs(prev => prev + '✅ Compilation successful!\n');
-      setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
-      setUploadLogs(prev => prev + '📡 Starting upload...\n');
-      
-      // Disconnect serial monitor temporarily for flashing
-      await connectionService.disconnect();
-      
-      // Flash with the existing device
-      await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
-        setUploadLogs(prev => prev + message + '\n');
-      });
-
-      setUploadLogs(prev => prev + '🎉 Upload complete!\n');
-      
-      // Reconnect serial monitor
-      setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
-      await new Promise(r => setTimeout(r, 1000));
-      await connectionService.connect();
-
-    } catch (error) {
-      setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);
-    } finally {
-      setIsUploading(false);
+  try {
+    const device = connectionService.getPort();
+    
+    if (!device) {
+      throw new Error('Device not connected. Please connect from the dashboard first.');
     }
-  };
+    
+    // AI Validation for Sandbox (no expected code)
+    setUploadLogs(prev => prev + '🤖 Checking your code with AI...\n');
+    const validation = await api.validateCode(code, '', 'Sandbox code');
+    
+    if (!validation.is_valid) {
+      setUploadLogs(prev => prev + '⚠️ AI detected a potential issue:\n');
+      setUploadLogs(prev => prev + `${validation.message}\n\n`);
+      setUploadLogs(prev => prev + '💡 Review your code and try again.\n');
+      setIsUploading(false);
+      return;
+    }
+    
+    setUploadLogs(prev => prev + '✅ AI check passed!\n');
+    setUploadLogs(prev => prev + '⏳ Compiling code...\n');
+    
+    const compileResult = await api.compile(code);
+    
+    if (!compileResult.success) {
+      throw new Error('Compilation failed');
+    }
+
+    setUploadLogs(prev => prev + '✅ Compilation successful!\n');
+    setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
+    setUploadLogs(prev => prev + '📡 Starting upload...\n');
+    
+    await connectionService.disconnect();
+    
+    await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
+      setUploadLogs(prev => prev + message + '\n');
+    });
+
+    setUploadLogs(prev => prev + '🎉 Upload complete!\n');
+    
+    setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
+    await new Promise(r => setTimeout(r, 1000));
+    await connectionService.connect();
+
+  } catch (error) {
+    setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);
+  } finally {
+    setIsUploading(false);
+  }
+};
 
   return (
     <div style={styles.container}>

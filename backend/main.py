@@ -153,6 +153,103 @@ async def health():
         "ai_ready": ANTHROPIC_AVAILABLE
     }
 
+@app.post("/api/validate-code")
+async def validate_code(request: dict):
+    """AI-powered code validation before compilation"""
+    
+    print(f"🔍 Code validation request received")
+    
+    if not ANTHROPIC_AVAILABLE:
+        # If AI not available, just return success to allow compilation
+        return {"success": True, "is_valid": True, "message": ""}
+    
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        # If no API key, just allow compilation
+        return {"success": True, "is_valid": True, "message": ""}
+    
+    user_code = request.get("code", "")
+    expected_code = request.get("expected_code", "")
+    step_instruction = request.get("instruction", "")
+    
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        
+        validation_prompt = f"""You are an ESP32 code validator. Analyze this code for SIMPLE, OBVIOUS mistakes that would prevent compilation or cause immediate runtime errors.
+
+USER'S CODE:
+```cpp
+{user_code}
+```
+
+{f'''EXPECTED/REFERENCE CODE:
+```cpp
+{expected_code}
+```
+''' if expected_code else ''}
+
+{f'CURRENT TASK: {step_instruction}' if step_instruction else ''}
+
+Check for:
+1. Missing semicolons
+2. Unclosed braces or parentheses
+3. Typos in function names (digitalWrite vs digitalwrite)
+4. Missing #define or variable declarations
+5. Obvious logic errors compared to the reference
+
+RESPOND IN THIS EXACT FORMAT:
+STATUS: [VALID or INVALID]
+ISSUE: [brief description of the problem, or "None" if valid]
+GUIDANCE: [friendly hint to fix it, or empty if valid]
+
+Be encouraging! Only flag OBVIOUS mistakes. If the code looks reasonable, mark it VALID even if it's not perfect."""
+
+        system_param = [{"type": "text", "text": "You are a helpful ESP32 code validator. Be concise and encouraging."}]
+        
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=300,
+            system=system_param,
+            messages=[{"role": "user", "content": validation_prompt}]
+        )
+        
+        result = response.content[0].text
+        print(f"🤖 Validation result: {result}")
+        
+        # Parse the response
+        is_valid = "STATUS: VALID" in result
+        
+        if is_valid:
+            return {
+                "success": True,
+                "is_valid": True,
+                "message": ""
+            }
+        else:
+            # Extract the guidance message
+            lines = result.split('\n')
+            issue = ""
+            guidance = ""
+            
+            for line in lines:
+                if line.startswith("ISSUE:"):
+                    issue = line.replace("ISSUE:", "").strip()
+                elif line.startswith("GUIDANCE:"):
+                    guidance = line.replace("GUIDANCE:", "").strip()
+            
+            message = f"{issue}\n\n{guidance}".strip()
+            
+            return {
+                "success": True,
+                "is_valid": False,
+                "message": message or "There might be an issue with your code. Please review it."
+            }
+        
+    except Exception as e:
+        print(f"❌ Validation error: {str(e)}")
+        # If validation fails, allow compilation anyway
+        return {"success": True, "is_valid": True, "message": ""}
+    
 @app.post("/api/compile")
 async def compile_code(request: CompileRequest):
     """Compile Arduino code and return binary files as base64"""
@@ -305,10 +402,15 @@ async def ai_chat(request: AIChatRequest):
         client = anthropic.Anthropic(api_key=api_key)
         
         print(f"📤 Sending request to Claude API...")
+        # Build system parameter correctly
+        system_param = None
+        if request.system:
+            system_param = [{"type": "text", "text": request.system}]
+        
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=1000,
-            system=request.system if request.system else None,
+            system=system_param,
             messages=request.messages
         )
         

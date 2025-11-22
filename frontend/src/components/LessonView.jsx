@@ -63,49 +63,72 @@ export default function LessonView({ lesson, onComplete, onBack }) {
   };
 
   const handleUpload = async () => {
-    if (!code.trim()) return;
+  if (!code.trim()) return;
 
-    setIsUploading(true);
-    setUploadLogs('');
+  setIsUploading(true);
+  setUploadLogs('');
 
-    try {
-      const device = connectionService.getPort();
-      
-      if (!device) {
-        throw new Error('Device not connected. Please connect your ESP32 first.');
-      }
-      
-      setUploadLogs(prev => prev + '⏳ Compiling code...\n');
-      const compileResult = await api.compile(code);
-      
-      if (!compileResult.success) {
-        throw new Error('Compilation failed');
-      }
-
-      setUploadLogs(prev => prev + '✅ Compilation successful!\n');
-      setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
-      setUploadLogs(prev => prev + '📡 Starting upload...\n');
-      
-      await connectionService.disconnect();
-      
-      await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
-        setUploadLogs(prev => prev + message + '\n');
-      });
-
-      setUploadLogs(prev => prev + '🎉 Upload complete!\n');
-      
-      if (isConnected) {
-        setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
-        await new Promise(r => setTimeout(r, 1000));
-        await connectionService.connect();
-      }
-
-    } catch (error) {
-      setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);
-    } finally {
-      setIsUploading(false);
+  try {
+    const device = connectionService.getPort();
+    
+    if (!device) {
+      throw new Error('Device not connected. Please connect your ESP32 first.');
     }
-  };
+    
+    // Get expected code for validation
+    const expectedCode = currentStep.code || 
+      lesson.steps.find(s => s.type === 'upload' || s.type === 'code-explanation')?.code || '';
+    
+    // AI Validation Step
+    setUploadLogs(prev => prev + '🤖 Checking your code with AI...\n');
+    const validation = await api.validateCode(
+      code, 
+      expectedCode, 
+      currentStep.instruction || currentStep.title
+    );
+    
+    if (!validation.is_valid) {
+      setUploadLogs(prev => prev + '⚠️ AI detected a potential issue:\n');
+      setUploadLogs(prev => prev + `${validation.message}\n\n`);
+      setUploadLogs(prev => prev + '💡 Would you like to review your code before uploading?\n');
+      setUploadLogs(prev => prev + '❌ Upload cancelled. Fix the issue and try again.\n');
+      setIsUploading(false);
+      return;
+    }
+    
+    setUploadLogs(prev => prev + '✅ AI check passed!\n');
+    setUploadLogs(prev => prev + '⏳ Compiling code...\n');
+    
+    const compileResult = await api.compile(code);
+    
+    if (!compileResult.success) {
+      throw new Error('Compilation failed');
+    }
+
+    setUploadLogs(prev => prev + '✅ Compilation successful!\n');
+    setUploadLogs(prev => prev + `📦 Generated ${Object.keys(compileResult.binaries).length} binary file(s)\n`);
+    setUploadLogs(prev => prev + '📡 Starting upload...\n');
+    
+    await connectionService.disconnect();
+    
+    await browserFlasher.flashWithDevice(device, compileResult.binaries, (message) => {
+      setUploadLogs(prev => prev + message + '\n');
+    });
+
+    setUploadLogs(prev => prev + '🎉 Upload complete!\n');
+    
+    if (isConnected) {
+      setUploadLogs(prev => prev + '🔌 Reconnecting...\n');
+      await new Promise(r => setTimeout(r, 1000));
+      await connectionService.connect();
+    }
+
+  } catch (error) {
+    setUploadLogs(prev => prev + `❌ Error: ${error.message}\n`);
+  } finally {
+    setIsUploading(false);
+  }
+};
 
   const showHint = () => {
     if (currentStep.type === 'challenge' && hintLevel < currentStep.hints.length) {
