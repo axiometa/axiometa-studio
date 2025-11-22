@@ -24,10 +24,10 @@ export const STATIC_MODULES = [
     {
     id: 'MTA0007',
     name: 'PIXIE M1',
-    image: '/images/misc/jumper-wires.png',
-    description: 'Male-to-male jumper wires for connecting components',
+    image: '/images/dev-boards/pixie-m1.png',
+    description: 'The Axiometa PIXIE M1 is a small but capable development board that works well for both beginners and experienced makers. It uses the ESP32-S3-Mini-1 chip, giving you dual-core processing, Wi-Fi, and Bluetooth Low Energy in a breadboard-friendly size.',
     category: 'Dev Boards',
-    purchaseUrl: 'https://www.amazon.com/s?k=jumper+wires'
+    purchaseUrl: 'https://www.axiometa.io/products/axiometa-pixie-m1'
   }
 ];
 
