@@ -3,6 +3,8 @@ import Editor from '@monaco-editor/react';
 import { api } from '../services/api';
 import { browserFlasher } from '../services/flasher';
 import { connectionService } from '../services/connection';
+import AIAssistant from './AIAssistant';
+import AIAssistant from './AIAssistant';
 
 export default function Sandbox({ onBack }) {
   const [code, setCode] = useState(`#define LED_PIN 2
@@ -21,6 +23,19 @@ void loop() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadLogs, setUploadLogs] = useState('');
   const [serialLogs, setSerialLogs] = useState([]);
+  const [showAI, setShowAI] = useState(false);
+
+  // Create a pseudo-lesson for AI context in sandbox mode
+  const sandboxLesson = {
+    title: 'Creative Sandbox',
+    board: 'pixie-m1',
+    steps: [{
+      title: 'Free Coding',
+      type: 'upload',
+      instruction: 'Experiment with your own ESP32 code. Try different GPIO pins, sensors, and creative projects!',
+      content: 'This is a sandbox environment where you can write and test any ESP32 code you want.'
+    }]
+  };
 
   useEffect(() => {
     const unsubscribe = connectionService.onData((line) => {
@@ -83,7 +98,12 @@ void loop() {
           ← Back to Dashboard
         </button>
         <h1 style={styles.title}>🎨 Creative Sandbox</h1>
-        <div style={styles.betaBadge}>BETA</div>
+        <div style={styles.headerActions}>
+          <button style={styles.aiButton} onClick={() => setShowAI(!showAI)}>
+            🤖 AI Tutor
+          </button>
+          <div style={styles.betaBadge}>BETA</div>
+        </div>
       </div>
 
       <div style={styles.content}>
@@ -137,6 +157,25 @@ void loop() {
           )}
         </div>
       </div>
+
+      {/* AI Assistant Panel */}
+      <AIAssistant
+        lesson={{
+          id: 'sandbox',
+          title: 'Creative Sandbox',
+          board: 'pixie-m1',
+          steps: []
+        }}
+        currentStep={{
+          id: 'sandbox',
+          type: 'sandbox',
+          title: 'Free Coding',
+          instruction: 'You are in sandbox mode - experiment freely with your code!'
+        }}
+        userCode={code}
+        isVisible={showAI}
+        onClose={() => setShowAI(false)}
+      />
     </div>
   );
 }
@@ -154,6 +193,21 @@ const styles = {
     gap: '1rem',
     marginBottom: '2rem',
     flexWrap: 'wrap',
+  },
+  headerActions: {
+    display: 'flex',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  aiButton: {
+    background: 'linear-gradient(90deg, #8a2be2, #9370db)',
+    color: '#fff',
+    border: 'none',
+    padding: '0.5rem 1.5rem',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    fontFamily: 'DM Sans',
   },
   backButton: {
     background: 'none',
@@ -187,6 +241,11 @@ const styles = {
     gridTemplateColumns: '1fr 400px',
     gap: '2rem',
   },
+  monitorSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+  },
   editorSection: {
     background: 'rgba(255, 255, 255, 0.05)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -219,17 +278,14 @@ const styles = {
     cursor: 'pointer',
     width: '100%',
     fontFamily: 'DM Sans',
-  },
-  monitorSection: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
+    marginBottom: '1rem',
   },
   logsCard: {
-    background: 'rgba(255, 255, 255, 0.05)',
+    background: 'rgba(255, 255, 255, 0.03)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '12px',
-    padding: '1.5rem',
+    borderRadius: '8px',
+    padding: '1rem',
+    marginBottom: '1rem',
   },
   logsTitle: {
     fontSize: '1rem',
@@ -245,7 +301,7 @@ const styles = {
     fontSize: '0.875rem',
     fontFamily: 'monospace',
     color: '#0f0',
-    maxHeight: '300px',
+    maxHeight: '200px',
     overflow: 'auto',
     margin: 0,
   },
@@ -253,7 +309,7 @@ const styles = {
     background: '#000',
     padding: '1rem',
     borderRadius: '8px',
-    maxHeight: '300px',
+    maxHeight: '200px',
     overflow: 'auto',
   },
   serialLine: {

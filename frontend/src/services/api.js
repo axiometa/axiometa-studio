@@ -1,7 +1,13 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Railway internal networking: frontend can call backend directly
+const API_URL = import.meta.env.VITE_API_URL || 
+                (typeof window !== 'undefined' 
+                  ? window.location.origin.replace('frontend', 'backend')
+                  : 'http://localhost:8000');
 
 export const api = {
   async compile(code) {
+    console.log(`Compiling code with API at: ${API_URL}`);
+    
     const response = await fetch(`${API_URL}/api/compile`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -9,10 +15,22 @@ export const api = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
       throw new Error(error.detail || 'Compilation failed');
     }
 
-    return await response.json(); // Returns { success, binaries, message }
+    const result = await response.json();
+    console.log('Compile result:', result);
+    return result;
+  },
+
+  async health() {
+    try {
+      const response = await fetch(`${API_URL}/health`);
+      return await response.json();
+    } catch (error) {
+      console.error('Health check failed:', error);
+      return { status: 'error', error: error.message };
+    }
   }
 };

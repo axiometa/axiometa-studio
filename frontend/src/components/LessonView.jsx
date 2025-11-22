@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import { connectionService } from '../services/connection';
 import { api } from '../services/api';
 import { browserFlasher } from '../services/flasher';
+import AIAssistant from './AIAssistant';
 
 export default function LessonView({ lesson, onComplete, onBack }) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -13,6 +14,7 @@ export default function LessonView({ lesson, onComplete, onBack }) {
   const [uploadLogs, setUploadLogs] = useState('');
   const [hintLevel, setHintLevel] = useState(0);
   const [imageErrors, setImageErrors] = useState({});
+  const [showAI, setShowAI] = useState(false);
 
   const currentStep = lesson.steps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / lesson.steps.length) * 100;
@@ -141,13 +143,18 @@ export default function LessonView({ lesson, onComplete, onBack }) {
           ← {currentStepIndex === 0 ? 'Back to Dashboard' : 'Previous'}
         </button>
         <h2 style={styles.title}>{lesson.title}</h2>
-        {!isConnected ? (
-          <button style={styles.connectButton} onClick={handleConnect}>
-            🔌 Connect ESP32
+        <div style={styles.headerActions}>
+          <button style={styles.aiButton} onClick={() => setShowAI(!showAI)}>
+            🤖 AI Tutor
           </button>
-        ) : (
-          <div style={styles.connectedBadge}>✅ Connected</div>
-        )}
+          {!isConnected ? (
+            <button style={styles.connectButton} onClick={handleConnect}>
+              🔌 Connect ESP32
+            </button>
+          ) : (
+            <div style={styles.connectedBadge}>✅ Connected</div>
+          )}
+        </div>
       </div>
 
       {/* Progress Bar */}
@@ -158,212 +165,235 @@ export default function LessonView({ lesson, onComplete, onBack }) {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div style={styles.content}>
-        {currentStep.type === 'info' && (
-          <div style={styles.infoCard}>
-            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
-            <p style={styles.stepContent}>{currentStep.content}</p>
-            <button style={styles.nextButton} onClick={handleNext}>
-              Next →
-            </button>
-          </div>
-        )}
+      {/* Main Content - with AI Assistant layout for coding steps */}
+      <div style={showAI ? styles.contentWithAI : styles.content}>
+        <div style={showAI ? styles.mainColumn : {}}>
+          {currentStep.type === 'info' && (
+            <div style={styles.infoCard}>
+              <h1 style={styles.stepTitle}>{currentStep.title}</h1>
+              <p style={styles.stepContent}>{currentStep.content}</p>
+              <button style={styles.nextButton} onClick={handleNext}>
+                Next →
+              </button>
+            </div>
+          )}
 
-        {currentStep.type === 'hardware' && (
-          <div style={styles.hardwareCard}>
-            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
-            <div style={styles.hardwareGrid}>
-              {currentStep.items.map((item, i) => (
-                <div key={i} style={styles.hardwareItem}>
-                  {item.image ? (
-                    <div style={styles.hardwareImageContainer}>
+          {currentStep.type === 'hardware' && (
+            <div style={styles.hardwareCard}>
+              <h1 style={styles.stepTitle}>{currentStep.title}</h1>
+              <div style={styles.hardwareGrid}>
+                {currentStep.items.map((item, i) => (
+                  <div key={i} style={styles.hardwareItem}>
+                    {item.image ? (
+                      <div style={styles.hardwareImageContainer}>
+                        <ImageWithFallback 
+                          src={item.image} 
+                          alt={item.name}
+                          style={styles.hardwareImage}
+                        />
+                      </div>
+                    ) : (
+                      <div style={styles.hardwareIcon}>📦</div>
+                    )}
+                    <h3 style={styles.hardwareItemName}>{item.name}</h3>
+                    <p style={styles.hardwareItemDesc}>{item.description}</p>
+                  </div>
+                ))}
+              </div>
+              <button style={styles.nextButton} onClick={handleNext}>
+                I Have These →
+              </button>
+            </div>
+          )}
+
+          {currentStep.type === 'wiring-step' && (
+            <div style={styles.wiringCard}>
+              <h1 style={styles.stepTitle}>{currentStep.title}</h1>
+              <div style={styles.wiringStep}>
+                <div style={styles.stepNumber}>{currentStep.stepNumber}</div>
+                <div style={styles.wiringContent}>
+                  <p style={styles.wiringInstruction}>{currentStep.instruction}</p>
+                  {currentStep.image && (
+                    <div style={styles.wiringImageContainer}>
                       <ImageWithFallback 
-                        src={item.image} 
-                        alt={item.name}
-                        style={styles.hardwareImage}
+                        src={currentStep.image}
+                        alt={currentStep.title}
+                        style={styles.wiringImage}
                       />
                     </div>
-                  ) : (
-                    <div style={styles.hardwareIcon}>📦</div>
                   )}
-                  <h3 style={styles.hardwareItemName}>{item.name}</h3>
-                  <p style={styles.hardwareItemDesc}>{item.description}</p>
                 </div>
-              ))}
-            </div>
-            <button style={styles.nextButton} onClick={handleNext}>
-              I Have These →
-            </button>
-          </div>
-        )}
-
-        {currentStep.type === 'wiring-step' && (
-          <div style={styles.wiringCard}>
-            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
-            <div style={styles.wiringStep}>
-              <div style={styles.stepNumber}>{currentStep.stepNumber}</div>
-              <div style={styles.wiringContent}>
-                <p style={styles.wiringInstruction}>{currentStep.instruction}</p>
-                {currentStep.image && (
-                  <div style={styles.wiringImageContainer}>
-                    <ImageWithFallback 
-                      src={currentStep.image}
-                      alt={currentStep.title}
-                      style={styles.wiringImage}
-                    />
-                  </div>
-                )}
               </div>
-            </div>
-            <div style={{textAlign: 'center', marginTop: '1rem', color: '#888'}}>
-              Step {currentStep.stepNumber} of {currentStep.totalSteps}
-            </div>
-            <button style={styles.nextButton} onClick={handleNext}>
-              {currentStep.stepNumber < currentStep.totalSteps ? 'Next Step →' : 'Wiring Complete →'}
-            </button>
-          </div>
-        )}
-
-        {currentStep.type === 'code-explanation' && (
-          <div style={styles.codeExplanationCard}>
-            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
-            <pre style={styles.codeBlock}>{currentStep.code}</pre>
-            <div style={styles.explanations}>
-              {currentStep.explanations.map((exp, i) => (
-                <div key={i} style={styles.explanation}>
-                  <code style={styles.highlightedCode}>{exp.highlight}</code>
-                  <p style={styles.explanationText}>{exp.explanation}</p>
-                </div>
-              ))}
-            </div>
-            <button style={styles.nextButton} onClick={handleNext}>
-              I Understand →
-            </button>
-          </div>
-        )}
-
-        {currentStep.type === 'upload' && (
-          <div style={styles.uploadCard}>
-            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
-            <p style={styles.stepContent}>{currentStep.instruction}</p>
-            
-            <div style={styles.editorContainer}>
-              <Editor
-                height="300px"
-                defaultLanguage="cpp"
-                theme="vs-dark"
-                value={code}
-                onChange={setCode}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  lineNumbers: 'on',
-                  readOnly: false,
-                }}
-              />
-            </div>
-
-            <button 
-              style={styles.uploadButton}
-              onClick={handleUpload}
-              disabled={isUploading}
-            >
-              {isUploading ? '⏳ Uploading...' : '⚡ Upload Code'}
-            </button>
-
-            {uploadLogs && (
-              <pre style={styles.uploadLogs}>{uploadLogs}</pre>
-            )}
-
-            {serialLogs.length > 0 && (
-              <div style={styles.serialMonitor}>
-                <h4 style={styles.serialTitle}>📊 Serial Monitor:</h4>
-                {serialLogs.map((log, i) => (
-                  <div key={i} style={styles.serialLine}>{log}</div>
-                ))}
+              <div style={{textAlign: 'center', marginTop: '1rem', color: '#888'}}>
+                Step {currentStep.stepNumber} of {currentStep.totalSteps}
               </div>
-            )}
-
-            <button style={styles.nextButton} onClick={handleNext}>
-              Next Challenge →
-            </button>
-          </div>
-        )}
-
-        {currentStep.type === 'challenge' && (
-          <div style={styles.challengeCard}>
-            <h1 style={styles.stepTitle}>{currentStep.title}</h1>
-            <p style={styles.challengeInstruction}>{currentStep.instruction}</p>
-            
-            {hintLevel > 0 && (
-              <div style={styles.hintsContainer}>
-                {currentStep.hints.slice(0, hintLevel).map((hint, i) => (
-                  <div key={i} style={styles.hint}>
-                    💡 Hint {i + 1}: {hint}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {hintLevel < currentStep.hints.length && (
-              <button style={styles.hintButton} onClick={showHint}>
-                💡 Show Hint ({hintLevel + 1}/{currentStep.hints.length})
+              <button style={styles.nextButton} onClick={handleNext}>
+                {currentStep.stepNumber < currentStep.totalSteps ? 'Next Step →' : 'Wiring Complete →'}
               </button>
-            )}
-
-            <div style={styles.editorContainer}>
-              <Editor
-                height="300px"
-                defaultLanguage="cpp"
-                theme="vs-dark"
-                value={code}
-                onChange={setCode}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  lineNumbers: 'on',
-                }}
-              />
             </div>
+          )}
 
-            <button 
-              style={styles.uploadButton}
-              onClick={handleUpload}
-              disabled={isUploading}
-            >
-              {isUploading ? '⏳ Uploading...' : '⚡ Upload & Test'}
-            </button>
-
-            {uploadLogs && (
-              <pre style={styles.uploadLogs}>{uploadLogs}</pre>
-            )}
-
-            {serialLogs.length > 0 && (
-              <div style={styles.serialMonitor}>
-                <h4 style={styles.serialTitle}>📊 Serial Monitor:</h4>
-                {serialLogs.map((log, i) => (
-                  <div key={i} style={styles.serialLine}>{log}</div>
+          {currentStep.type === 'code-explanation' && (
+            <div style={styles.codeExplanationCard}>
+              <h1 style={styles.stepTitle}>{currentStep.title}</h1>
+              <pre style={styles.codeBlock}>{currentStep.code}</pre>
+              <div style={styles.explanations}>
+                {currentStep.explanations.map((exp, i) => (
+                  <div key={i} style={styles.explanation}>
+                    <code style={styles.highlightedCode}>{exp.highlight}</code>
+                    <p style={styles.explanationText}>{exp.explanation}</p>
+                  </div>
                 ))}
               </div>
-            )}
+              <button style={styles.nextButton} onClick={handleNext}>
+                I Understand →
+              </button>
+            </div>
+          )}
 
-            <button style={styles.nextButton} onClick={handleNext}>
-              Next Challenge →
-            </button>
-          </div>
-        )}
+          {currentStep.type === 'upload' && (
+            <div style={styles.uploadCard}>
+              <h1 style={styles.stepTitle}>{currentStep.title}</h1>
+              <p style={styles.stepContent}>{currentStep.instruction}</p>
+              
+              <div style={styles.editorContainer}>
+                <Editor
+                  height="300px"
+                  defaultLanguage="cpp"
+                  theme="vs-dark"
+                  value={code}
+                  onChange={setCode}
+                  options={{
+                    minimap: { enabled: false },
+                    fontSize: 14,
+                    lineNumbers: 'on',
+                    readOnly: false,
+                  }}
+                />
+              </div>
 
-        {currentStep.type === 'completion' && (
-          <div style={styles.completionCard}>
-            <h1 style={styles.completionTitle}>{currentStep.title}</h1>
-            <p style={styles.completionContent}>{currentStep.content}</p>
-            <button style={styles.finishButton} onClick={() => onComplete(lesson.xp_reward)}>
-              Complete Lesson 🎉
-            </button>
+              <button 
+                style={styles.uploadButton}
+                onClick={handleUpload}
+                disabled={isUploading}
+              >
+                {isUploading ? '⏳ Uploading...' : '⚡ Upload Code'}
+              </button>
+
+              {uploadLogs && (
+                <pre style={styles.uploadLogs}>{uploadLogs}</pre>
+              )}
+
+              {serialLogs.length > 0 && (
+                <div style={styles.serialMonitor}>
+                  <h4 style={styles.serialTitle}>📊 Serial Monitor:</h4>
+                  {serialLogs.map((log, i) => (
+                    <div key={i} style={styles.serialLine}>{log}</div>
+                  ))}
+                </div>
+              )}
+
+              <button style={styles.nextButton} onClick={handleNext}>
+                Next Challenge →
+              </button>
+            </div>
+          )}
+
+          {currentStep.type === 'challenge' && (
+            <div style={styles.challengeCard}>
+              <h1 style={styles.stepTitle}>{currentStep.title}</h1>
+              <p style={styles.challengeInstruction}>{currentStep.instruction}</p>
+              
+              {hintLevel > 0 && (
+                <div style={styles.hintsContainer}>
+                  {currentStep.hints.slice(0, hintLevel).map((hint, i) => (
+                    <div key={i} style={styles.hint}>
+                      💡 Hint {i + 1}: {hint}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {hintLevel < currentStep.hints.length && (
+                <button style={styles.hintButton} onClick={showHint}>
+                  💡 Show Hint ({hintLevel + 1}/{currentStep.hints.length})
+                </button>
+              )}
+
+              <div style={styles.editorContainer}>
+                <Editor
+                  height="300px"
+                  defaultLanguage="cpp"
+                  theme="vs-dark"
+                  value={code}
+                  onChange={setCode}
+                  options={{
+                    minimap: { enabled: false },
+                    fontSize: 14,
+                    lineNumbers: 'on',
+                  }}
+                />
+              </div>
+
+              <button 
+                style={styles.uploadButton}
+                onClick={handleUpload}
+                disabled={isUploading}
+              >
+                {isUploading ? '⏳ Uploading...' : '⚡ Upload & Test'}
+              </button>
+
+              {uploadLogs && (
+                <pre style={styles.uploadLogs}>{uploadLogs}</pre>
+              )}
+
+              {serialLogs.length > 0 && (
+                <div style={styles.serialMonitor}>
+                  <h4 style={styles.serialTitle}>📊 Serial Monitor:</h4>
+                  {serialLogs.map((log, i) => (
+                    <div key={i} style={styles.serialLine}>{log}</div>
+                  ))}
+                </div>
+              )}
+
+              <button style={styles.nextButton} onClick={handleNext}>
+                Next Challenge →
+              </button>
+            </div>
+          )}
+
+          {currentStep.type === 'completion' && (
+            <div style={styles.completionCard}>
+              <h1 style={styles.completionTitle}>{currentStep.title}</h1>
+              <p style={styles.completionContent}>{currentStep.content}</p>
+              <button style={styles.finishButton} onClick={() => onComplete(lesson.xp_reward)}>
+                Complete Lesson 🎉
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* AI Assistant - shown only for coding steps */}
+        {showAI && (
+          <div style={styles.aiColumn}>
+            <AIAssistant 
+              lesson={lesson}
+              currentStepIndex={currentStepIndex}
+              currentCode={code}
+              isVisible={showAI}
+            />
           </div>
         )}
       </div>
+
+      {/* AI Assistant Panel */}
+      <AIAssistant
+        lesson={lesson}
+        currentStep={currentStep}
+        userCode={code}
+        isVisible={showAI}
+        onClose={() => setShowAI(false)}
+      />
     </div>
   );
 }
@@ -385,6 +415,21 @@ const styles = {
     borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
     flexWrap: 'wrap',
     gap: '1rem',
+  },
+  headerActions: {
+    display: 'flex',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  aiButton: {
+    background: 'linear-gradient(90deg, #8a2be2, #9370db)',
+    color: '#fff',
+    border: 'none',
+    padding: '0.5rem 1.5rem',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    fontFamily: 'DM Sans',
   },
   backButton: {
     background: 'none',
@@ -441,6 +486,22 @@ const styles = {
     maxWidth: '800px',
     margin: '3rem auto',
     padding: '0 2rem',
+  },
+  contentWithAI: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 400px',
+    gap: '2rem',
+    maxWidth: '1400px',
+    margin: '3rem auto',
+    padding: '0 2rem',
+  },
+  mainColumn: {
+    minWidth: 0, // Allows column to shrink if needed
+  },
+  aiColumn: {
+    position: 'sticky',
+    top: '2rem',
+    height: 'fit-content',
   },
   infoCard: {
     background: 'rgba(255, 255, 255, 0.05)',
