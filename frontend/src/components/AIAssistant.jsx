@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { aiChatService } from '../services/aiChat';
 
-export default function AIAssistant({ lesson, currentStep, userCode, isVisible, onClose, validationError }) {
+export default function AIAssistant({ lesson, currentStep, userCode, validationError }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -27,23 +28,23 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
   }, [messages]);
 
   useEffect(() => {
-    if (isVisible && messages.length === 0 && currentStep) {
+    if (isOpen && messages.length === 0 && currentStep) {
       setMessages([{
         role: 'assistant',
-        content: `👋 Hi! I'm your AI tutor for this lesson. I can see you're working on "${currentStep.title}". Ask me anything about the code, wiring, or concepts!`
+        content: `Hi! I'm Axie, your AI tutor for this lesson. I can see you're working on "${currentStep.title}". Ask me anything about the code, wiring, or concepts!`
       }]);
     }
-  }, [isVisible, currentStep]);
+  }, [isOpen, currentStep]);
 
-  // NEW: Handle validation errors
   useEffect(() => {
     if (validationError) {
-      const errorMessage = `⚠️ **I found an issue in your code!**\n\n${validationError}\n\n💡 **Next steps:** Fix the issue in your code editor and try uploading again. If you're stuck, feel free to ask me for help!`;
+      const errorMessage = `I found an issue in your code!\n\n${validationError}\n\nFix the issue in your code editor and try uploading again. If you're stuck, feel free to ask me for help!`;
       
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: errorMessage
       }]);
+      setIsOpen(true);
     }
   }, [validationError]);
 
@@ -62,7 +63,7 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
     } catch (error) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: `❌ Sorry, I encountered an error: ${error.message}. Please try again.` 
+        content: `Sorry, I encountered an error: ${error.message}. Please try again.` 
       }]);
     } finally {
       setIsLoading(false);
@@ -76,32 +77,51 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
     "What does delay() do?"
   ];
 
-  if (!isVisible) return null;
+  if (!isOpen) {
+    return (
+      <button style={styles.floatingButton} onClick={() => setIsOpen(true)}>
+        <img 
+          src="/images/axie-robot.png" 
+          alt="Axie"
+          style={styles.floatingIcon}
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = '<div style="color: #fff; font-weight: bold;">AI</div>';
+          }}
+        />
+      </button>
+    );
+  }
 
   return (
     <div style={styles.overlay}>
       <div style={styles.panel}>
         <div style={styles.header}>
           <div style={styles.headerTitle}>
-            <span style={styles.aiIcon}>🤖</span>
+            <img 
+              src="/images/axie-robot.png" 
+              alt="Axie"
+              style={styles.aiIcon}
+              onError={(e) => e.target.style.display = 'none'}
+            />
             <div>
-              <h3 style={styles.title}>AI Tutor</h3>
-              <p style={styles.subtitle}>Claude Sonnet 4.5</p>
+              <h3 style={styles.title}>Axie</h3>
+              <p style={styles.subtitle}>Your AI Tutor</p>
             </div>
           </div>
-          <button style={styles.closeButton} onClick={onClose}>✕</button>
+          <button style={styles.closeButton} onClick={() => setIsOpen(false)}>×</button>
         </div>
 
         <div style={styles.context}>
           <div style={styles.contextItem}>
-            📚 <strong>{lesson?.title}</strong>
+            <strong>{lesson?.title}</strong>
           </div>
           <div style={styles.contextItem}>
-            📍 Step: {currentStep?.title}
+            Step: {currentStep?.title}
           </div>
           {userCode && (
             <div style={styles.contextItem}>
-              💻 Tracking your code
+              Tracking your code
             </div>
           )}
         </div>
@@ -146,7 +166,7 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
           <input
             type="text"
             style={styles.input}
-            placeholder="Ask me anything about this lesson..."
+            placeholder="Ask me anything..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
@@ -166,6 +186,28 @@ export default function AIAssistant({ lesson, currentStep, userCode, isVisible, 
 }
 
 const styles = {
+  floatingButton: {
+    position: 'fixed',
+    bottom: '2rem',
+    right: '2rem',
+    width: '70px',
+    height: '70px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #00d4aa, #7c3aed)',
+    border: '3px solid rgba(255, 255, 255, 0.2)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 8px 24px rgba(0, 212, 170, 0.3)',
+    transition: 'all 0.3s ease',
+    zIndex: 999,
+  },
+  floatingIcon: {
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+  },
   overlay: {
     position: 'fixed',
     top: 0,
@@ -175,7 +217,7 @@ const styles = {
     maxWidth: '450px',
     background: 'rgba(10, 10, 10, 0.98)',
     backdropFilter: 'blur(10px)',
-    borderLeft: '1px solid rgba(0, 255, 136, 0.3)',
+    borderLeft: '1px solid rgba(0, 212, 170, 0.3)',
     display: 'flex',
     flexDirection: 'column',
     zIndex: 1000,
@@ -199,12 +241,14 @@ const styles = {
     gap: '0.75rem',
   },
   aiIcon: {
-    fontSize: '2rem',
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
   },
   title: {
     fontSize: '1.25rem',
     fontWeight: 'bold',
-    color: '#00ff88',
+    color: '#00d4aa',
     margin: 0,
   },
   subtitle: {
@@ -216,14 +260,14 @@ const styles = {
     background: 'none',
     border: 'none',
     color: '#888',
-    fontSize: '1.5rem',
+    fontSize: '2rem',
     cursor: 'pointer',
     padding: '0.5rem',
     lineHeight: 1,
   },
   context: {
     padding: '1rem 1.5rem',
-    background: 'rgba(0, 255, 136, 0.05)',
+    background: 'rgba(0, 212, 170, 0.05)',
     borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
   },
   contextItem: {
@@ -253,8 +297,8 @@ const styles = {
     lineHeight: '1.6',
     fontSize: '0.95rem',
     whiteSpace: 'pre-wrap',
-    background: 'linear-gradient(135deg, #00ff88, #00ccff)',
-    color: '#000',
+    background: 'linear-gradient(135deg, #00d4aa, #7c3aed)',
+    color: '#fff',
   },
   assistantMessageContent: {
     padding: '0.75rem 1rem',
@@ -269,21 +313,6 @@ const styles = {
   typing: {
     color: '#888',
     fontStyle: 'italic',
-  },
-  quickActions: {
-    padding: '0 1.5rem 1rem 1.5rem',
-  },
-  analyzeButton: {
-    width: '100%',
-    background: 'linear-gradient(90deg, #8a2be2, #9370db)',
-    border: 'none',
-    color: '#fff',
-    padding: '0.75rem',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '0.95rem',
-    fontFamily: 'DM Sans',
   },
   quickQuestions: {
     padding: '0 1.5rem 1rem 1.5rem',
@@ -322,13 +351,13 @@ const styles = {
     fontFamily: 'DM Sans',
   },
   sendButton: {
-    background: 'linear-gradient(90deg, #00ff88, #00ccff)',
+    background: 'linear-gradient(135deg, #00d4aa, #7c3aed)',
     border: 'none',
-    color: '#000',
+    color: '#fff',
     padding: '0.75rem 1.5rem',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: '0.95rem',
     fontFamily: 'DM Sans',
   },

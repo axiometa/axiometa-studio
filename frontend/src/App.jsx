@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Dashboard from './components/Dashboard';
 import LessonView from './components/LessonView';
 import Sandbox from './components/Sandbox';
+import AIAssistant from './components/AIAssistant';
 import { lessons } from './data/lessons';
 
 export default function App() {
@@ -13,6 +14,9 @@ export default function App() {
     completedLessons: []
   });
   const [currentLesson, setCurrentLesson] = useState(null);
+  const [challengeStars, setChallengeStars] = useState({});
+  const [showAxie, setShowAxie] = useState(false);
+  const [axieContext, setAxieContext] = useState(null);
 
   const handleStartLesson = () => {
     setCurrentLesson(lessons[0]);
@@ -26,6 +30,13 @@ export default function App() {
 
   const handleOpenSandbox = () => {
     setCurrentView('sandbox');
+  };
+
+  const handleChallengeComplete = (challengeId, stars) => {
+    setChallengeStars(prev => ({
+      ...prev,
+      [challengeId]: stars
+    }));
   };
 
   const handleCompleteLesson = (xpReward) => {
@@ -59,15 +70,43 @@ export default function App() {
       )}
       
       {currentView === 'lesson' && currentLesson && (
-        <LessonView
-          lesson={currentLesson}
-          onComplete={handleCompleteLesson}
-          onBack={handleBackToDashboard}
-        />
+        <>
+          <LessonView
+            lesson={currentLesson}
+            onComplete={handleCompleteLesson}
+            onBack={handleBackToDashboard}
+            challengeStars={challengeStars}
+            onChallengeComplete={handleChallengeComplete}
+          />
+          <AIAssistant
+            lesson={currentLesson}
+            currentStep={currentLesson.steps[0]}
+            userCode=""
+            validationError={null}
+          />
+        </>
       )}
 
       {currentView === 'sandbox' && (
-        <Sandbox onBack={handleBackToDashboard} />
+        <>
+          <Sandbox onBack={handleBackToDashboard} />
+          <AIAssistant
+            lesson={{
+              id: 'sandbox',
+              title: 'Creative Sandbox',
+              board: 'pixie-m1',
+              steps: []
+            }}
+            currentStep={{
+              id: 'sandbox',
+              type: 'sandbox',
+              title: 'Free Coding',
+              instruction: 'You are in sandbox mode - experiment freely with your code!'
+            }}
+            userCode=""
+            validationError={null}
+          />
+        </>
       )}
     </>
   );
