@@ -290,7 +290,6 @@ function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
     <div>
       <LevelSection 
         title="Available Lessons"
-        description="Learn hardware programming step by step"
         lessonCount={boardLessons.length}
       >
         {boardLessons.map((lesson, index) => {
@@ -328,12 +327,12 @@ function LevelSection({ title, description, lessonCount, children }) {
   return (
     <div style={{ marginBottom: '3rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-        <h3 style={{ fontSize: '1.75rem', color: colors.primary, fontWeight: 'bold', fontFamily, margin: 0 }}>
+        <h3 style={{ fontSize: '1.75rem', color: colors.text.primary, fontWeight: 'bold', fontFamily, margin: 0 }}>
           {title}
         </h3>
         <span style={{
-          background: 'rgba(0, 212, 170, 0.15)',
-          color: colors.primary,
+          background: 'rgba(225, 241, 79, 0.88)',
+          color: '#000',
           padding: '0.25rem 0.75rem',
           borderRadius: '12px',
           fontSize: '0.875rem',

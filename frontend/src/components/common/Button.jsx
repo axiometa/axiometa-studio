@@ -12,8 +12,8 @@ const buttonStyles = {
     fontSize: '0.95rem'
   },
   primary: {
-    background: gradients.primary,
-    color: '#fff',
+    background: 'rgba(225, 241, 79, 0.88)',
+    color: '#000000ff',
     padding: '1rem 2rem'
   },
   secondary: {

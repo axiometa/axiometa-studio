@@ -5,7 +5,7 @@ import { colors, gradients, borderRadius, fontFamily } from '../../styles/theme'
 const styles = {
   card: {
     background: gradients.primarySubtle,
-    border: '2px solid rgba(0, 212, 170, 0.2)',
+    border: '2px solid rgba(0, 212, 170, 0)',
     borderRadius: borderRadius.lg,
     padding: '2rem',
     marginBottom: '2rem',

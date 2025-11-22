@@ -1,5 +1,5 @@
 export const colors = {
-  primary: '#00d4aa',
+  primary: 'rgba(225, 241, 79, 0.88)',
   secondary: '#7c3aed',
   background: '#0a0a0a',
   surface: 'rgba(255, 255, 255, 0.03)',
@@ -17,8 +17,8 @@ export const colors = {
 };
 
 export const gradients = {
-  primary: 'linear-gradient(135deg, #00d4aa, #7c3aed)',
-  primarySubtle: 'linear-gradient(135deg, rgba(0, 212, 170, 0.08), rgba(124, 58, 237, 0.08))',
+  primary: 'linear-gradient(135deg, #rgba(225, 241, 79, 0.88), rgba(225, 241, 79, 0.88)',
+  primarySubtle: 'linear-gradient(180deg, #e1f14f11, #121618)',
   purple: 'linear-gradient(135deg, #7c3aed, #a855f7)'
 };
 

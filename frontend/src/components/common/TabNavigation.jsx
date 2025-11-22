@@ -27,7 +27,7 @@ const styles = {
   },
   tabActive: {
     flex: 1,
-    background: 'rgba(0, 212, 170, 0.1)',
+    background: 'linear-gradient(180deg, #e1f14f11, #121618)',
     border: 'none',
     borderBottom: `2px solid ${colors.primary}`,
     color: colors.primary,
