@@ -189,7 +189,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
         return <InfoStep title={currentStep.title} content={currentStep.content} />;
       
       case 'hardware':
-        return <HardwareStep title={currentStep.title} items={currentStep.items} />;
+       return <HardwareStep title={currentStep.title} moduleIds={currentStep.moduleIds} />;
       
       case 'wiring-step':
         return <WiringStep {...currentStep} />;

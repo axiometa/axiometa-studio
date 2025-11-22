@@ -40,35 +40,67 @@ const styles = {
     marginBottom: '0.5rem',
     fontFamily
   },
-  description: {
+  loadingText: {
     color: colors.text.tertiary,
-    fontSize: '0.95rem',
+    textAlign: 'center',
+    padding: '2rem',
     fontFamily
   }
 };
 
 export default function HardwareStep({ title, items, moduleIds }) {
   const [modules, setModules] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // If moduleIds provided, fetch from modules.js
-    if (moduleIds && moduleIds.length > 0) {
-      const fetchedModules = moduleIds.map(id => {
-        const module = getModuleById(id);
-        return module ? {
-          name: module.name,
-          image: module.image,
-          description: module.description
-        } : null;
-      }).filter(Boolean);
-      
-      setModules(fetchedModules);
-    } 
-    // Otherwise use provided items (legacy support)
-    else if (items) {
-      setModules(items);
-    }
+    // Small delay to ensure modules are loaded from Shopify
+    const timer = setTimeout(() => {
+      // If moduleIds provided, fetch from modules.js
+      if (moduleIds && moduleIds.length > 0) {
+        const fetchedModules = moduleIds.map(id => {
+          const module = getModuleById(id);
+          if (module) {
+            return {
+              name: module.name,
+              image: module.image
+            };
+          }
+          // Fallback if module not found
+          console.warn(`Module ${id} not found in ALL_MODULES`);
+          return null;
+        }).filter(Boolean);
+        
+        setModules(fetchedModules);
+      } 
+      // Otherwise use provided items (legacy support)
+      else if (items) {
+        setModules(items);
+      }
+      setIsLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [moduleIds, items]);
+
+  if (isLoading) {
+    return (
+      <>
+        <h1 style={styles.title}>{title}</h1>
+        <p style={styles.loadingText}>Loading modules...</p>
+      </>
+    );
+  }
+
+  if (modules.length === 0) {
+    return (
+      <>
+        <h1 style={styles.title}>{title}</h1>
+        <p style={styles.loadingText}>
+          No modules found. Please check your module configuration.
+        </p>
+      </>
+    );
+  }
 
   return (
     <>
@@ -85,7 +117,6 @@ export default function HardwareStep({ title, items, moduleIds }) {
               />
             </div>
             <h3 style={styles.name}>{item.name}</h3>
-            <p style={styles.description}>{item.description}</p>
           </div>
         ))}
       </div>

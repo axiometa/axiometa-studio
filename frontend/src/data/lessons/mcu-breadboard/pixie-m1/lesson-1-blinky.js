@@ -1,10 +1,13 @@
+
+const REQUIRED_MODULES = ['AX22-0006', 'TOOL-BB-001', 'TOOL-JW-001', 'MTA0007'];
+
 export const lesson = {
   id: "mcu-breadboard-blinky",
   title: "Blinky - Your First LED",
   board: "pixie-m1",
   type: "mcu-breadboard",
   xp_reward: 100,
-  requiredModules: ['LED', 'BREADBOARD', 'JUMPER_WIRES'],
+  requiredModules: REQUIRED_MODULES,
   
   steps: [
     {
@@ -17,9 +20,7 @@ export const lesson = {
       id: "hardware",
       type: "hardware",
       title: "What You'll Need",
-      // Use module IDs instead of hardcoded items
-      moduleIds: ['LED', 'BREADBOARD', 'JUMPER_WIRES']
-      // The HardwareStep component will fetch details from modules.js
+      moduleIds: REQUIRED_MODULES
     },
     {
       id: "wiring-1",

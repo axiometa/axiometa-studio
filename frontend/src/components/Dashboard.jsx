@@ -112,8 +112,13 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   const [selectedBoard, setSelectedBoard] = useState('axiometa_pixie_m1');
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeTab, setActiveTab] = useState('lessons');
-  const [ownedModules, setOwnedModules] = useState(['LED', 'BREADBOARD', 'JUMPER_WIRES']);
-  const [displayModules, setDisplayModules] = useState(ALL_MODULES);
+  const [ownedModules, setOwnedModules] = useState([
+  'MTA0007',        // PIXIE M1
+  'AX22-0006',      // RGB LED
+  'AX22-0007',      // Push Button
+  'TOOL-BB-001',    // Breadboard
+  'TOOL-JW-001'     // Jumper Wires
+]);
   const [loadingModules, setLoadingModules] = useState(true);
 
   const currentBoard = getBoardById(selectedBoard);
@@ -126,7 +131,6 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
       
       if (shopifyModules.length > 0) {
         setModules(shopifyModules);
-        setDisplayModules([...ALL_MODULES]);
       }
       
       setLoadingModules(false);
@@ -228,7 +232,7 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
           
           {activeTab === 'modules' && (
             <ModulesTab 
-              modules={displayModules}
+              modules={ALL_MODULES}
               ownedModules={ownedModules}
               onToggleModule={toggleModule}
               lessons={lessons}

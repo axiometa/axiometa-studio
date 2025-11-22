@@ -4,7 +4,9 @@ export const lesson = {
   board: "pixie-m1",
   type: "mcu-breadboard",
   xp_reward: 100,
-  requiredModules: ['LED', 'BUTTON', 'BREADBOARD', 'JUMPER_WIRES'],
+  // ⚠️ UPDATE 'BUTTON' WITH YOUR ACTUAL BUTTON SKU FROM SHOPIFY
+  // Run this to find it: fetch('https://www.axiometa.io/collections/modules-and-sensors-ax22/products.json?limit=250').then(r=>r.json()).then(d=>d.products.filter(p=>p.title.toLowerCase().includes('button')).forEach(p=>console.log(p.title, p.variants[0]?.sku)))
+  requiredModules: ['AX22-0006', 'AX22-0007', 'TOOL-BB-001', 'TOOL-JW-001'], // ✅ UPDATED (replace AX22-BUTTON-SKU)
   
   steps: [
     {
@@ -17,7 +19,7 @@ export const lesson = {
       id: "hardware",
       type: "hardware",
       title: "What You'll Need",
-      moduleIds: ['LED', 'BUTTON', 'BREADBOARD', 'JUMPER_WIRES']
+      moduleIds: ['AX22-0006', 'AX22-0007', 'TOOL-BB-001', 'TOOL-JW-001'] // ✅ UPDATED (replace AX22-BUTTON-SKU)
     },
     {
       id: "wiring-1",
