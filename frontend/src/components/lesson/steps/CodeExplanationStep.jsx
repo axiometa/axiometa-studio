@@ -28,8 +28,8 @@ const styles = {
     gap: '1.5rem'
   },
   explanation: {
-    background: 'rgba(0, 212, 170, 0.05)',
-    border: '1px solid rgba(0, 212, 170, 0.2)',
+    background: '#000000ff',
+    border: '1px solid rgba(225, 241, 79, 0.88)',
     borderRadius: borderRadius.md,
     padding: '1rem'
   },

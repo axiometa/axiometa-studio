@@ -70,8 +70,8 @@ const styles = {
     marginBottom: '2rem'
   },
   completionCard: {
-    background: 'rgba(0, 212, 170, 0.1)',
-    border: '2px solid rgba(0, 212, 170, 0.3)',
+    background: 'linear-gradient(180deg, #000000ff, #000000ff)',
+    border: '2px solid rgba(225, 241, 79, 0)',
     borderRadius: '16px',
     padding: '4rem',
     textAlign: 'center'

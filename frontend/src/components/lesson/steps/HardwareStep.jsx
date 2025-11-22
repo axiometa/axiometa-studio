@@ -25,14 +25,15 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: '1rem',
-    background: 'rgba(255, 255, 255, 0.02)',
+    background: 'rgba(255, 255, 255, 0)',
     borderRadius: borderRadius.md,
     overflow: 'hidden'
   },
   image: {
     maxWidth: '100%',
     maxHeight: '100%',
-    objectFit: 'contain'
+    objectFit: 'contain',
+    borderRadius: 10
   },
   name: {
     fontSize: '1.125rem',
