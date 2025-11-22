@@ -14,8 +14,8 @@ const styles = {
     flexDirection: 'column'
   },
   cardOwned: {
-    background: 'rgba(0, 212, 170, 0.08)',
-    borderColor: colors.primary
+    background: 'rgba(255, 255, 255, 0.08)',
+    border: `2px solid ${colors.primary}`
   },
   clickArea: {
     cursor: 'pointer',
@@ -46,13 +46,13 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: '1rem',
-    background: 'rgba(255, 255, 255, 0.02)',
     borderRadius: borderRadius.md
   },
   image: {
     maxWidth: '100%',
     maxHeight: '100%',
-    objectFit: 'contain'
+    objectFit: 'contain',
+    borderRadius: borderRadius.md
   },
   nameContainer: {
     display: 'flex',
@@ -140,8 +140,8 @@ const styles = {
     textDecoration: 'none'
   },
   iconButtonHover: {
-    background: 'rgba(0, 212, 170, 0.1)',
-    borderColor: 'rgba(0, 212, 170, 0.3)',
+    background: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
     transform: 'scale(1.1)'
   },
 };
