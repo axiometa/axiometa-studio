@@ -45,7 +45,7 @@ export const lesson = {
       id: "wiring-3",
       type: "wiring-step",
       title: "Step 3: Place LED Module",
-      instruction: "Insert the LED module into the breadboard and connect to GPIO 12.",
+      instruction: "Insert the LED module into the breadboard and connect to GPIO 1.",
       image: "/images/lessons/lesson-1/pixie-m1/bb-pixie-l1s3.png",
       stepNumber: 3,
       totalSteps: 5
@@ -81,7 +81,7 @@ export const lesson = {
         delayLow: 1000,
         showAnnotations: true,
         title: "Digital Signal - Square Wave Pattern",
-        explanation: "This is what the voltage on GPIO pin 12 will look like. The red dot shows the current moment in time."
+        explanation: "This is what the voltage on GPIO pin 1 will look like. The red dot shows the current moment in time."
       },
       showControls: true,
       autoPlay: true
@@ -90,7 +90,7 @@ export const lesson = {
       id: "code-intro",
       type: "code-explanation",
       title: "Understanding the Code",
-      code: `#define LED_PIN 12
+      code: `#define LED_PIN 1
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -105,18 +105,18 @@ void loop() {
       explanations: [
         {
           line: 0,
-          highlight: "#define LED_PIN 12",
-          explanation: "This creates a name 'LED_PIN' for pin 12. This is the pin we'll control!"
+          highlight: "#define LED_PIN 1",
+          explanation: "This creates a name 'LED_PIN' for pin 1. This is the pin we'll control!"
         },
         {
           line: 3,
           highlight: "pinMode(LED_PIN, OUTPUT);",
-          explanation: "Tells the PIXIE M1 that pin 12 will be used to send power OUT."
+          explanation: "Tells the PIXIE M1 that pin 1 will be used to send power OUT."
         },
         {
           line: 7,
           highlight: "digitalWrite(LED_PIN, HIGH);",
-          explanation: "Turn the LED ON by sending power (HIGH = 3.3V) to pin 12."
+          explanation: "Turn the LED ON by sending power (HIGH = 3.3V) to pin 1."
         },
         {
           line: 8,
@@ -126,7 +126,7 @@ void loop() {
         {
           line: 9,
           highlight: "digitalWrite(LED_PIN, LOW);",
-          explanation: "Turn the LED OFF by stopping power (LOW = 0V) to pin 12."
+          explanation: "Turn the LED OFF by stopping power (LOW = 0V) to pin 1."
         }
       ]
     },
@@ -135,7 +135,7 @@ void loop() {
       type: "upload",
       title: "Upload Your Code",
       instruction: "Click the 'Upload Code' button below to flash your ESP32!",
-      code: `#define LED_PIN 12
+      code: `#define LED_PIN 1
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -158,7 +158,7 @@ void loop() {
         "1000 milliseconds = 1 second, so 500 = half a second",
         "You need to change BOTH delay() calls - one for ON time, one for OFF time"
       ],
-      code: `#define LED_PIN 12
+      code: `#define LED_PIN 1
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -180,7 +180,7 @@ void loop() {
         "100 milliseconds is 0.1 seconds - that's fast!",
         "Remember to change both delays"
       ],
-      code: `#define LED_PIN 12
+      code: `#define LED_PIN 1
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
@@ -203,7 +203,7 @@ void loop() {
         "Long blink = 600ms ON, 200ms OFF",
         "You'll need to write multiple digitalWrite() and delay() lines in sequence"
       ],
-      code: `#define LED_PIN 12
+      code: `#define LED_PIN 1
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
