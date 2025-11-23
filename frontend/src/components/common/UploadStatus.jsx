@@ -1,105 +1,132 @@
 import React from 'react';
-import { colors, gradients, borderRadius, fontFamily } from '../../styles/theme';
-
+import { colors, borderRadius, fontFamily } from '../../styles/theme';
 
 const styles = {
-  card: {
-    background: gradients.primarySubtle,
-    border: '2px solid rgba(225, 241, 79, 0.88)',
-    borderRadius: borderRadius.xl,
-    padding: '1.5rem',
+  container: {
+    background: 'rgba(0, 0, 0, 0.5)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: borderRadius.md,
+    padding: '1rem',
     marginBottom: '1rem'
   },
-  main: {
+  status: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1.5rem',
-    marginBottom: '1rem'
+    gap: '0.75rem',
+    marginBottom: '0.75rem'
   },
-  avatar: {
-    width: '64px',
-    height: '64px',
-    borderRadius: '50%',
-    background: gradients.primary,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+  axie: {
+    width: '40px',
+    height: '40px',
+    flexShrink: 0
+  },
+  axieSpinning: {
+    width: '40px',
+    height: '40px',
     flexShrink: 0,
-    boxShadow: '0 4px 12px rgba(225, 241, 79, 0.88)'
+    animation: 'spin 2s linear infinite'
   },
-  avatarImg: {
-    width: '56px',
-    height: '56px',
-    borderRadius: '50%'
+  statusText: {
+    color: colors.text.primary,
+    fontSize: '1rem',
+    fontFamily,
+    fontWeight: '500'
   },
-  content: {
-    flex: 1
-  },
-  title: {
-    color: '#fff',
-    fontSize: '1.125rem',
-    fontWeight: '600',
-    marginBottom: '0.75rem',
-    fontFamily
-  },
-  progressContainer: {
+  progressBarContainer: {
     width: '100%',
     height: '8px',
-    background: 'rgba(0, 0, 0, 0.3)',
+    background: 'rgba(255, 255, 255, 0.05)',
     borderRadius: '4px',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    marginBottom: '0.75rem'
   },
   progressBar: {
     height: '100%',
-    background: gradients.primary,
-    borderRadius: '4px',
-    animation: 'progress 1.5s ease-in-out infinite',
-    width: '40%'
+    background: 'linear-gradient(90deg, #e1f14f 0%, #00d4aa 100%)',
+    transition: 'width 0.3s ease',
+    borderRadius: '4px'
   },
   toggleButton: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    border: `1px solid ${colors.borderLight}`,
-    color: colors.text.tertiary,
-    padding: '0.5rem 1rem',
-    borderRadius: borderRadius.sm,
+    background: 'transparent',
+    border: 'none',
+    color: colors.text.muted,
     cursor: 'pointer',
     fontSize: '0.875rem',
     fontFamily,
-    transition: 'all 0.2s'
+    textDecoration: 'underline',
+    padding: 0
   }
 };
 
-export default function UploadStatus({ 
-  status, 
-  isUploading, 
-  showAdvanced, 
-  onToggleAdvanced 
-}) {
+// Add spin animation
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  if (!document.head.querySelector('[data-upload-status-spin]')) {
+    styleSheet.setAttribute('data-upload-status-spin', 'true');
+    document.head.appendChild(styleSheet);
+  }
+}
+
+export default function UploadStatus({ status, isUploading, showAdvanced, onToggleAdvanced }) {
+  // Determine progress based on status message
+  const getProgress = () => {
+    const statusLower = status.toLowerCase();
+    
+    if (statusLower.includes('checking')) return 10;
+    if (statusLower.includes('compiling')) return 30;
+    if (statusLower.includes('uploading')) return 50;
+    if (statusLower.includes('reconnecting')) return 90;
+    if (statusLower.includes('success') || statusLower.includes('running')) return 100;
+    if (statusLower.includes('complete')) return 100;
+    
+    return 0;
+  };
+
+  const progress = getProgress();
+  const isComplete = progress === 100;
+  const hasError = status.toLowerCase().includes('failed') || status.toLowerCase().includes('error');
+
   return (
-    <div style={styles.card}>
-      <div style={styles.main}>
-        <div style={styles.avatar}>
-          <img 
-            src="/images/axie-robot.png" 
-            alt="Axie"
-            style={styles.avatarImg}
-            onError={(e) => e.target.style.display = 'none'}
-          />
-        </div>
-        <div style={styles.content}>
-          <div style={styles.title}>{status}</div>
-          {isUploading && (
-            <div style={styles.progressContainer}>
-              <div style={styles.progressBar} />
-            </div>
-          )}
-        </div>
+    <div style={styles.container}>
+      <div style={styles.status}>
+        {/* Axie Avatar - spins when uploading */}
+        <img 
+          src="/images/axie-robot.png" 
+          alt="Axie" 
+          style={isUploading ? styles.axieSpinning : styles.axie}
+        />
+        
+        {/* Status Icons (only when not uploading) */}
+        {!isUploading && isComplete && <span style={{ fontSize: '1.5rem' }}></span>}
+        {!isUploading && hasError && <span style={{ fontSize: '1.5rem' }}></span>}
+        
+        <span style={styles.statusText}>{status}</span>
       </div>
+
+      {/* Progress Bar */}
+      <div style={styles.progressBarContainer}>
+        <div 
+          style={{
+            ...styles.progressBar,
+            width: `${progress}%`,
+            background: hasError 
+              ? 'linear-gradient(90deg, #ff4444 0%, #cc0000 100%)'
+              : 'linear-gradient(90deg, #e1f14f 0%, #00d4aa 100%)'
+          }}
+        />
+      </div>
+
       <button 
         style={styles.toggleButton}
         onClick={onToggleAdvanced}
       >
-        {showAdvanced ? '▼ Hide Details' : '▶ Advanced'}
+        {showAdvanced ? '▲ Hide Details' : '▼ Show Details'}
       </button>
     </div>
   );

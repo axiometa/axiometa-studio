@@ -62,19 +62,25 @@ export function useUpload() {
       setUploadStatus('Upload complete! Reconnecting...');
       setCompilationLogs(prev => prev + 'Upload complete!\n');
       
-      // ✅ AUTO-RECONNECT - Wait for device to boot, then reconnect
+      // AUTO-RECONNECT - Reopen the SAME port (no user gesture needed!)
       setCompilationLogs(prev => prev + 'Waiting for device to boot...\n');
       await new Promise(r => setTimeout(r, 2000)); // Wait 2 seconds for device reset
       
       setCompilationLogs(prev => prev + 'Reconnecting...\n');
       try {
-        await connectionService.connect();
+        // Reopen the same port instead of requesting a new one
+        await device.open({ baudRate: 9600 });
+        connectionService.port = device; // Restore the port reference
+        connectionService.isConnected = true;
+        connectionService.startReading(); // Restart serial reading
+        
         setUploadStatus('✅ Success! Your code is running.');
         setCompilationLogs(prev => prev + '✅ Reconnected! Your code is running.\n');
       } catch (reconnectError) {
         // If auto-reconnect fails, just notify but don't fail the upload
         setUploadStatus('Upload complete! (Manual reconnect needed)');
-        setCompilationLogs(prev => prev + '⚠️ Auto-reconnect failed. Please reconnect manually if needed.\n');
+        setCompilationLogs(prev => prev + `⚠️ Auto-reconnect failed: ${reconnectError.message}\n`);
+        setCompilationLogs(prev => prev + '💡 Try disconnecting and reconnecting your device.\n');
       }
 
       if (onSuccess) onSuccess();
@@ -90,12 +96,20 @@ export function useUpload() {
     }
   };
 
+  // ✅ ADD RESET FUNCTION
+  const resetUploadState = () => {
+    setUploadStatus('');
+    setCompilationLogs('');
+    setValidationError(null);
+  };
+
   return {
     isUploading,
     uploadStatus,
     compilationLogs,
     validationError,
     upload,
-    setCompilationLogs
+    setCompilationLogs,
+    resetUploadState  // ✅ EXPORT THIS
   };
 }

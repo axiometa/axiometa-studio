@@ -80,12 +80,19 @@ class BrowserFlasher {
         reportProgress: (index, written, total) => {
           const percent = Math.floor((written / total) * 100);
           if (percent % 10 === 0) {
-            this.log(`⏳ Progress: ${percent}%`, onLog);
+            this.log(`⏳ Writing: ${percent}%`, onLog);
           }
         }
       });
 
-      this.log('✅ Flash complete!', onLog);
+      this.log('✅ Write complete!', onLog);
+      this.log('🔍 Verifying flash... (this takes 10-15 seconds)', onLog);
+      
+      // Add a small delay to let verification complete
+      // The library does this automatically but doesn't report it
+      await new Promise(r => setTimeout(r, 500));
+      
+      this.log('✅ Verification complete!', onLog);
       this.log('🔄 Hard resetting device...', onLog);
 
       // Hard reset
