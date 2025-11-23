@@ -1,4 +1,3 @@
-
 const REQUIRED_MODULES = ['AX22-0006', 'TOOL-BB-001', 'TOOL-JW-001', 'MTA0007'];
 
 export const lesson = {
@@ -68,6 +67,24 @@ export const lesson = {
       totalSteps: 5
     },
     {
+      id: "voltage-visualization",
+      type: "interactive-concept",
+      title: "What's Going On?",
+      description: "Before we code, let's understand what happens electrically when we blink an LED.\n\nA digital pin can only be in two states:\n• HIGH (3.3V) - electricity flows, LED turns ON\n• LOW (0V) - no electricity, LED turns OFF\n\nWatch the voltage graph below to see how it switches back and forth!",
+      component: "voltage-graph",
+      config: {
+        highVoltage: 3.3,
+        lowVoltage: 0,
+        delayHigh: 1000,
+        delayLow: 1000,
+        showAnnotations: true,
+        title: "Digital Signal - Square Wave Pattern",
+        explanation: "This is what the voltage on GPIO pin 12 will look like. The red dot shows the current moment in time."
+      },
+      showControls: true,
+      autoPlay: true
+    },
+    {
       id: "code-intro",
       type: "code-explanation",
       title: "Understanding the Code",
@@ -92,7 +109,7 @@ void loop() {
         {
           line: 3,
           highlight: "pinMode(LED_PIN, OUTPUT);",
-          explanation: "Tells the ESP32 that pin 12 will be used to send power OUT."
+          explanation: "Tells the PIXIE M1 that pin 12 will be used to send power OUT."
         },
         {
           line: 7,
@@ -201,7 +218,7 @@ void loop() {
       id: "complete",
       type: "completion",
       title: "🎉 Lesson Complete!",
-      content: "Congratulations! You've learned:\n• How to use digital output pins\n• How to control timing with delay()\n• How to create patterns with code\n\nYou earned 100 XP!",
+      content: "Congratulations! You've learned:\n• How to use digital output pins\n• How to control timing with delay()\n• How to create patterns with code\n• What digital signals look like electrically!\n\nYou earned 100 XP!",
       nextLesson: 2
     }
   ]

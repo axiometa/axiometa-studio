@@ -11,6 +11,7 @@ import UploadStep from './lesson/steps/UploadStep';
 import ChallengeStep from './lesson/steps/ChallengeStep';
 import AIAssistant from './AIAssistant';
 import { colors, gradients, fontFamily } from '../styles/theme';
+import InteractiveConceptStep from './lesson/steps/InteractiveConceptStep';
 
 const styles = {
   container: {
@@ -104,16 +105,16 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   const [serialLogs, setSerialLogs] = useState([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [hintLevel, setHintLevel] = useState(0);
-  
-  const { 
-    isUploading, 
-    uploadStatus, 
-    compilationLogs, 
+
+  const {
+    isUploading,
+    uploadStatus,
+    compilationLogs,
     validationError,
     upload,
     setCompilationLogs  // FIXED: Added missing destructure
   } = useUpload();
-  
+
   const currentStep = lesson.steps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / lesson.steps.length) * 100;
   const isChallengeStep = currentStep?.type === 'challenge';
@@ -130,7 +131,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   // Initialize code when component mounts or step changes
   useEffect(() => {
     if (currentStep?.type === 'upload' || currentStep?.type === 'challenge') {
-      const initialCode = currentStep.code || 
+      const initialCode = currentStep.code ||
         lesson.steps.find(s => s.type === 'upload' || s.type === 'code-explanation')?.code || '';
       setCode(initialCode);
     }
@@ -141,7 +142,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
       setCurrentStepIndex(currentStepIndex + 1);
       setHintLevel(0);
       setCompilationLogs('');  // FIXED: Now properly defined
-      
+
       const nextStep = lesson.steps[currentStepIndex + 1];
       if (nextStep.type === 'upload' || nextStep.type === 'challenge') {
         setCode(nextStep.code || lesson.steps.find(s => s.type === 'upload')?.code || '');
@@ -169,12 +170,12 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   };
 
   const handleUpload = async () => {
-    const expectedCode = currentStep.code || 
+    const expectedCode = currentStep.code ||
       lesson.steps.find(s => s.type === 'upload' || s.type === 'code-explanation')?.code || '';
-    
+
     const result = await upload(
-      code, 
-      expectedCode, 
+      code,
+      expectedCode,
       currentStep.instruction || currentStep.title
     );
 
@@ -187,16 +188,28 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     switch (currentStep.type) {
       case 'info':
         return <InfoStep title={currentStep.title} content={currentStep.content} />;
-      
+
       case 'hardware':
-       return <HardwareStep title={currentStep.title} moduleIds={currentStep.moduleIds} />;
-      
+        return <HardwareStep title={currentStep.title} moduleIds={currentStep.moduleIds} />;
+
       case 'wiring-step':
         return <WiringStep {...currentStep} />;
-      
+
       case 'code-explanation':
         return <CodeExplanationStep {...currentStep} />;
-      
+
+      case 'interactive-concept':
+        return (
+          <InteractiveConceptStep
+            title={currentStep.title}
+            description={currentStep.description}
+            component={currentStep.component}
+            config={currentStep.config}
+            showControls={currentStep.showControls !== false}
+            autoPlay={currentStep.autoPlay !== false}
+          />
+        );
+
       case 'upload':
         return (
           <UploadStep
@@ -213,7 +226,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             onUpload={handleUpload}
           />
         );
-      
+
       case 'challenge':
         return (
           <ChallengeStep
@@ -234,7 +247,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             onUpload={handleUpload}
           />
         );
-      
+
       case 'completion':
         return (
           <div style={styles.completionCard}>
@@ -242,7 +255,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             <p style={styles.completionContent}>{currentStep.content}</p>
           </div>
         );
-      
+
       default:
         return null;
     }
@@ -270,7 +283,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
       </div>
 
       <div style={styles.progressContainer}>
-        <div style={{...styles.progressBar, width: `${progress}%`}} />
+        <div style={{ ...styles.progressBar, width: `${progress}%` }} />
       </div>
 
       <div style={styles.content}>

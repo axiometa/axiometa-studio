@@ -1,10 +1,11 @@
 import React from 'react';
 import { colors, gradients, borderRadius, fontFamily } from '../../styles/theme';
 
+
 const styles = {
   card: {
     background: gradients.primarySubtle,
-    border: '2px solid rgba(0, 212, 170, 0.3)',
+    border: '2px solid rgba(225, 241, 79, 0.88)',
     borderRadius: borderRadius.xl,
     padding: '1.5rem',
     marginBottom: '1rem'
@@ -24,7 +25,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    boxShadow: '0 4px 12px rgba(0, 212, 170, 0.3)'
+    boxShadow: '0 4px 12px rgba(225, 241, 79, 0.88)'
   },
   avatarImg: {
     width: '56px',

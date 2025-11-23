@@ -10,9 +10,9 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
 
   useEffect(() => {
     if (lesson && currentStep) {
-      const expectedCode = currentStep.code || 
+      const expectedCode = currentStep.code ||
         lesson.steps.find(s => s.type === 'upload' || s.type === 'code-explanation')?.code;
-      
+
       aiChatService.setContext({
         lesson,
         currentStep,
@@ -30,15 +30,15 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
     if (isOpen && messages.length === 0 && currentStep) {
       setMessages([{
         role: 'assistant',
-        content: `Hi! I'm Axie, your AI tutor. I can see you're working on "${currentStep.title}". Ask me anything!`
+        content: `Hi! I'm Axie, your electronics tutor. Ask me anything!`
       }]);
     }
   }, [isOpen, currentStep]);
 
   useEffect(() => {
     if (validationError) {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
+      setMessages(prev => [...prev, {
+        role: 'assistant',
         content: `I found an issue in your code!\n\n${validationError}\n\nFix it and try again!`
       }]);
       setIsOpen(true);
@@ -50,7 +50,7 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
 
     const userMessage = input.trim();
     setInput('');
-    
+
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
@@ -58,9 +58,9 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
       const response = await aiChatService.sendMessage(userMessage);
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (error) {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: `Sorry, I encountered an error: ${error.message}. Please try again.` 
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `Sorry, I encountered an error: ${error.message}. Please try again.`
       }]);
     } finally {
       setIsLoading(false);
@@ -70,16 +70,27 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
   if (!isOpen) {
     return (
       <button style={styles.floatingButton} onClick={() => setIsOpen(true)}>
-        <div style={{ color: '#fff', fontWeight: 'bold' }}>AI</div>
+        <img
+          src="/images/axie-robot.png"
+          alt="AI"
+          style={{ width: 60, height: 60, objectFit: 'contain' }}
+        />
       </button>
     );
   }
+
 
   return (
     <div style={styles.overlay}>
       <div style={styles.panel}>
         <div style={styles.header}>
-          <div style={styles.headerTitle}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img
+              src="/images/axie-robot.png"
+              alt="Axie"
+              style={{ width: 40, height: 40, objectFit: 'contain' }}
+            />
+
             <div>
               <h3 style={styles.title}>Axie</h3>
               <p style={styles.subtitle}>Your AI Tutor</p>
@@ -90,8 +101,8 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
 
         <div style={styles.messages}>
           {messages.map((msg, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               style={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}
             >
               {msg.content}
@@ -111,7 +122,7 @@ export default function AIAssistant({ lesson, currentStep, userCode, validationE
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             disabled={isLoading}
           />
-          <button 
+          <button
             style={styles.sendButton}
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
@@ -132,13 +143,13 @@ const styles = {
     width: '70px',
     height: '70px',
     borderRadius: '50%',
-    background: 'linear-gradient(135deg, #00d4aa, #7c3aed)',
+    background: 'linear-gradient(180deg, #e1f14f11, #121618)',
     border: '3px solid rgba(255, 255, 255, 0.2)',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 8px 24px rgba(0, 212, 170, 0.3)',
+    boxShadow: '0 8px 24px rgba(225, 241, 79, 0.88)',
     zIndex: 999,
   },
   overlay: {
@@ -150,7 +161,7 @@ const styles = {
     maxWidth: '450px',
     background: 'rgba(10, 10, 10, 0.98)',
     backdropFilter: 'blur(10px)',
-    borderLeft: '1px solid rgba(0, 212, 170, 0.3)',
+    borderLeft: '1px solid rgba(225, 241, 79, 0.88)',
     display: 'flex',
     flexDirection: 'column',
     zIndex: 1000,
@@ -176,7 +187,7 @@ const styles = {
   title: {
     fontSize: '1.25rem',
     fontWeight: 'bold',
-    color: '#00d4aa',
+    color: 'rgba(225, 241, 79, 0.88)',
     margin: 0,
   },
   subtitle: {
@@ -206,7 +217,7 @@ const styles = {
     maxWidth: '80%',
     padding: '0.75rem 1rem',
     borderRadius: '12px',
-    background: 'linear-gradient(135deg, #00d4aa, #7c3aed)',
+    background: 'linear-gradient(270deg, #e1f14f90, #121618)',
     color: '#fff',
   },
   assistantMessage: {
@@ -239,9 +250,9 @@ const styles = {
     fontFamily: 'DM Sans',
   },
   sendButton: {
-    background: 'linear-gradient(135deg, #00d4aa, #7c3aed)',
+    background: 'rgba(225, 241, 79, 0.88)',
     border: 'none',
-    color: '#fff',
+    color: '#000000ff',
     padding: '0.75rem 1.5rem',
     borderRadius: '8px',
     cursor: 'pointer',

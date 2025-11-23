@@ -36,13 +36,13 @@ const styles = {
     gap: '0.75rem'
   },
   logo: {
-    height: '40px',
+    height: '60px',
     width: 'auto'
   },
   studioText: {
     fontSize: '2rem',
     fontWeight: 'bold',
-    color: '#fff'
+    color: 'rgba(225, 241, 79, 0.88)'
   },
   stats: {
     display: 'flex',
@@ -182,7 +182,7 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
             alt="Axiometa" 
             style={styles.logo}
           />
-          <span style={styles.studioText}>Studio</span>
+          <span style={styles.studioText}> - Studio</span>
         </div>
         <div style={styles.stats}>
           <div style={styles.statItem}>
