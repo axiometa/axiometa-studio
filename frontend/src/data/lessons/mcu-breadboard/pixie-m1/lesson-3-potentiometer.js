@@ -28,7 +28,7 @@ export const lesson = {
       type: "wiring-step",
       title: "Step 1: Insert Pixie M1",
       instruction: "Place your Pixie M1 on the breadboard, straddling the center gap.",
-      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-pot-s1.png", 
+      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-l3s1.png", 
       stepNumber: 1,
       totalSteps: 4
     },
@@ -37,7 +37,7 @@ export const lesson = {
       type: "wiring-step",
       title: "Step 2: Connect Power Rails",
       instruction: "Connect 3.3V and GND from Pixie M1 to the power rails.",
-      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-pot-s2.png",
+      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-l3s2.png",
       stepNumber: 2,
       totalSteps: 4
     },
@@ -46,7 +46,7 @@ export const lesson = {
       type: "wiring-step",
       title: "Step 3: Insert Potentiometer",
       instruction: "Insert the potentiometer module. Connect VCC to 3.3V, GND to ground, and SIG to GPIO 1 (analog pin).",
-      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-pot-s3.png",
+      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-l3s3.png",
       stepNumber: 3,
       totalSteps: 4
     },
@@ -55,7 +55,7 @@ export const lesson = {
       type: "wiring-step",
       title: "Step 4: Complete!",
       instruction: "Done! Your circuit is ready. Let's understand how this works.",
-      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-pot-s4.png",
+      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-l3s4.png",
       stepNumber: 4,
       totalSteps: 4
     },
