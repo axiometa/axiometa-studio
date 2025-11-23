@@ -115,6 +115,7 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   const [ownedModules, setOwnedModules] = useState([
     'MTA0007',        // PIXIE M1
     'AX22-0006',      // RGB LED
+    'AX22-0004-H1',   // Potentiometer
     'AX22-0007',      // Push Button
     'TOOL-BB-001',    // Breadboard
     'TOOL-JW-001'     // Jumper Wires

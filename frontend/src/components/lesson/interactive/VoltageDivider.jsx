@@ -36,112 +36,41 @@ const styles = {
     padding: '2rem',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   diagramTitle: {
     color: colors.primary,
     fontSize: '1rem',
     fontWeight: '600',
-    marginBottom: '1.5rem',
+    marginBottom: '2rem',
     fontFamily
   },
-  circuit: {
+  schematic: {
     position: 'relative',
-    width: '100%',
-    maxWidth: '300px',
-    aspectRatio: '1',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '2rem 1rem'
+    width: '300px',
+    height: '500px'
   },
-  voltageSource: {
-    width: '80px',
-    height: '80px',
-    borderRadius: '50%',
-    border: '3px solid ' + colors.primary,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'rgba(225, 241, 79, 0.1)',
-    fontFamily,
-    fontWeight: 'bold',
-    fontSize: '1.1rem',
-    color: colors.primary
-  },
-  resistor: {
-    width: '60px',
-    height: '80px',
-    background: 'linear-gradient(180deg, #8B4513, #A0522D)',
-    border: '2px solid #654321',
-    borderRadius: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    fontFamily,
-    fontSize: '0.85rem',
-    color: '#fff'
-  },
-  resistorStripes: {
-    width: '100%',
-    height: '8px',
-    background: '#FFD700',
-    margin: '2px 0'
-  },
-  wire: {
-    width: '3px',
-    height: '40px',
-    background: colors.primary,
-    margin: '0.5rem 0'
-  },
-  ground: {
-    width: '60px',
-    height: '3px',
-    background: colors.primary,
-    position: 'relative',
-    marginTop: '0.5rem'
-  },
-  groundLines: {
-    position: 'absolute',
-    top: '5px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '3px'
-  },
-  groundLine: {
-    height: '2px',
-    background: colors.primary
-  },
-  voltageLabel: {
-    position: 'absolute',
-    right: '-80px',
-    background: 'rgba(225, 241, 79, 0.2)',
-    border: '1px solid ' + colors.primary,
-    padding: '0.5rem 0.75rem',
-    borderRadius: '6px',
-    fontFamily,
-    fontSize: '0.9rem',
-    color: colors.primary,
-    whiteSpace: 'nowrap',
-    fontWeight: 'bold'
-  },
-  sliderSection: {
+  controlsSection: {
     background: '#0a0a0a',
     borderRadius: borderRadius.md,
     padding: '2rem'
   },
+  sliderContainer: {
+    marginBottom: '2rem'
+  },
   sliderLabel: {
     color: colors.text.secondary,
     fontSize: '0.9rem',
-    marginBottom: '1rem',
+    marginBottom: '0.5rem',
     fontFamily,
-    textAlign: 'center'
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  sliderValue: {
+    color: colors.primary,
+    fontWeight: 'bold'
   },
   slider: {
     width: '100%',
@@ -152,37 +81,7 @@ const styles = {
     WebkitAppearance: 'none',
     appearance: 'none',
     cursor: 'pointer',
-    marginBottom: '2rem'
-  },
-  valuesGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '1rem',
-    marginBottom: '1.5rem'
-  },
-  valueBox: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: borderRadius.md,
-    padding: '1rem',
-    textAlign: 'center',
-    border: '1px solid rgba(255, 255, 255, 0.1)'
-  },
-  valueLabel: {
-    color: colors.text.tertiary,
-    fontSize: '0.75rem',
-    marginBottom: '0.5rem',
-    fontFamily
-  },
-  valueNumber: {
-    color: colors.primary,
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    fontFamily
-  },
-  valueUnit: {
-    color: colors.text.muted,
-    fontSize: '0.85rem',
-    fontFamily
+    marginBottom: '1rem'
   },
   formula: {
     background: 'rgba(225, 241, 79, 0.1)',
@@ -193,7 +92,32 @@ const styles = {
     fontSize: '0.95rem',
     color: colors.primary,
     textAlign: 'center',
-    marginBottom: '1rem'
+    marginBottom: '1.5rem'
+  },
+  valueBox: {
+    background: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: borderRadius.md,
+    padding: '1rem',
+    textAlign: 'center',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    marginTop: '1rem'
+  },
+  valueLabel: {
+    color: colors.text.tertiary,
+    fontSize: '0.75rem',
+    marginBottom: '0.5rem',
+    fontFamily
+  },
+  valueNumber: {
+    color: '#00ff00',
+    fontSize: '2rem',
+    fontWeight: 'bold',
+    fontFamily
+  },
+  valueUnit: {
+    color: colors.text.muted,
+    fontSize: '0.85rem',
+    fontFamily
   },
   conceptBox: {
     background: 'rgba(225, 241, 79, 0.1)',
@@ -247,6 +171,82 @@ if (typeof document !== 'undefined') {
   }
 }
 
+// SVG Schematic Component
+function SchematicDiagram({ vcc, r1Value, r2Value, vOut }) {
+  return (
+    <svg width="300" height="500" viewBox="0 0 300 500">
+      {/* VCC at top */}
+      <text x="150" y="30" fill={colors.primary} fontSize="18" fontWeight="bold" textAnchor="middle">
+        +{vcc}V (VCC)
+      </text>
+      
+      {/* Vertical wire from VCC */}
+      <line x1="150" y1="40" x2="150" y2="80" stroke={colors.primary} strokeWidth="2"/>
+      
+      {/* R1 - Resistor symbol (zigzag) - BIGGER */}
+      <g>
+        <path 
+          d="M 150 80 L 150 85 L 165 100 L 135 125 L 165 150 L 135 175 L 165 200 L 150 215 L 150 220" 
+          fill="none" 
+          stroke={colors.primary} 
+          strokeWidth="3"
+        />
+        {/* R1 Label */}
+        <text x="185" y="150" fill="#fff" fontSize="18" fontWeight="bold">Resistor 1</text>
+        <text x="185" y="175" fill={colors.primary} fontSize="18" fontWeight="bold">
+          {(r1Value / 1000).toFixed(1)}kΩ
+        </text>
+      </g>
+      
+      {/* Wire from R1 to midpoint */}
+      <line x1="150" y1="220" x2="150" y2="250" stroke={colors.primary} strokeWidth="2"/>
+      
+      {/* Output node (green dot) */}
+      <circle cx="150" cy="250" r="6" fill="#00ff00" stroke="#00ff00" strokeWidth="2">
+        <animate attributeName="r" values="6;8;6" dur="1.5s" repeatCount="indefinite"/>
+      </circle>
+      
+      {/* Output wire to the right */}
+      <line x1="150" y1="250" x2="200" y2="250" stroke="#00ff00" strokeWidth="2"/>
+      
+      {/* Output label */}
+      <rect x="205" y="235" width="95" height="32" fill="rgba(0, 255, 0, 0.1)" stroke="#00ff00" strokeWidth="1" rx="4"/>
+      <text x="252" y="258" fill="#00ff00" fontSize="16" fontWeight="bold" textAnchor="middle">
+        OUT: {vOut.toFixed(2)}V
+      </text>
+      
+      {/* Wire from midpoint to R2 */}
+      <line x1="150" y1="250" x2="150" y2="280" stroke={colors.primary} strokeWidth="2"/>
+      
+      {/* R2 - Resistor symbol (zigzag) - BIGGER */}
+      <g>
+        <path 
+          d="M 150 280 L 150 285 L 165 300 L 135 325 L 165 350 L 135 375 L 165 400 L 150 415 L 150 420" 
+          fill="none" 
+          stroke={colors.primary} 
+          strokeWidth="3"
+        />
+        {/* R2 Label */}
+        <text x="185" y="350" fill="#fff" fontSize="18" fontWeight="bold">Resistor 2</text>
+        <text x="185" y="375" fill={colors.primary} fontSize="18" fontWeight="bold">
+          {(r2Value / 1000).toFixed(1)}kΩ
+        </text>
+      </g>
+      
+      {/* Wire from R2 to ground */}
+      <line x1="150" y1="420" x2="150" y2="450" stroke={colors.primary} strokeWidth="2"/>
+      
+      {/* Ground symbol */}
+      <g>
+        <line x1="130" y1="450" x2="170" y2="450" stroke={colors.primary} strokeWidth="2"/>
+        <line x1="137" y1="460" x2="163" y2="460" stroke={colors.primary} strokeWidth="2"/>
+        <line x1="144" y1="470" x2="156" y2="470" stroke={colors.primary} strokeWidth="2"/>
+        <text x="150" y="490" fill={colors.primary} fontSize="16" fontWeight="bold" textAnchor="middle">GND</text>
+      </g>
+    </svg>
+  );
+}
+
 export default function VoltageDivider({ 
   config = {},
   showControls = true,
@@ -254,23 +254,23 @@ export default function VoltageDivider({
 }) {
   const {
     vcc = 3.3,
-    title = "Voltage Divider - How Potentiometers Work",
-    explanation = "A potentiometer is basically two resistors! As you turn it, one resistance increases while the other decreases, changing the output voltage."
+    title = "Understanding Voltage Dividers",
+    explanation = "A voltage divider is a fundamental circuit that uses two resistors to reduce voltage. The output voltage depends on the ratio of the resistances!"
   } = config;
 
-  // Resistance values (total = 10kΩ)
-  const [position, setPosition] = useState(50); // 0-100%
-  
-  // Calculate resistances
-  const totalResistance = 10000; // 10kΩ
-  const r1 = (position / 100) * totalResistance;
-  const r2 = ((100 - position) / 100) * totalResistance;
+  // Resistance values - user can change these
+  const [r1Value, setR1Value] = useState(5000); // 5kΩ
+  const [r2Value, setR2Value] = useState(5000); // 5kΩ
   
   // Calculate output voltage using voltage divider formula
-  const vOut = (r2 / (r1 + r2)) * vcc;
+  const vOut = (r2Value / (r1Value + r2Value)) * vcc;
 
-  const handleSliderChange = (e) => {
-    setPosition(parseFloat(e.target.value));
+  const handleR1Change = (e) => {
+    setR1Value(parseFloat(e.target.value));
+  };
+
+  const handleR2Change = (e) => {
+    setR2Value(parseFloat(e.target.value));
   };
 
   return (
@@ -279,138 +279,77 @@ export default function VoltageDivider({
       <p style={styles.explanation}>{explanation}</p>
 
       <div style={styles.mainContent}>
-        {/* Circuit Diagram */}
+        {/* Schematic Diagram */}
         <div style={styles.diagramSection}>
-          <div style={styles.diagramTitle}>Circuit Diagram</div>
-          <div style={styles.circuit}>
-            {/* Voltage Source */}
-            <div style={styles.voltageSource}>
-              <div>+{vcc}V</div>
-              <div style={{ fontSize: '0.7rem', color: colors.text.secondary }}>VCC</div>
-            </div>
-
-            {/* Wire down */}
-            <div style={styles.wire} />
-
-            {/* R1 (top resistor) */}
-            <div style={styles.resistor}>
-              <div style={styles.voltageLabel}>
-                {(vcc - vOut).toFixed(2)}V
-              </div>
-              <div style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>R1</div>
-              <div style={styles.resistorStripes} />
-              <div style={styles.resistorStripes} />
-              <div style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
-                {(r1 / 1000).toFixed(1)}kΩ
-              </div>
-            </div>
-
-            {/* Wire down */}
-            <div style={styles.wire} />
-
-            {/* Output point */}
-            <div style={{
-              width: '12px',
-              height: '12px',
-              borderRadius: '50%',
-              background: colors.primary,
-              boxShadow: '0 0 15px ' + colors.primary,
-              position: 'relative'
-            }}>
-              <div style={{
-                ...styles.voltageLabel,
-                right: '-100px',
-                background: 'rgba(0, 255, 0, 0.2)',
-                borderColor: '#00ff00',
-                color: '#00ff00'
-              }}>
-                OUT: {vOut.toFixed(2)}V
-              </div>
-            </div>
-
-            {/* Wire down */}
-            <div style={styles.wire} />
-
-            {/* R2 (bottom resistor) */}
-            <div style={styles.resistor}>
-              <div style={styles.voltageLabel}>
-                {vOut.toFixed(2)}V
-              </div>
-              <div style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>R2</div>
-              <div style={styles.resistorStripes} />
-              <div style={styles.resistorStripes} />
-              <div style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
-                {(r2 / 1000).toFixed(1)}kΩ
-              </div>
-            </div>
-
-            {/* Wire to ground */}
-            <div style={styles.wire} />
-
-            {/* Ground */}
-            <div style={styles.ground}>
-              <div style={styles.groundLines}>
-                <div style={{...styles.groundLine, width: '40px'}} />
-                <div style={{...styles.groundLine, width: '30px'}} />
-                <div style={{...styles.groundLine, width: '20px'}} />
-              </div>
-            </div>
+          <div style={styles.diagramTitle}>Schematic Diagram</div>
+          <div style={styles.schematic}>
+            <SchematicDiagram 
+              vcc={vcc}
+              r1Value={r1Value}
+              r2Value={r2Value}
+              vOut={vOut}
+            />
           </div>
         </div>
 
-        {/* Controls & Values */}
-        <div style={styles.sliderSection}>
-          <div style={styles.sliderLabel}>
-            🎛️ Rotate the Potentiometer
+        {/* Controls */}
+        <div style={styles.controlsSection}>
+          <div style={styles.sliderContainer}>
+            <div style={styles.sliderLabel}>
+              <span>Resistor 1 (Top Resistor)</span>
+              <span style={styles.sliderValue}>{(r1Value / 1000).toFixed(1)}kΩ</span>
+            </div>
+            <input 
+              type="range"
+              min="100"
+              max="10000"
+              step="100"
+              value={r1Value}
+              onChange={handleR1Change}
+              style={styles.slider}
+            />
           </div>
-          <input 
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-            value={position}
-            onChange={handleSliderChange}
-            style={styles.slider}
-          />
 
-          <div style={styles.valuesGrid}>
-            <div style={styles.valueBox}>
-              <div style={styles.valueLabel}>R1 (Top)</div>
-              <div style={styles.valueNumber}>{(r1 / 1000).toFixed(1)}</div>
-              <div style={styles.valueUnit}>kΩ</div>
+          <div style={styles.sliderContainer}>
+            <div style={styles.sliderLabel}>
+              <span>Resistor 2 (Bottom Resistor)</span>
+              <span style={styles.sliderValue}>{(r2Value / 1000).toFixed(1)}kΩ</span>
             </div>
-            <div style={styles.valueBox}>
-              <div style={styles.valueLabel}>R2 (Bottom)</div>
-              <div style={styles.valueNumber}>{(r2 / 1000).toFixed(1)}</div>
-              <div style={styles.valueUnit}>kΩ</div>
-            </div>
+            <input 
+              type="range"
+              min="100"
+              max="10000"
+              step="100"
+              value={r2Value}
+              onChange={handleR2Change}
+              style={styles.slider}
+            />
           </div>
 
           <div style={styles.valueBox}>
             <div style={styles.valueLabel}>Output Voltage</div>
-            <div style={{...styles.valueNumber, fontSize: '2rem', color: '#00ff00'}}>
+            <div style={styles.valueNumber}>
               {vOut.toFixed(2)}
             </div>
             <div style={styles.valueUnit}>volts</div>
-          </div>
-
-          <div style={styles.formula}>
-            V<sub>OUT</sub> = V<sub>CC</sub> × (R2 / (R1 + R2))<br/>
-            V<sub>OUT</sub> = {vcc} × ({(r2/1000).toFixed(1)} / {((r1+r2)/1000).toFixed(1)}) = {vOut.toFixed(2)}V
           </div>
         </div>
       </div>
 
       {/* Concept Explanation */}
       <div style={styles.conceptBox}>
-        <div style={styles.conceptTitle}>💡 How It Works</div>
+        <div style={styles.conceptTitle}>💡 Why Do We Need Voltage Dividers?</div>
         <div style={styles.conceptText}>
-          When you turn the potentiometer knob, you're changing where the "wiper" (middle pin) touches the resistive material inside.
+          Many sensors output the full supply voltage (3.3V), but we need to measure varying resistance or position.
+          A voltage divider lets us convert resistance changes into voltage changes that the ESP32 can measure!
           <br/><br/>
-          <strong>Turn clockwise:</strong> R1 increases, R2 decreases → Output voltage decreases<br/>
-          <strong>Turn counter-clockwise:</strong> R1 decreases, R2 increases → Output voltage increases
+          <strong>The Formula:</strong> The output voltage is determined by the ratio of R2 to the total resistance (R1 + R2).
           <br/><br/>
-          The ESP32 reads this changing voltage (0V to 3.3V) and converts it to a number (0 to 4095) using its ADC!
+          <strong>Try it:</strong> Change Resistor 1 to 1kΩ and Resistor 2 to 9kΩ. Notice how the output drops to about 3.0V!
+          <br/>
+          Change Resistor 1 to 9kΩ and Resistor 2 to 1kΩ. Now the output is only about 0.3V!
+          <br/><br/>
+          This principle is exactly how potentiometers work - they're just adjustable voltage dividers!
         </div>
       </div>
     </div>

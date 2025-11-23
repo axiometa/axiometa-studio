@@ -13,7 +13,7 @@ export const lesson = {
       id: "welcome",
       type: "info",
       title: "Welcome to Analog Inputs!",
-      content: "You're about to learn how to read analog sensors - values that can be anything between 0 and 3.3V, not just ON/OFF!\n\nBy the end of this lesson, you'll understand:\n• Analog vs Digital signals\n• How ADC (Analog-to-Digital Converter) works\n• Reading potentiometer values with analogRead()"
+      content: "You're about to learn how to read analog sensors - values that can be anything between 0 and 3.3V, not just ON/OFF!\n\nBy the end of this lesson, you'll understand:\n• Analog vs Digital signals\n• How voltage dividers work\n• How potentiometers are adjustable voltage dividers\n• Reading analog values with analogRead()"
     },
     {
       id: "hardware",
@@ -52,7 +52,7 @@ export const lesson = {
       id: "wiring-4",
       type: "wiring-step",
       title: "Step 4: Complete!",
-      instruction: "Done! Your circuit is ready. Let's understand how analog signals work.",
+      instruction: "Done! Your circuit is ready. Let's understand how this works.",
       image: "/images/lessons/lesson-pot/pixie-m1/bb-pixie-pot-s4.png",
       stepNumber: 4,
       totalSteps: 4
@@ -60,29 +60,28 @@ export const lesson = {
     {
       id: "voltage-divider-concept",
       type: "interactive-concept",
-      title: "⚡ How Does a Potentiometer Work?",
-      description: "Before we jump into code, let's understand the MAGIC inside a potentiometer.\n\nA potentiometer is actually TWO resistors that change as you turn the knob!\n\nWatch what happens when you rotate the virtual potentiometer below:",
+      title: "First: Understanding Voltage Dividers",
+      description: "Before we learn about potentiometers, we need to understand voltage dividers - a fundamental circuit in electronics.\n\nA voltage divider uses TWO resistors to reduce voltage. The output voltage depends on the ratio of the resistances.\n\nTry adjusting the resistor values below and watch how the output voltage changes:",
       component: "voltage-divider",
       config: {
         vcc: 3.3,
-        title: "Voltage Divider - The Secret Inside",
-        explanation: "As you turn the knob, R1 and R2 change - but they always add up to 10kΩ! This changes the output voltage."
+        title: "Voltage Dividers - The Foundation",
+        explanation: "This is the principle behind many sensors! By changing resistance, we can create different voltages that the ESP32 can measure."
       },
       showControls: false,
       autoPlay: true
     },
     {
-      id: "analog-concept",
+      id: "potentiometer-concept",
       type: "interactive-concept",
-      title: "🎛️ Understanding Analog Signals",
-      description: "Now that you know HOW it works, let's see what the ESP32 sees!\n\nUnlike digital (just HIGH or LOW), analog signals can be ANY voltage between 0V and 3.3V.\n\nTry rotating the virtual potentiometer below:",
-      component: "analog-simulator",
+      title: "Now: Meet the Potentiometer!",
+      description: "A potentiometer is simply an ADJUSTABLE voltage divider!\n\nInside the potentiometer is a resistive track. When you turn the knob, you move a 'wiper' that splits the total resistance into R1 and R2.\n\nRotate the virtual knob below and watch the internal resistances change:",
+      component: "potentiometer-knob",
       config: {
-        minVoltage: 0,
-        maxVoltage: 3.3,
-        resolution: 4095,
-        title: "What the ESP32 Reads",
-        explanation: "The ESP32's ADC converts the voltage (0-3.3V) to a number (0-4095) that you can use in your code!"
+        vcc: 3.3,
+        totalResistance: 10000,
+        title: "Potentiometer - Adjustable Voltage Divider",
+        explanation: "See how rotating the knob changes R1 and R2? This changes the output voltage from 0V to 3.3V!"
       },
       showControls: false,
       autoPlay: true
@@ -119,7 +118,7 @@ void loop() {
         {
           line: 7,
           highlight: "int potValue = analogRead(POT_PIN);",
-          explanation: "Reads the voltage on pin 34 and converts it to a number from 0 (0V) to 4095 (3.3V)."
+          explanation: "Reads the voltage on pin 34 and converts it to a number from 0 (0V) to 4095 (3.3V) using the ADC."
         },
         {
           line: 9,
@@ -142,7 +141,7 @@ void loop() {
       id: "upload",
       type: "upload",
       title: "Upload and Test",
-      instruction: "Upload this code and watch the Serial Monitor below. Try rotating your potentiometer and watch the values change!",
+      instruction: "Upload this code and watch the Serial Monitor below. Try rotating your potentiometer and watch the values change from 0 to 4095!",
       code: `#define POT_PIN 34
 
 void setup() {
@@ -242,8 +241,8 @@ void loop() {
       id: "complete",
       type: "completion",
       title: "🎉 Lesson Complete!",
-      content: "Congratulations! You've learned:\n• The difference between analog and digital signals\n• How to read analog values with analogRead()\n• How the ADC converts voltage to numbers\n• How to process and display sensor data\n\nYou earned 150 XP!",
-      nextLesson: 3
+      content: "Congratulations! You've learned:\n• How voltage dividers work and why we need them\n• How potentiometers are adjustable voltage dividers\n• How to read analog values with analogRead()\n• How the ADC converts voltage to numbers\n• How to process and display sensor data\n\nYou earned 150 XP!",
+      nextLesson: 4
     }
   ]
 };
