@@ -107,18 +107,18 @@ const TABS = [
 export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }) {
   const { level, xp, nextLevelXp } = userProgress;
   const xpPercentage = (xp / nextLevelXp) * 100;
-  
+
   const [isConnected, setIsConnected] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState('axiometa_pixie_m1');
   const [isConnecting, setIsConnecting] = useState(false);
   const [activeTab, setActiveTab] = useState('lessons');
   const [ownedModules, setOwnedModules] = useState([
-  'MTA0007',        // PIXIE M1
-  'AX22-0006',      // RGB LED
-  'AX22-0007',      // Push Button
-  'TOOL-BB-001',    // Breadboard
-  'TOOL-JW-001'     // Jumper Wires
-]);
+    'MTA0007',        // PIXIE M1
+    'AX22-0006',      // RGB LED
+    'AX22-0007',      // Push Button
+    'TOOL-BB-001',    // Breadboard
+    'TOOL-JW-001'     // Jumper Wires
+  ]);
   const [loadingModules, setLoadingModules] = useState(true);
 
   const currentBoard = getBoardById(selectedBoard);
@@ -128,11 +128,11 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
     async function loadModules() {
       setLoadingModules(true);
       const shopifyModules = await fetchAllModulesFromShopify();
-      
+
       if (shopifyModules.length > 0) {
         setModules(shopifyModules);
       }
-      
+
       setLoadingModules(false);
     }
     loadModules();
@@ -161,8 +161,8 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   };
 
   const toggleModule = (moduleId) => {
-    setOwnedModules(prev => 
-      prev.includes(moduleId) 
+    setOwnedModules(prev =>
+      prev.includes(moduleId)
         ? prev.filter(id => id !== moduleId)
         : [...prev, moduleId]
     );
@@ -177,9 +177,9 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
     <div style={styles.dashboard}>
       <div style={styles.header}>
         <div style={styles.logoContainer}>
-          <img 
-            src="https://cdn.shopify.com/s/files/1/0966/7756/0659/files/white_logo.png" 
-            alt="Axiometa" 
+          <img
+            src="https://cdn.shopify.com/s/files/1/0966/7756/0659/files/white_logo.png"
+            alt="Axiometa"
             style={styles.logo}
           />
           <span style={styles.studioText}> - Studio</span>
@@ -204,7 +204,7 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
         <Card style={{ marginBottom: '2rem' }}>
           <h3 style={styles.sectionTitle}>Device Connection</h3>
           <div style={styles.compactConnection}>
-            <BoardSelector 
+            <BoardSelector
               selectedBoard={selectedBoard}
               onBoardSelect={setSelectedBoard}
             />
@@ -217,21 +217,21 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
           </div>
         </Card>
 
-        <TabNavigation 
-          tabs={TABS} 
-          activeTab={activeTab} 
+        <TabNavigation
+          tabs={TABS}
+          activeTab={activeTab}
           onTabChange={setActiveTab}
         >
           {activeTab === 'lessons' && (
-            <LessonsTab 
+            <LessonsTab
               board={currentBoard}
               hasRequiredModules={hasRequiredModules}
               onStartLesson={onStartLesson}
             />
           )}
-          
+
           {activeTab === 'modules' && (
-            <ModulesTab 
+            <ModulesTab
               modules={ALL_MODULES}
               ownedModules={ownedModules}
               onToggleModule={toggleModule}
@@ -239,11 +239,11 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
               loadingModules={loadingModules}
             />
           )}
-          
+
           {activeTab === 'projects' && <ProjectsTab />}
-          
+
           {activeTab === 'sandbox' && (
-            <SandboxTab 
+            <SandboxTab
               isConnected={isConnected}
               onOpenSandbox={onOpenSandbox}
             />
@@ -285,16 +285,20 @@ function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
   }
 
   const boardLessons = getLessonsByBoard(board.lessonBoard);
-  
+
+  console.log('Board lessons:', boardLessons);
+  console.log('Lesson 3:', boardLessons[2]);
+  console.log('Required modules:', boardLessons[2]?.requiredModules);
+
   return (
     <div>
-      <LevelSection 
+      <LevelSection
         title="Available Lessons"
         lessonCount={boardLessons.length}
       >
         {boardLessons.map((lesson, index) => {
           const metadata = getLessonMetadata(lesson);
-          
+
           return (
             <LessonCard
               key={lesson.id}
@@ -306,13 +310,14 @@ function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
               xp={metadata.xpReward}
               challenges={metadata.challenges}
               hasRequiredParts={hasRequiredModules(lesson)}
+              image={lesson.image || null}
               onStart={() => onStartLesson(lesson)}
             />
           );
         })}
       </LevelSection>
 
-      <LevelSection 
+      <LevelSection
         title="Coming Soon"
         description="More lessons are being created!"
         lessonCount={3}
@@ -345,11 +350,12 @@ function LevelSection({ title, description, lessonCount, children }) {
       <p style={{ color: colors.text.tertiary, fontSize: '1rem', marginBottom: '1.5rem', fontFamily }}>
         {description}
       </p>
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-        gap: '1rem',
-        alignItems: 'stretch'
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
+        maxWidth: '800px',
+        margin: '0 auto'
       }}>
         {children}
       </div>
@@ -361,16 +367,16 @@ function ModulesTab({ modules, ownedModules, onToggleModule, lessons, loadingMod
   return (
     <div>
       <p style={{ color: colors.text.tertiary, marginBottom: '1.5rem', fontSize: '0.95rem', fontFamily }}>
-        {loadingModules 
-          ? '🔄 Loading modules...' 
+        {loadingModules
+          ? '🔄 Loading modules...'
           : `✓ Loaded ${modules.length} items. Track which ones you own to see available lessons.`
         }
       </p>
       {Object.values(MODULE_CATEGORIES).map(category => {
         const categoryModules = getModulesByCategory(category);
-        
+
         if (categoryModules.length === 0) return null;
-        
+
         return (
           <div key={category} style={{ marginBottom: '3rem' }}>
             <h3 style={{

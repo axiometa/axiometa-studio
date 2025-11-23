@@ -1,10 +1,13 @@
 import { lesson as lesson1Blinky } from './mcu-breadboard/pixie-m1/lesson-1-blinky';
 import { lesson as lesson2Button } from './mcu-breadboard/pixie-m1/lesson-2-button';
+import { lesson as lesson3Potentiometer } from './mcu-breadboard/pixie-m1/lesson-3-potentiometer'; // ← ADD THIS
+
 // Add more imports as you create lessons...
 
 export const lessons = [
   lesson1Blinky,
   lesson2Button,
+  lesson3Potentiometer,
   // Add more lessons...
 ];
 

@@ -1,5 +1,7 @@
 import React from 'react';
 import VoltageGraph from '../interactive/VoltageGraph';
+import AnalogSimulator from '../interactive/AnalogSimulator';
+import VoltageDivider from '../interactive/VoltageDivider';
 import { colors, fontFamily } from '../../../styles/theme';
 
 const styles = {
@@ -25,8 +27,9 @@ const styles = {
 // Map of available interactive components
 const INTERACTIVE_COMPONENTS = {
   'voltage-graph': VoltageGraph,
+  'analog-simulator': AnalogSimulator,
+  'voltage-divider': VoltageDivider,
   // We'll add more here later:
-  // 'analog-simulator': AnalogSimulator,
   // 'sensor-dashboard': SensorDashboard,
 };
 

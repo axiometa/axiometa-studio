@@ -1,12 +1,15 @@
+const REQUIRED_MODULES = ['AX22-0006', 'TOOL-BB-001', 'TOOL-JW-001', 'MTA0007'];
+
+
 export const lesson = {
   id: "mcu-breadboard-button",
   title: "Button - Use a button!",
   board: "pixie-m1",
   type: "mcu-breadboard",
   xp_reward: 100,
-  // ⚠️ UPDATE 'BUTTON' WITH YOUR ACTUAL BUTTON SKU FROM SHOPIFY
-  // Run this to find it: fetch('https://www.axiometa.io/collections/modules-and-sensors-ax22/products.json?limit=250').then(r=>r.json()).then(d=>d.products.filter(p=>p.title.toLowerCase().includes('button')).forEach(p=>console.log(p.title, p.variants[0]?.sku)))
-  requiredModules: ['AX22-0006', 'AX22-0007', 'TOOL-BB-001', 'TOOL-JW-001'], // ✅ UPDATED (replace AX22-BUTTON-SKU)
+  xp_reward: 150,
+  requiredModules: REQUIRED_MODULES,
+  image: "/images/lessons/lesson-1/thumbnail.jpg",
   
   steps: [
     {

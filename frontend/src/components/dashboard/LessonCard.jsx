@@ -7,82 +7,107 @@ const styles = {
     background: gradients.primarySubtle,
     border: '2px solid rgba(0, 212, 170, 0)',
     borderRadius: borderRadius.lg,
-    padding: '2rem',
-    marginBottom: '2rem',
+    overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    height: '100%'
+    height: '100%',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer'
   },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '1rem',
-    gap: '1rem'
+  cardHover: {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 8px 24px rgba(225, 241, 79, 0.2)'
   },
-  headerContent: {
-    flex: 1
+  imageContainer: {
+    width: '100%',
+    height: '200px',
+    background: '#000',
+    overflow: 'hidden',
+    position: 'relative'
   },
-  checkmark: {
-    minWidth: '48px',
-    width: '48px',
-    height: '48px',
-    borderRadius: '50%',
-    background: colors.primary,
-    color: '#000',
+  image: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover'
+  },
+  imagePlaceholder: {
+    width: '100%',
+    height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    flexShrink: 0
-  },
-  missingParts: {
-    padding: '0.5rem 1rem',
-    background: 'rgba(255, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 0, 0, 0.3)',
-    borderRadius: '20px',
-    color: colors.error,
-    fontSize: '0.85rem',
-    fontWeight: '600',
-    whiteSpace: 'nowrap',
-    flexShrink: 0
+    background: 'linear-gradient(135deg, #1a1a1a, #0a0a0a)',
+    fontSize: '3rem'
   },
   badge: {
-    display: 'inline-block',
+    position: 'absolute',
+    top: '1rem',
+    left: '1rem',
     background: colors.primary,
     color: '#000',
-    padding: '0.25rem 0.75rem',
+    padding: '0.5rem 1rem',
     borderRadius: '20px',
     fontSize: '0.85rem',
     fontWeight: 'bold',
-    marginBottom: '0.75rem',
     fontFamily
   },
+  statusBadge: {
+    position: 'absolute',
+    top: '1rem',
+    right: '1rem',
+    padding: '0.5rem 1rem',
+    borderRadius: '20px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    fontFamily
+  },
+  hasParts: {
+    background: 'rgba(0, 255, 0, 0.2)',
+    border: '1px solid rgba(0, 255, 0, 0.5)',
+    color: '#00ff00'
+  },
+  missingParts: {
+    background: 'rgba(255, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 0, 0, 0.5)',
+    color: '#ff6b6b'
+  },
+  content: {
+    padding: '1.5rem',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column'
+  },
   title: {
-    fontSize: '1.75rem',
-    marginBottom: '0.5rem',
+    fontSize: '1.5rem',
+    marginBottom: '0.75rem',
     color: '#fff',
     fontFamily,
-    margin: 0
+    fontWeight: 'bold'
   },
   description: {
     color: colors.text.secondary,
-    marginBottom: '1rem',
+    marginBottom: '1.25rem',
     lineHeight: '1.6',
     fontFamily,
-    flex: 1
+    flex: 1,
+    fontSize: '0.95rem'
   },
   meta: {
     display: 'flex',
     gap: '1.5rem',
-    marginBottom: '1.5rem',
+    marginBottom: '1.25rem',
     flexWrap: 'wrap'
   },
   metaItem: {
     color: colors.text.tertiary,
     fontSize: '0.9rem',
-    fontFamily
+    fontFamily,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  },
+  buttonContainer: {
+    marginTop: 'auto'
   }
 };
 
@@ -95,36 +120,76 @@ export default function LessonCard({
   xp, 
   challenges,
   hasRequiredParts,
+  image,
   onStart 
 }) {
+  const [isHovered, setIsHovered] = React.useState(false);
+
   return (
-    <div style={styles.card}>
-      <div style={styles.header}>
-        <div style={styles.headerContent}>
-          <div style={styles.badge}>
-            Lesson {lessonNumber} • {boardName}
-          </div>
-          <h3 style={styles.title}>{title}</h3>
-          <p style={styles.description}>{description}</p>
-        </div>
-        {hasRequiredParts ? (
-          <div style={styles.checkmark}>✓</div>
+    <div 
+      style={{
+        ...styles.card,
+        ...(isHovered ? styles.cardHover : {})
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Image */}
+      <div style={styles.imageContainer}>
+        {image ? (
+          <img 
+            src={image} 
+            alt={title}
+            style={styles.image}
+            onError={(e) => e.target.style.display = 'none'}
+          />
         ) : (
-          <div style={styles.missingParts}>Missing Parts</div>
+          <div style={styles.imagePlaceholder}>
+            🎓
+          </div>
         )}
+        
+        {/* Lesson Number Badge */}
+        <div style={styles.badge}>
+          Lesson {lessonNumber} • {boardName}
+        </div>
+
+        {/* Parts Status Badge */}
+        <div style={{
+          ...styles.statusBadge,
+          ...(hasRequiredParts ? styles.hasParts : styles.missingParts)
+        }}>
+          {hasRequiredParts ? '✓ Ready' : 'Missing Parts'}
+        </div>
       </div>
-      <div style={styles.meta}>
-        <span style={styles.metaItem}>{duration} min</span>
-        <span style={styles.metaItem}>{xp} XP</span>
-        <span style={styles.metaItem}>{challenges} Challenges</span>
+
+      {/* Content */}
+      <div style={styles.content}>
+        <h3 style={styles.title}>{title}</h3>
+        <p style={styles.description}>{description}</p>
+        
+        <div style={styles.meta}>
+          <span style={styles.metaItem}>
+            ⏱️ {duration} min
+          </span>
+          <span style={styles.metaItem}>
+            ⭐ {xp} XP
+          </span>
+          <span style={styles.metaItem}>
+            🎯 {challenges} Challenges
+          </span>
+        </div>
+
+        <div style={styles.buttonContainer}>
+          <Button 
+            fullWidth
+            disabled={!hasRequiredParts}
+            onClick={onStart}
+          >
+            {hasRequiredParts ? 'Start Learning' : 'Get Required Parts'}
+          </Button>
+        </div>
       </div>
-      <Button 
-        fullWidth
-        disabled={!hasRequiredParts}
-        onClick={onStart}
-      >
-        {hasRequiredParts ? 'Start Learning' : 'Get Required Parts'}
-      </Button>
     </div>
   );
 }
