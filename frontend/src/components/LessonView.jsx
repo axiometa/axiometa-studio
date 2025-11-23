@@ -111,9 +111,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     uploadStatus,
     compilationLogs,
     validationError,
-    needsReconnect,        // ✅ ADD THIS
     upload,
-    reconnect,             // ✅ ADD THIS
     setCompilationLogs
   } = useUpload();
 
@@ -122,6 +120,21 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   const isChallengeStep = currentStep?.type === 'challenge';
   const challengeId = isChallengeStep ? currentStep.id : null;
   const stars = challengeId ? (challengeStars[challengeId] || 0) : 0;
+
+  // Check connection status on mount and periodically
+  useEffect(() => {
+    const checkConnection = () => {
+      const connected = connectionService.getConnectionStatus();
+      setIsConnected(connected);
+    };
+    
+    checkConnection();
+    
+    // Check every second to sync state
+    const interval = setInterval(checkConnection, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = connectionService.onData((line) => {
@@ -168,6 +181,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
       setIsConnected(true);
     } catch (error) {
       console.error(error);
+      setIsConnected(false);
     }
   };
 
@@ -184,12 +198,6 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     if (isChallengeStep && onChallengeComplete) {
       onChallengeComplete(challengeId, result.stars);
     }
-  };
-
-  // ✅ ADD THIS - Handle reconnection after upload
-  const handleReconnect = async () => {
-    await reconnect();
-    setIsConnected(true);
   };
 
   const renderStep = () => {
@@ -232,8 +240,6 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             showAdvanced={showAdvanced}
             onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
             onUpload={handleUpload}
-            needsReconnect={needsReconnect}      // ✅ ADD THIS
-            onReconnect={handleReconnect}        // ✅ ADD THIS
           />
         );
 
@@ -255,8 +261,6 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             showAdvanced={showAdvanced}
             onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
             onUpload={handleUpload}
-            needsReconnect={needsReconnect}      // ✅ ADD THIS
-            onReconnect={handleReconnect}        // ✅ ADD THIS
           />
         );
 
