@@ -2,6 +2,7 @@ import React from 'react';
 import VoltageGraph from '../interactive/VoltageGraph';
 import VoltageDivider from '../interactive/VoltageDivider';
 import PotentiometerKnob from '../interactive/PotentiometerKnob';
+import ButtonPressVisualizer from '../interactive/ButtonPressVisualizer';
 import { colors, fontFamily } from '../../../styles/theme';
 
 const styles = {
@@ -29,6 +30,7 @@ const INTERACTIVE_COMPONENTS = {
   'voltage-graph': VoltageGraph,
   'voltage-divider': VoltageDivider,
   'potentiometer-knob': PotentiometerKnob,
+  'button-press-visualizer': ButtonPressVisualizer,
   // We'll add more here later:
   // 'sensor-dashboard': SensorDashboard,
 };

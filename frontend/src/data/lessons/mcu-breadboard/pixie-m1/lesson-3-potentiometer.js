@@ -160,50 +160,10 @@ void loop() {
 }`
     },
     {
-      id: "rewire-info",
-      type: "info",
-      title: "Time to Move the Wire!",
-      content: "Great job! You've successfully read analog values from GPIO 1.\n\nNow let's learn something important: you can use MANY different pins for analog input on the ESP32-S3!\n\nLet's move your potentiometer to a different pin and update the code to match."
-    },
-    {
-      id: "rewire-step",
-      type: "wiring-step",
-      title: "Move Potentiometer to GPIO 5",
-      instruction: "Carefully move the potentiometer's signal wire from GPIO 1 to GPIO 5. Keep VCC and GND connected the same way!",
-      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-pot-gpio5.png",
-      stepNumber: 1,
-      totalSteps: 1
-    },
-    {
-      id: "challenge-pin-change",
-      type: "challenge",
-      title: "Challenge: Update the Pin Number",
-      instruction: "You moved the wire to GPIO 5, so now you need to update your code!\n\nChange POT_PIN from 1 to 5. That's it!\n\nThis teaches you an important lesson: the pin number in your code MUST match where you physically connected the wire.",
-      hints: [
-        "Look at the #define POT_PIN line at the top",
-        "Change the 1 to a 5",
-        "Everything else stays the same!"
-      ],
-      code: `#define POT_PIN 1
-
-void setup() {
-  Serial.begin(9600);
-}
-
-void loop() {
-  int potValue = analogRead(POT_PIN);
-  
-  Serial.print("Potentiometer: ");
-  Serial.println(potValue);
-  
-  delay(100);
-}`
-    },
-    {
       id: "complete",
       type: "completion",
       title: "🎉 Lesson Complete!",
-      content: "Congratulations! You've learned:\n• How voltage dividers work and why we need them\n• How potentiometers are adjustable voltage dividers\n• How to read analog values with analogRead()\n• How the ESP32-S3's ADC converts voltage (0-3.3V) to numbers (0-4095)\n• How to display sensor data over Serial Monitor\n• That the pin in your code must match the physical wiring!\n• That GPIO1-18 can all read analog values on ESP32-S3\n\nYou earned 150 XP!",
+      content: "Congratulations! You've learned:\n• How voltage dividers work and why we need them\n• How potentiometers are adjustable voltage dividers\n• How to read analog values with analogRead()\n• How the ESP32-S3's ADC converts voltage (0-3.3V) to numbers (0-4095)\n• How to display sensor data over Serial Monitor\n• That GPIO1-18 can all read analog values on ESP32-S3\n\nYou earned 150 XP!",
       nextLesson: 4
     }
   ]
