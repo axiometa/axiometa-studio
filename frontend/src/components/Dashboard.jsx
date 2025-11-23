@@ -380,7 +380,7 @@ function ModulesTab({ modules, ownedModules, onToggleModule, lessons, loadingMod
               fontWeight: '600',
               fontFamily,
               paddingBottom: '0.5rem',
-              borderBottom: '2px solid rgba(0, 212, 170, 0.2)'
+              borderBottom: '2px solid rgba(225, 241, 79, 0.88)'
             }}>
               {category}
             </h3>
