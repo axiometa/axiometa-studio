@@ -311,7 +311,7 @@ function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
               xp={metadata.xpReward}
               challenges={metadata.challenges}
               hasRequiredParts={hasRequiredModules(lesson)}
-              image={lesson.image || null}
+              image={lesson.thumbnail || null}
               onStart={() => onStartLesson(lesson)}
             />
           );

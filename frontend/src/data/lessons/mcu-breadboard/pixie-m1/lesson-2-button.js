@@ -9,7 +9,7 @@ export const lesson = {
   xp_reward: 100,
   xp_reward: 150,
   requiredModules: REQUIRED_MODULES,
-  image: "/images/lessons/lesson-1/thumbnail.jpg",
+  thumbnail: "/images/lessons/lesson-2/pixie-m1/thumbnail-lesson-2.png",
   
   steps: [
     {
