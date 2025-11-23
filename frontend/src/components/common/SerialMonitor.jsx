@@ -39,16 +39,10 @@ const styles = {
     fontFamily,
     transition: 'all 0.2s'
   },
-  buttonActive: {
-    background: 'rgba(225, 241, 79, 0.15)',
-    borderColor: colors.primary,
-    color: colors.primary
-  },
   content: {
     maxHeight: '200px',
     overflow: 'auto',
-    position: 'relative',
-    scrollBehavior: 'smooth'
+    position: 'relative'
   },
   line: {
     color: colors.terminal,
@@ -102,7 +96,6 @@ if (typeof document !== 'undefined') {
 export default function SerialMonitor({ logs }) {
   const contentRef = useRef(null);
   const endRef = useRef(null);
-  const [autoScroll, setAutoScroll] = useState(true);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
   // Check if user is at the bottom
@@ -112,44 +105,31 @@ export default function SerialMonitor({ logs }) {
     return scrollHeight - scrollTop - clientHeight < 50; // 50px threshold
   };
 
-  // Handle scroll event - detect if user scrolled up
+  // Handle scroll event - show button if not at bottom
   const handleScroll = () => {
     const atBottom = isAtBottom();
-    setAutoScroll(atBottom);
     setShowScrollButton(!atBottom && logs && logs.length > 0);
   };
 
-  // Auto-scroll only if user is at bottom
+  // Show scroll button when new messages arrive and user is scrolled up
   useEffect(() => {
-    if (autoScroll && endRef.current) {
-      endRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (logs && logs.length > 0 && !isAtBottom()) {
+      setShowScrollButton(true);
     }
-  }, [logs, autoScroll]);
+  }, [logs]);
 
   // Scroll to bottom when button clicked
   const scrollToBottom = () => {
     if (endRef.current) {
       endRef.current.scrollIntoView({ behavior: 'smooth' });
-      setAutoScroll(true);
       setShowScrollButton(false);
     }
   };
 
-  // Clear logs
-  const handleClear = () => {
-    // You'll need to add a callback prop to actually clear logs
-    // For now, just scroll to top
+  // Scroll to top
+  const scrollToTop = () => {
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
-    }
-  };
-
-  // Toggle auto-scroll
-  const toggleAutoScroll = () => {
-    const newAutoScroll = !autoScroll;
-    setAutoScroll(newAutoScroll);
-    if (newAutoScroll) {
-      scrollToBottom();
     }
   };
 
@@ -172,21 +152,18 @@ export default function SerialMonitor({ logs }) {
         <h4 style={styles.title}>Serial Monitor ({logs.length} lines)</h4>
         <div style={styles.controls}>
           <button 
-            style={{
-              ...styles.button,
-              ...(autoScroll ? styles.buttonActive : {})
-            }}
-            onClick={toggleAutoScroll}
-            title={autoScroll ? "Auto-scroll ON" : "Auto-scroll OFF"}
-          >
-            {autoScroll ? '📜 Auto' : '⏸️ Paused'}
-          </button>
-          <button 
             style={styles.button}
-            onClick={handleClear}
+            onClick={scrollToTop}
             title="Scroll to top"
           >
             ⬆️ Top
+          </button>
+          <button 
+            style={styles.button}
+            onClick={scrollToBottom}
+            title="Scroll to bottom"
+          >
+            ⬇️ Bottom
           </button>
         </div>
       </div>
@@ -202,7 +179,7 @@ export default function SerialMonitor({ logs }) {
         <div ref={endRef} />
       </div>
 
-      {/* Show scroll-to-bottom button when user scrolls up */}
+      {/* Show floating indicator when scrolled up with new messages */}
       {showScrollButton && (
         <div 
           style={styles.scrollIndicator}

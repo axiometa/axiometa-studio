@@ -48,6 +48,10 @@ const styles = {
     padding: '1rem',
     whiteSpace: 'pre-wrap',
     lineHeight: '1.4'
+  },
+  reconnectContainer: {
+    marginTop: '1rem',
+    marginBottom: '1rem'
   }
 };
 
@@ -62,7 +66,9 @@ export default function UploadStep({
   serialLogs,
   showAdvanced,
   onToggleAdvanced,
-  onUpload
+  onUpload,
+  needsReconnect,
+  onReconnect
 }) {
   return (
     <>
@@ -91,6 +97,17 @@ export default function UploadStep({
               onToggleAdvanced={onToggleAdvanced}
             />
           </div>
+
+          {needsReconnect && (
+            <div style={styles.reconnectContainer}>
+              <Button 
+                fullWidth
+                onClick={onReconnect}
+              >
+                🔌 Reconnect to Device
+              </Button>
+            </div>
+          )}
 
           {showAdvanced && compilationLogs && (
             <div style={styles.advancedPanel}>

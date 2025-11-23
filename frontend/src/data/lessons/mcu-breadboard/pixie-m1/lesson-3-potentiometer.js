@@ -43,7 +43,7 @@ export const lesson = {
       id: "wiring-3",
       type: "wiring-step",
       title: "Step 3: Insert Potentiometer",
-      instruction: "Insert the potentiometer module. Connect VCC to 3.3V, GND to ground, and SIG to GPIO 34 (analog pin).",
+      instruction: "Insert the potentiometer module. Connect VCC to 3.3V, GND to ground, and SIG to GPIO 1 (analog pin).",
       image: "/images/lessons/lesson-pot/pixie-m1/bb-pixie-pot-s3.png",
       stepNumber: 3,
       totalSteps: 4
@@ -90,7 +90,7 @@ export const lesson = {
       id: "code-intro",
       type: "code-explanation",
       title: "Understanding the Code",
-      code: `#define POT_PIN 34
+      code: `#define POT_PIN 1
 
 void setup() {
   Serial.begin(9600);
@@ -107,8 +107,8 @@ void loop() {
       explanations: [
         {
           line: 0,
-          highlight: "#define POT_PIN 34",
-          explanation: "Pin 34 is an analog input pin on the ESP32. It can read voltages from 0V to 3.3V."
+          highlight: "#define POT_PIN 1",
+          explanation: "Pin 1 is an analog input pin on the ESP32-S3. It can read voltages from 0V to 3.3V."
         },
         {
           line: 3,
@@ -118,7 +118,7 @@ void loop() {
         {
           line: 7,
           highlight: "int potValue = analogRead(POT_PIN);",
-          explanation: "Reads the voltage on pin 34 and converts it to a number from 0 (0V) to 4095 (3.3V) using the ADC."
+          explanation: "Reads the voltage on pin 1 and converts it to a number from 0 (0V) to 4095 (3.3V) using the ADC."
         },
         {
           line: 9,
@@ -142,7 +142,7 @@ void loop() {
       type: "upload",
       title: "Upload and Test",
       instruction: "Upload this code and watch the Serial Monitor below. Try rotating your potentiometer and watch the values change from 0 to 4095!",
-      code: `#define POT_PIN 34
+      code: `#define POT_PIN 1
 
 void setup() {
   Serial.begin(9600);
@@ -160,15 +160,15 @@ void loop() {
     {
       id: "challenge-1",
       type: "challenge",
-      title: "Challenge 1: Show Voltage",
-      instruction: "Instead of showing the raw ADC value (0-4095), convert it to actual voltage (0.0-3.3V) and print that!\n\nHint: voltage = (potValue / 4095.0) * 3.3",
+      title: "Challenge 1: Show Voltage Too",
+      instruction: "Great job reading the potentiometer! Now let's show BOTH the raw value AND the actual voltage.\n\nAdd a second line that prints the voltage in volts (0.0V to 3.3V).\n\nHint: voltage = (potValue / 4095.0) * 3.3",
       hints: [
-        "You need to do math to convert the value",
-        "Divide potValue by 4095.0 to get a number between 0 and 1",
-        "Multiply by 3.3 to get the voltage",
+        "You need to calculate the voltage from potValue",
+        "Create a new variable: float voltage = (potValue / 4095.0) * 3.3;",
+        "Add another Serial.print() and Serial.println() to show it",
         "Use Serial.println(voltage, 2); to show 2 decimal places"
       ],
-      code: `#define POT_PIN 34
+      code: `#define POT_PIN 1
 
 void setup() {
   Serial.begin(9600);
@@ -184,16 +184,31 @@ void loop() {
 }`
     },
     {
+      id: "rewire-info",
+      type: "info",
+      title: "Time to Move the Wire!",
+      content: "Nice work! You've successfully read analog values from GPIO 1.\n\nNow let's learn something important: you can use MANY different pins for analog input on the ESP32-S3!\n\nLet's move your potentiometer to a different pin and update the code to match."
+    },
+    {
+      id: "rewire-step",
+      type: "wiring-step",
+      title: "Move Potentiometer to GPIO 5",
+      instruction: "Carefully move the potentiometer's signal wire from GPIO 1 to GPIO 5. Keep everything else connected the same way!",
+      image: "/images/lessons/lesson-pot/pixie-m1/bb-pixie-pot-gpio5.png",
+      stepNumber: 1,
+      totalSteps: 1
+    },
+    {
       id: "challenge-2",
       type: "challenge",
-      title: "Challenge 2: Percentage Display",
-      instruction: "Show the potentiometer position as a percentage (0% to 100%)!\n\nHint: percentage = (potValue / 4095.0) * 100",
+      title: "Challenge 2: Update the Pin",
+      instruction: "You moved the wire to GPIO 5, so now you need to update your code!\n\nChange POT_PIN from 1 to 5. That's it!\n\nThis teaches you an important lesson: the pin number in your code MUST match where you physically connected the wire.",
       hints: [
-        "Similar to voltage conversion but multiply by 100 instead of 3.3",
-        "Use (potValue / 4095.0) * 100",
-        "You can use map() function: map(potValue, 0, 4095, 0, 100)"
+        "Look at the #define POT_PIN line at the top",
+        "Change the 1 to a 5",
+        "Make sure you keep the rest of the code the same!"
       ],
-      code: `#define POT_PIN 34
+      code: `#define POT_PIN 1
 
 void setup() {
   Serial.begin(9600);
@@ -203,36 +218,12 @@ void loop() {
   int potValue = analogRead(POT_PIN);
   float voltage = (potValue / 4095.0) * 3.3;
   
+  Serial.print("Raw Value: ");
+  Serial.println(potValue);
+  
   Serial.print("Voltage: ");
-  Serial.println(voltage, 2);
-  
-  delay(100);
-}`
-    },
-    {
-      id: "challenge-3",
-      type: "challenge",
-      title: "Challenge 3: LED Brightness Control",
-      instruction: "Use the potentiometer to control LED brightness! Connect an LED to pin 12 and use the pot value to set PWM brightness.\n\nHint: Use ledcWrite() or analogWrite() with a value from 0-255",
-      hints: [
-        "You need to map 0-4095 to 0-255 for LED brightness",
-        "Use: int brightness = map(potValue, 0, 4095, 0, 255);",
-        "Set up PWM with ledcSetup() and ledcAttachPin() in setup()",
-        "Use ledcWrite(channel, brightness) in loop()"
-      ],
-      code: `#define POT_PIN 34
-
-void setup() {
-  Serial.begin(9600);
-}
-
-void loop() {
-  int potValue = analogRead(POT_PIN);
-  int percentage = map(potValue, 0, 4095, 0, 100);
-  
-  Serial.print("Position: ");
-  Serial.print(percentage);
-  Serial.println("%");
+  Serial.print(voltage, 2);
+  Serial.println("V");
   
   delay(100);
 }`
@@ -241,7 +232,7 @@ void loop() {
       id: "complete",
       type: "completion",
       title: "🎉 Lesson Complete!",
-      content: "Congratulations! You've learned:\n• How voltage dividers work and why we need them\n• How potentiometers are adjustable voltage dividers\n• How to read analog values with analogRead()\n• How the ADC converts voltage to numbers\n• How to process and display sensor data\n\nYou earned 150 XP!",
+      content: "Congratulations! You've learned:\n• How voltage dividers work and why we need them\n• How potentiometers are adjustable voltage dividers\n• How to read analog values with analogRead()\n• How the ESP32-S3's ADC converts voltage (0-3.3V) to numbers (0-4095)\n• How to display sensor data over Serial\n• That the pin in your code must match the physical wiring!\n• That GPIO1-18 can all read analog values on ESP32-S3\n\nYou earned 150 XP!",
       nextLesson: 4
     }
   ]

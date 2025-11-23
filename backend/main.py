@@ -151,7 +151,7 @@ async def root():
         "arduino_cli": "ready" if ARDUINO_CLI_READY else "not ready",
         "ai_chat": "available" if ANTHROPIC_AVAILABLE else "disabled",
         "error": ARDUINO_CLI_ERROR,
-        "version": "1.2"
+        "version": "1.3-esp32s3"
     }
 
 @app.get("/health")
@@ -165,7 +165,7 @@ async def health():
 
 @app.post("/api/validate-code")
 async def validate_code(request: dict):
-    """AI-powered code validation before compilation"""
+    """AI-powered code validation before compilation - ESP32-S3 specific"""
     
     print(f"🔍 Code validation request received")
     
@@ -185,46 +185,124 @@ async def validate_code(request: dict):
     try:
         client = anthropic.Anthropic(api_key=api_key)
         
-        validation_prompt = f"""You are an ESP32 code validator. Analyze this code for SIMPLE, OBVIOUS mistakes that would prevent compilation or cause immediate runtime errors.
+        validation_prompt = f"""You are an ESP32-S3 code validator for the Axiometa PIXIE M1 board.
+
+CRITICAL HARDWARE KNOWLEDGE - ESP32-S3 (PIXIE M1):
+
+BOARD SPECIFICATIONS:
+- Microcontroller: ESP32-S3-Mini-1 (NOT regular ESP32!)
+- Operating Voltage: 3.3V ONLY
+- Flash: 4MB
+- USB: Native USB on GPIO19/GPIO20
+
+ADC PINS (Analog Input) - THESE ARE THE VALID PINS:
+✅ VALID ADC1 PINS (12-bit, 0-3.3V):
+  GPIO1, GPIO2, GPIO3, GPIO4, GPIO5, GPIO6, GPIO7, GPIO8, GPIO9, GPIO10
+
+✅ VALID ADC2 PINS (12-bit, 0-3.3V):
+  GPIO11, GPIO12, GPIO13, GPIO14, GPIO15, GPIO16, GPIO17, GPIO18
+
+❌ INVALID - THESE PINS DON'T EXIST ON ESP32-S3:
+  GPIO32, GPIO33, GPIO34, GPIO35, GPIO36, GPIO37, GPIO38, GPIO39
+
+CRITICAL: ESP32-S3 is DIFFERENT from original ESP32!
+- Original ESP32 had GPIO32-39 for ADC
+- ESP32-S3 DOES NOT have GPIO32-39!
+- ESP32-S3 ADC pins are GPIO1-18
+
+PWM/DIGITAL I/O:
+✅ Almost any GPIO1-18 can do PWM or digital I/O
+❌ Avoid GPIO19/20 (reserved for USB)
 
 USER'S CODE:
 ```cpp
 {user_code}
 ```
 
-{f'''EXPECTED/REFERENCE CODE:
+{f'''EXPECTED/REFERENCE CODE (for reference only):
 ```cpp
 {expected_code}
 ```
+
+NOTE: The expected code might be for a different ESP32 variant. Validate against ESP32-S3 specs, not the expected code!
 ''' if expected_code else ''}
 
 {f'CURRENT TASK: {step_instruction}' if step_instruction else ''}
 
-Check for:
-1. Missing semicolons
-2. Unclosed braces or parentheses
-3. Typos in function names (digitalWrite vs digitalwrite)
-4. Missing #define or variable declarations
-5. Obvious logic errors compared to the reference
+VALIDATION RULES - Check for:
+
+1. **CRITICAL PIN ERRORS** (Most Important!):
+   ❌ Using GPIO32, GPIO33, GPIO34, GPIO35, GPIO36, GPIO37, GPIO38, GPIO39 for ANYTHING
+      → These pins don't exist on ESP32-S3!
+      → Suggest GPIO1-18 instead
+   
+   ❌ Using analogRead() on pins outside GPIO1-18
+      → Must use GPIO1-18 for analog input
+   
+   ✅ GPIO1-18 are ALL VALID for analogRead() on ESP32-S3
+      → If code uses these, it's CORRECT!
+
+2. **Syntax Errors**:
+   - Missing semicolons
+   - Unclosed braces or parentheses
+   - Typos in function names (digitalWrite vs digitalwrite)
+
+3. **Declaration Errors**:
+   - Missing #define statements
+   - Undeclared variables
+
+4. **Logic Errors** (only if OBVIOUS):
+   - Clear mistakes in program flow
+
+IMPORTANT VALIDATION NOTES:
+- If user code uses GPIO1, GPIO2, GPIO3... up to GPIO18 for analogRead(), that's ✅ CORRECT!
+- If user code uses GPIO32-39, that's ❌ WRONG - these don't exist on ESP32-S3!
+- Don't compare too strictly against expected code - user might use different valid pins
+- Only flag OBVIOUS, BLOCKING errors
+
+EXAMPLES:
+❌ WRONG: #define POT_PIN 34  // GPIO34 doesn't exist on ESP32-S3!
+✅ RIGHT: #define POT_PIN 1   // GPIO1 is valid ADC pin
+
+❌ WRONG: #define SENSOR_PIN 36  // GPIO36 doesn't exist!
+✅ RIGHT: #define SENSOR_PIN 4   // GPIO4 is valid
 
 RESPOND IN THIS EXACT FORMAT:
 STATUS: [VALID or INVALID]
 ISSUE: [brief description of the problem, or "None" if valid]
 GUIDANCE: [friendly hint to fix it, or empty if valid]
 
-Be encouraging! Only flag OBVIOUS mistakes. If the code looks reasonable, mark it VALID even if it's not perfect."""
+Remember: Be encouraging! Only flag OBVIOUS mistakes that would prevent the code from working."""
 
-        system_param = [{"type": "text", "text": "You are a helpful ESP32 code validator. Be concise and encouraging."}]
+        # ESP32-S3 aware system prompt
+        system_param = [{
+            "type": "text", 
+            "text": """You are a friendly and knowledgeable code validator specifically for the ESP32-S3 microcontroller (PIXIE M1 board).
+
+ESP32-S3 HARDWARE FACTS (memorize these):
+- ADC pins: GPIO1-18 ONLY
+- GPIO32-39 DO NOT EXIST on ESP32-S3 (they exist on original ESP32 but not S3!)
+- Operating voltage: 3.3V only
+- USB pins: GPIO19/GPIO20 (avoid using these)
+
+VALIDATION APPROACH:
+- Be strict about pin numbers (catch GPIO32-39 usage)
+- Be lenient about minor style differences
+- Be encouraging in your tone
+- Only flag errors that would break the code
+
+NEVER suggest GPIO32-39 for anything - they don't exist on this board!"""
+        }]
         
         response = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=300,
+            max_tokens=400,
             system=system_param,
             messages=[{"role": "user", "content": validation_prompt}]
         )
         
         result = response.content[0].text
-        print(f"🤖 Validation result: {result}")
+        print(f"🤖 Validation result:\n{result}")
         
         # Parse the response
         is_valid = "STATUS: VALID" in result
@@ -284,7 +362,7 @@ async def compile_code(request: CompileRequest):
         with open(ino_path, "w", encoding="utf-8") as f:
             f.write(request.code)
         
-        # Compile using Arduino CLI
+        # Compile using Arduino CLI for ESP32-S3 (PIXIE M1)
         fqbn = "esp32:esp32:axiometa_pixie_m1:CDCOnBoot=cdc"
         compile_cmd = [
             "arduino-cli", "compile",
@@ -293,7 +371,7 @@ async def compile_code(request: CompileRequest):
             sketch_dir
         ]
         
-        print(f"🔨 Compiling: {compile_cmd}")
+        print(f"🔨 Compiling for ESP32-S3 (PIXIE M1): {compile_cmd}")
         
         result = subprocess.run(
             compile_cmd,

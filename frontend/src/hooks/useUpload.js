@@ -8,6 +8,7 @@ export function useUpload() {
   const [uploadStatus, setUploadStatus] = useState('');
   const [compilationLogs, setCompilationLogs] = useState('');
   const [validationError, setValidationError] = useState(null);
+  const [needsReconnect, setNeedsReconnect] = useState(false);
 
   const upload = async (code, expectedCode = '', instruction = '', onSuccess = null) => {
     if (!code.trim()) return;
@@ -16,6 +17,7 @@ export function useUpload() {
     setUploadStatus('Axie is checking your code...');
     setCompilationLogs('');
     setValidationError(null);
+    setNeedsReconnect(false);
 
     try {
       const device = connectionService.getPort();
@@ -25,6 +27,7 @@ export function useUpload() {
       }
       
       // Validate code
+      setUploadStatus('Axie is checking your code...');
       const validation = await api.validateCode(code, expectedCode, instruction);
       
       if (!validation.is_valid) {
@@ -58,13 +61,12 @@ export function useUpload() {
         setCompilationLogs(prev => prev + message + '\n');
       });
 
-      setUploadStatus('Upload complete! Code is running.');
+      setUploadStatus('Upload complete! Click "Reconnect" below to see serial output.');
       setCompilationLogs(prev => prev + 'Upload complete!\n');
+      setCompilationLogs(prev => prev + '\n⚠️  Device needs reconnection - click "Reconnect" button below\n');
       
-      // Reconnect
-      setCompilationLogs(prev => prev + 'Reconnecting...\n');
-      await new Promise(r => setTimeout(r, 1000));
-      await connectionService.connect();
+      // Set flag to show reconnect button
+      setNeedsReconnect(true);
 
       if (onSuccess) onSuccess();
 
@@ -73,9 +75,27 @@ export function useUpload() {
     } catch (error) {
       setUploadStatus('Upload failed');
       setCompilationLogs(prev => prev + `Error: ${error.message}\n`);
+      setNeedsReconnect(false);
       return { success: false, stars: 0 };
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const reconnect = async () => {
+    setUploadStatus('Reconnecting...');
+    setCompilationLogs(prev => prev + 'Reconnecting to device...\n');
+    
+    try {
+      await new Promise(r => setTimeout(r, 1000)); // Wait for device to boot
+      await connectionService.connect();
+      
+      setUploadStatus('Connected! Your code is running.');
+      setCompilationLogs(prev => prev + '✅ Reconnected successfully!\n');
+      setNeedsReconnect(false);
+    } catch (error) {
+      setUploadStatus('Reconnection failed - click "Reconnect" again');
+      setCompilationLogs(prev => prev + `❌ Reconnection failed: ${error.message}\n`);
     }
   };
 
@@ -84,7 +104,9 @@ export function useUpload() {
     uploadStatus,
     compilationLogs,
     validationError,
+    needsReconnect,
     upload,
+    reconnect,
     setCompilationLogs
   };
 }

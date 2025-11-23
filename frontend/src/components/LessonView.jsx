@@ -111,8 +111,10 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     uploadStatus,
     compilationLogs,
     validationError,
+    needsReconnect,        // ✅ ADD THIS
     upload,
-    setCompilationLogs  // FIXED: Added missing destructure
+    reconnect,             // ✅ ADD THIS
+    setCompilationLogs
   } = useUpload();
 
   const currentStep = lesson.steps[currentStepIndex];
@@ -141,7 +143,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     if (currentStepIndex < lesson.steps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
       setHintLevel(0);
-      setCompilationLogs('');  // FIXED: Now properly defined
+      setCompilationLogs('');
 
       const nextStep = lesson.steps[currentStepIndex + 1];
       if (nextStep.type === 'upload' || nextStep.type === 'challenge') {
@@ -184,6 +186,12 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     }
   };
 
+  // ✅ ADD THIS - Handle reconnection after upload
+  const handleReconnect = async () => {
+    await reconnect();
+    setIsConnected(true);
+  };
+
   const renderStep = () => {
     switch (currentStep.type) {
       case 'info':
@@ -224,6 +232,8 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             showAdvanced={showAdvanced}
             onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
             onUpload={handleUpload}
+            needsReconnect={needsReconnect}      // ✅ ADD THIS
+            onReconnect={handleReconnect}        // ✅ ADD THIS
           />
         );
 
@@ -245,6 +255,8 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             showAdvanced={showAdvanced}
             onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
             onUpload={handleUpload}
+            needsReconnect={needsReconnect}      // ✅ ADD THIS
+            onReconnect={handleReconnect}        // ✅ ADD THIS
           />
         );
 
