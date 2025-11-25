@@ -1,19 +1,20 @@
-import { lesson as lesson1Blinky } from './mcu-breadboard/pixie-m1/lesson-1-blinky';
-import { lesson as lesson2Button } from './mcu-breadboard/pixie-m1/lesson-2-button';
-import { lesson as lesson3Potentiometer } from './mcu-breadboard/pixie-m1/lesson-3-potentiometer'; // ← ADD THIS
-
-// Add more imports as you create lessons...
+import { lesson as lesson1Introduction } from './lesson-1-introduction';
+import { lesson as lesson2Blinky } from './mcu-breadboard/pixie-m1/lesson-2-blinky';
+import { lesson as lesson3Button } from './mcu-breadboard/pixie-m1/lesson-3-button';
+import { lesson as lesson4Potentiometer } from './mcu-breadboard/pixie-m1/lesson-4-potentiometer';
 
 export const lessons = [
-  lesson1Blinky,
-  lesson2Button,
-  lesson3Potentiometer,
-  // Add more lessons...
+  lesson1Introduction,
+  lesson2Blinky,
+  lesson3Button,
+  lesson4Potentiometer,
 ];
 
-// Helper functions (no need to edit these)
+// Helper functions
 export const getLessonsByBoard = (boardId) => {
-  return lessons.filter(lesson => lesson.board === boardId);
+  return lessons.filter(lesson => 
+    lesson.board === boardId || lesson.board === 'universal'
+  );
 };
 
 export const getLesson = (id) => {

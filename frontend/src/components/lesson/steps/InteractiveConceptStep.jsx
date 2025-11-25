@@ -4,6 +4,8 @@ import VoltageDivider from '../interactive/VoltageDivider';
 import PotentiometerKnob from '../interactive/PotentiometerKnob';
 import ButtonPressVisualizer from '../interactive/ButtonPressVisualizer';
 import { colors, fontFamily } from '../../../styles/theme';
+import CircuitFlow from '../interactive/CircuitFlow';
+import WaterFlowAnalogy from '../interactive/WaterFlowAnalogy';
 
 const styles = {
   container: {
@@ -31,8 +33,8 @@ const INTERACTIVE_COMPONENTS = {
   'voltage-divider': VoltageDivider,
   'potentiometer-knob': PotentiometerKnob,
   'button-press-visualizer': ButtonPressVisualizer,
-  // We'll add more here later:
-  // 'sensor-dashboard': SensorDashboard,
+  'circuit-flow': CircuitFlow,
+  'water-flow-analogy': WaterFlowAnalogy,
 };
 
 export default function InteractiveConceptStep({ 
