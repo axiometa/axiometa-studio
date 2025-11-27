@@ -10,7 +10,7 @@ const styles = {
     color: colors.primary,
     marginBottom: '1.5rem',
     fontFamily,
-    textAlign: 'center'
+    textAlign: 'left'
   },
   imageContainer: {
     display: 'flex',
@@ -28,14 +28,13 @@ const styles = {
     color: colors.text.secondary,
     fontSize: '1.1rem',
     lineHeight: '1.8',
-    whiteSpace: 'pre-line',
     marginBottom: '2rem',
     fontFamily,
-    textAlign: 'center'
+    textAlign: 'left'
   },
   buttons: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     gap: '1rem',
     flexWrap: 'wrap'
   },

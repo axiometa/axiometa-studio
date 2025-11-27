@@ -4,11 +4,12 @@
  */
 
 // Static modules that aren't in Shopify (tools, accessories)
+// Static modules that aren't in Shopify (tools, accessories)
 export const STATIC_MODULES = [
   {
     id: 'TOOL-BB-001',
     name: 'Breadboard',
-    image: '/images/misc/breadboard.png',
+    image: '/images/misc/tools/breadboard.png',  // ← FIXED
     description: 'Solderless prototyping breadboard for building circuits',
     category: 'Tools',
     purchaseUrl: 'https://www.amazon.com/s?k=breadboard'
@@ -16,7 +17,7 @@ export const STATIC_MODULES = [
   {
     id: 'TOOL-JW-001',
     name: 'Jumper Wires',
-    image: '/images/misc/jumper-wires.png',
+    image: '/images/misc/tools/jumper-wires.png',  // ← FIXED
     description: 'Male-to-male jumper wires for connecting components',
     category: 'Tools',
     purchaseUrl: 'https://www.amazon.com/s?k=jumper+wires'
@@ -25,21 +26,21 @@ export const STATIC_MODULES = [
     id: 'MTA0007',
     name: 'PIXIE M1',
     image: '/images/dev-boards/pixie-m1.png',
-    description: 'The Axiometa PIXIE M1 is a small but capable development board that works well for both beginners and experienced makers. It uses the ESP32-S3-Mini-1 chip, giving you dual-core processing, Wi-Fi, and Bluetooth Low Energy in a breadboard-friendly size.',
+    description: 'The Axiometa PIXIE M1 is a small but capable development board...',
     category: 'Dev Boards',
     purchaseUrl: 'https://www.axiometa.io/products/axiometa-pixie-m1'
   },
   {
     id: 'RESISTOR',
-    name: 'Resistor Pack',
-    image: '/images/passives/resistors.png',
+    name: 'Resistor',
+    image: '/images/misc/passives/resistors.png',  // ← FIXED
     description: 'A pack of resistors',
     category: 'Passives',
   },
   {
     id: 'LEDs',
-    name: 'LEDs',
-    image: '/images/passives/red-led.png',
+    name: 'LED',
+    image: '/images/misc/passives/red-led.png',  // ← FIXED
     description: 'Light Emitting Diodes - LEDs',
     category: 'Passives',
   }

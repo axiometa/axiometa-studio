@@ -6,10 +6,13 @@ const styles = {
   container: {
     padding: '2rem'
   },
+  header: {
+    marginBottom: '1rem'
+  },
   title: {
     fontSize: '1.5rem',
     color: colors.primary,
-    marginBottom: '1rem',
+    marginBottom: '0.5rem',
     fontFamily,
     textAlign: 'left'
   },
@@ -23,23 +26,14 @@ const styles = {
     fontFamily,
     marginBottom: '1rem'
   },
-  instruction: {
-    color: colors.text.secondary,
-    fontSize: '1.1rem',
-    lineHeight: '1.8',
-    whiteSpace: 'pre-line',
+  contentArea: {
     marginBottom: '1.5rem',
-    fontFamily,
-    textAlign: 'left'
-  },
-  mainContent: {
-    display: 'flex',
-    gap: '1.5rem',
-    alignItems: 'flex-start'
+    overflow: 'hidden' // clearfix
   },
   kitIconContainer: {
-    flexShrink: 0,
-    width: '120px',
+    float: 'left',
+    marginRight: '1.5rem',
+    marginBottom: '0.5rem',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -49,14 +43,14 @@ const styles = {
     borderRadius: borderRadius.md
   },
   kitIconImage: {
-    width: '80px',
-    height: '80px',
+    width: '100px',
+    height: '100px',
     objectFit: 'contain',
     marginBottom: '0.75rem'
   },
   kitIconLabel: {
     color: colors.text.muted,
-    fontSize: '0.7rem',
+    fontSize: '0.75rem',
     textAlign: 'center',
     marginBottom: '0.25rem',
     fontFamily
@@ -67,15 +61,18 @@ const styles = {
     fontWeight: '600',
     textAlign: 'center',
     fontFamily,
-    lineHeight: '1.3'
+    lineHeight: '1.2',
+    maxWidth: '110px'
   },
-  imageSection: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center'
+  instruction: {
+    color: colors.text.secondary,
+    fontSize: '1.1rem',
+    lineHeight: '1.8',
+    fontFamily,
+    textAlign: 'left',
+    margin: 0
   },
-  singleImageContainer: {
+  imageContainer: {
     display: 'flex',
     justifyContent: 'center',
     width: '100%'
@@ -104,16 +101,11 @@ const styles = {
     borderRadius: borderRadius.md,
     border: `1px solid ${colors.borderLight}`
   },
-  singleImage: {
+  mainImage: {
     maxWidth: '100%',
-    maxHeight: '350px',
+    maxHeight: '400px',
     borderRadius: borderRadius.lg,
     border: `2px solid ${colors.borderLight}`
-  },
-  fullWidthImageContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: '1rem'
   }
 };
 
@@ -122,8 +114,7 @@ export default function WiringStep({
   instruction, 
   image,
   images,
-  kitItem,      // Object format: { name, image } - direct usage
-  kitItemId,    // Module ID format: "MTA0007" - lookup from modules
+  kitItemId,
   stepNumber, 
   totalSteps 
 }) {
@@ -133,53 +124,37 @@ export default function WiringStep({
 
   useEffect(() => {
     setImageError(false);
+    setResolvedKitItem(null);
     
-    // If kitItemId is provided, look up the module first (priority)
-    if (kitItemId) {
-      const module = getModuleById(kitItemId);
-      if (module && module.image) {
-        setResolvedKitItem({
-          name: module.name,
-          image: module.image
-        });
-        return;
-      }
-      
-      // If not found, wait for Shopify modules to load
-      const timer = setTimeout(() => {
-        const delayedModule = getModuleById(kitItemId);
-        if (delayedModule && delayedModule.image) {
-          setResolvedKitItem({
-            name: delayedModule.name,
-            image: delayedModule.image
-          });
-        } else {
-          console.warn(`Kit item module not found: ${kitItemId}`);
-          if (kitItem && kitItem.name) {
-            setResolvedKitItem(kitItem);
-          } else {
-            setResolvedKitItem(null);
-          }
-        }
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
+    if (!kitItemId) return;
 
-    // If kitItem object is provided directly (with name and image), use it
-    if (kitItem && kitItem.name) {
-      setResolvedKitItem(kitItem);
+    const module = getModuleById(kitItemId);
+    if (module && module.image) {
+      setResolvedKitItem({
+        name: module.name,
+        image: module.image
+      });
       return;
     }
-
-    setResolvedKitItem(null);
-  }, [kitItem, kitItemId]);
+    
+    const timer = setTimeout(() => {
+      const delayedModule = getModuleById(kitItemId);
+      if (delayedModule && delayedModule.image) {
+        setResolvedKitItem({
+          name: delayedModule.name,
+          image: delayedModule.image
+        });
+      }
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [kitItemId]);
 
   const handleImageError = () => {
     setImageError(true);
   };
 
-  const renderImages = () => {
+  const renderMainImage = () => {
     if (hasDualImages) {
       return (
         <div style={styles.dualImageContainer}>
@@ -195,8 +170,8 @@ export default function WiringStep({
     
     if (image) {
       return (
-        <div style={styles.singleImageContainer}>
-          <img src={image} alt={title} style={styles.singleImage} />
+        <div style={styles.imageContainer}>
+          <img src={image} alt={title} style={styles.mainImage} />
         </div>
       );
     }
@@ -204,40 +179,42 @@ export default function WiringStep({
     return null;
   };
 
+  const showKitItem = resolvedKitItem && !imageError;
+
   return (
     <div style={styles.container}>
-      {stepNumber && totalSteps && (
-        <div style={{ textAlign: 'left' }}>
-          <span style={styles.stepBadge}>Step {stepNumber} of {totalSteps}</span>
+      {/* Kit item floats left, everything else flows around it */}
+      {showKitItem && (
+        <div style={styles.kitIconContainer}>
+          <img 
+            src={resolvedKitItem.image} 
+            alt={resolvedKitItem.name} 
+            style={styles.kitIconImage}
+            onError={handleImageError}
+          />
+          <div style={styles.kitIconLabel}>You need: </div>
+          <div style={styles.kitIconName}>{resolvedKitItem.name}</div>
         </div>
       )}
       
-      <h2 style={styles.title}>{title}</h2>
+      <div style={styles.header}>
+        {stepNumber && totalSteps && (
+          <div style={{ textAlign: 'left' }}>
+            <span style={styles.stepBadge}>Step {stepNumber} of {totalSteps}</span>
+          </div>
+        )}
+        
+        <h2 style={styles.title}>{title}</h2>
+      </div>
       
-      <p style={styles.instruction}>{instruction}</p>
+      <div style={styles.contentArea}>
+        <p style={styles.instruction}>{instruction}</p>
+      </div>
 
-      {resolvedKitItem && !imageError ? (
-        <div style={styles.mainContent}>
-          <div style={styles.kitIconContainer}>
-            <img 
-              src={resolvedKitItem.image} 
-              alt={resolvedKitItem.name} 
-              style={styles.kitIconImage}
-              onError={handleImageError}
-            />
-            <div style={styles.kitIconLabel}>From your kit:</div>
-            <div style={styles.kitIconName}>{resolvedKitItem.name}</div>
-          </div>
-          
-          <div style={styles.imageSection}>
-            {renderImages()}
-          </div>
-        </div>
-      ) : (
-        <div style={styles.fullWidthImageContainer}>
-          {renderImages()}
-        </div>
-      )}
+      {/* Main image below, unaffected by float */}
+      <div style={{ clear: 'both' }}>
+        {renderMainImage()}
+      </div>
     </div>
   );
 }

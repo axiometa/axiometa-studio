@@ -7,7 +7,7 @@ export const lesson = {
   type: "mcu-breadboard",
   xp_reward: 150,
   requiredModules: REQUIRED_MODULES,
-  thumbnail: "/images/lessons/lesson-4/pixie-m1/thumbnail-lesson-4.png",
+  thumbnail: "/images/lessons/pixie-m1/lesson-4/thumbnail.png",
 
   steps: [
     {
