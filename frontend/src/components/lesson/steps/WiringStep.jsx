@@ -1,161 +1,155 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { colors, borderRadius, fontFamily } from '../../../styles/theme';
 
 const styles = {
   container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2rem'
-  },
-  header: {
-    marginBottom: '1.5rem'
-  },
-  title: {
-    fontSize: '2.25rem',
-    marginBottom: '0.5rem',  // ✅ REDUCED from 1rem
-    color: colors.primary,
-    fontFamily
-  },
-  stepIndicator: {
-    fontSize: '1rem',
-    color: colors.text.muted,
-    marginBottom: '0.75rem',  // ✅ REDUCED from 1.5rem
-    fontFamily
-  },
-  instruction: {
-    fontSize: '1.125rem',
-    lineHeight: '1.8',
-    color: colors.text.secondary,
-    marginBottom: '2rem',
-    fontFamily
-  },
-  imageContainer: {
-    width: '100%',
-    maxWidth: '800px',
-    margin: '0 auto',
-    position: 'relative',
-    cursor: 'zoom-in'
-  },
-  image: {
-    width: '100%',
-    height: 'auto',
-    borderRadius: borderRadius.lg,
-    border: `2px solid ${colors.borderLight}`,
-    transition: 'transform 0.2s ease'
-  },
-  imageHover: {
-    transform: 'scale(1.02)'
-  },
-  magnifyIcon: {
-    position: 'absolute',
-    top: '1rem',
-    right: '1rem',
-    background: 'rgba(0, 0, 0, 0.7)',
-    color: colors.primary,
-    padding: '0.5rem 0.75rem',
-    borderRadius: borderRadius.sm,
-    fontSize: '0.875rem',
-    fontFamily,
-    fontWeight: '600',
-    pointerEvents: 'none',
-    opacity: 0,
-    transition: 'opacity 0.2s ease'
-  },
-  magnifyIconVisible: {
-    opacity: 1
-  },
-  modal: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0, 0, 0, 0.95)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 9999,
-    cursor: 'zoom-out',
     padding: '2rem'
   },
-  modalImage: {
-    maxWidth: '95%',
-    maxHeight: '95%',
-    width: 'auto',
-    height: 'auto',
-    borderRadius: borderRadius.lg,
-    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)'
+  title: {
+    fontSize: '1.5rem',
+    color: colors.primary,
+    marginBottom: '1rem',
+    fontFamily,
+    textAlign: 'left'
   },
-  closeHint: {
-    position: 'absolute',
-    top: '2rem',
-    right: '2rem',
-    color: colors.text.muted,
+  stepBadge: {
+    display: 'inline-block',
+    background: 'rgba(225, 241, 79, 0.15)',
+    color: colors.primary,
+    padding: '0.25rem 0.75rem',
+    borderRadius: borderRadius.sm,
+    fontSize: '0.85rem',
+    fontFamily,
+    marginBottom: '1rem'
+  },
+  instruction: {
+    color: colors.text.secondary,
+    fontSize: '1.1rem',
+    lineHeight: '1.8',
+    whiteSpace: 'pre-line',
+    marginBottom: '2rem',
+    fontFamily,
+    textAlign: 'left'
+  },
+  singleImageContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '1.5rem'
+  },
+  dualImageContainer: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1.5rem',
+    marginBottom: '1.5rem'
+  },
+  imageBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
+  },
+  imageLabel: {
+    color: colors.primary,
     fontSize: '1rem',
+    fontWeight: '600',
+    marginBottom: '0.75rem',
+    fontFamily
+  },
+  image: {
+    maxWidth: '100%',
+    maxHeight: '300px',
+    borderRadius: borderRadius.md,
+    border: `1px solid ${colors.borderLight}`
+  },
+  singleImage: {
+    maxWidth: '100%',
+    maxHeight: '350px',
+    borderRadius: borderRadius.lg,
+    border: `2px solid ${colors.borderLight}`
+  },
+  kitReference: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    padding: '1rem',
+    background: '#0a0a0a',
+    borderRadius: borderRadius.md,
+    marginBottom: '1.5rem'
+  },
+  kitImage: {
+    width: '80px',
+    height: '80px',
+    objectFit: 'contain',
+    borderRadius: borderRadius.sm,
+    border: `1px solid ${colors.borderLight}`
+  },
+  kitInfo: {
+    flex: 1
+  },
+  kitLabel: {
+    color: colors.text.muted,
+    fontSize: '0.85rem',
+    marginBottom: '0.25rem',
+    fontFamily
+  },
+  kitName: {
+    color: colors.primary,
+    fontSize: '1.1rem',
+    fontWeight: '600',
     fontFamily
   }
 };
 
-export default function WiringStep({ title, instruction, image, stepNumber, totalSteps }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isZoomed, setIsZoomed] = useState(false);
+export default function WiringStep({ 
+  title, 
+  instruction, 
+  image,
+  images,
+  kitItem,
+  stepNumber, 
+  totalSteps 
+}) {
+  const hasDualImages = images && images.length === 2;
 
   return (
-    <>
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>{title}</h1>
-          
-          {stepNumber && totalSteps && (
-            <div style={styles.stepIndicator}>
-              Step {stepNumber} of {totalSteps}
-            </div>
-          )}
-          
-          <p style={styles.instruction}>{instruction}</p>
-        </div>
-        
-        {image && (
-          <div 
-            style={styles.imageContainer}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onClick={() => setIsZoomed(true)}
-          >
-            <img 
-              src={image} 
-              alt={title}
-              style={{
-                ...styles.image,
-                ...(isHovered ? styles.imageHover : {})
-              }}
-            />
-            <div style={{
-              ...styles.magnifyIcon,
-              ...(isHovered ? styles.magnifyIconVisible : {})
-            }}>
-              🔍 Click to zoom
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Lightbox/Zoom Modal */}
-      {isZoomed && (
-        <div 
-          style={styles.modal}
-          onClick={() => setIsZoomed(false)}
-        >
-          <div style={styles.closeHint}>
-            Click anywhere to close
-          </div>
-          <img 
-            src={image} 
-            alt={title}
-            style={styles.modalImage}
-          />
+    <div style={styles.container}>
+      {stepNumber && totalSteps && (
+        <div style={{ textAlign: 'left' }}>
+          <span style={styles.stepBadge}>Step {stepNumber} of {totalSteps}</span>
         </div>
       )}
-    </>
+      
+      <h2 style={styles.title}>{title}</h2>
+      
+      <p style={styles.instruction}>{instruction}</p>
+
+      {kitItem && (
+        <div style={styles.kitReference}>
+          <img 
+            src={kitItem.image} 
+            alt={kitItem.name} 
+            style={styles.kitImage} 
+          />
+          <div style={styles.kitInfo}>
+            <div style={styles.kitLabel}>From your kit:</div>
+            <div style={styles.kitName}>{kitItem.name}</div>
+          </div>
+        </div>
+      )}
+
+      {hasDualImages ? (
+        <div style={styles.dualImageContainer}>
+          {images.map((img, index) => (
+            <div key={index} style={styles.imageBox}>
+              {img.label && <div style={styles.imageLabel}>{img.label}</div>}
+              <img src={img.src} alt={img.label || title} style={styles.image} />
+            </div>
+          ))}
+        </div>
+      ) : image && (
+        <div style={styles.singleImageContainer}>
+          <img src={image} alt={title} style={styles.singleImage} />
+        </div>
+      )}
+    </div>
   );
 }

@@ -9,6 +9,7 @@ import WiringStep from './lesson/steps/WiringStep';
 import CodeExplanationStep from './lesson/steps/CodeExplanationStep';
 import UploadStep from './lesson/steps/UploadStep';
 import ChallengeStep from './lesson/steps/ChallengeStep';
+import VerificationStep from './lesson/steps/VerificationStep';
 import AIAssistant from './AIAssistant';
 import { colors, gradients, fontFamily } from '../styles/theme';
 import InteractiveConceptStep from './lesson/steps/InteractiveConceptStep';
@@ -24,7 +25,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '1.5rem 2rem',
+    padding: '1rem 2rem',
     background: 'rgba(0, 0, 0, 0.5)',
     backdropFilter: 'blur(10px)',
     borderBottom: `1px solid ${colors.borderLight}`,
@@ -37,35 +38,90 @@ const styles = {
     gap: '1.5rem'
   },
   title: {
-    fontSize: '1.5rem',
+    fontSize: '1.25rem',
     color: '#fff',
     margin: 0,
     fontFamily
-  },
-  stepIndicator: {
-    color: colors.text.muted,
-    fontSize: '0.9rem'
   },
   connectedBadge: {
     color: colors.primary,
     fontWeight: '600',
     fontFamily
   },
+  progressWrapper: {
+    padding: '0.75rem 2rem',
+    background: 'rgba(0, 0, 0, 0.3)'
+  },
+  progressInfo: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '0.5rem'
+  },
+  progressLabel: {
+    color: colors.text.muted,
+    fontSize: '0.85rem',
+    fontFamily
+  },
+  progressPercent: {
+    color: colors.primary,
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    fontFamily
+  },
   progressContainer: {
-    position: 'relative',
     width: '100%',
-    height: '4px',
-    background: '#1a1a1a'
+    height: '8px',
+    background: '#1a1a1a',
+    borderRadius: '4px',
+    overflow: 'hidden'
   },
   progressBar: {
     height: '100%',
-    background: gradients.primary,
-    transition: 'width 0.3s ease'
+    background: colors.primary,
+    transition: 'width 0.3s ease',
+    borderRadius: '4px'
+  },
+  mainLayout: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    maxWidth: '1400px',
+    margin: '0 auto',
+    padding: '2rem 1rem',
+    gap: '1rem'
+  },
+  sideNav: {
+    position: 'sticky',
+    top: '2rem',
+    flexShrink: 0
+  },
+  navButton: {
+    padding: '0.75rem 1.5rem',
+    borderRadius: '8px',
+    border: `2px solid ${colors.primary}`,
+    background: 'transparent',
+    color: colors.primary,
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    fontFamily
+  },
+  navButtonDisabled: {
+    opacity: 0.3,
+    cursor: 'not-allowed',
+    border: `2px solid ${colors.text.muted}`,
+    color: colors.text.muted
+  },
+  navButtonComplete: {
+    background: colors.primary,
+    color: '#000'
   },
   content: {
-    maxWidth: '900px',
-    margin: '3rem auto',
-    padding: '0 2rem'
+    flex: 1,
+    maxWidth: '1200px',
+    margin: '2rem auto',
+    padding: '0 1rem'
   },
   stepCard: {
     marginBottom: '2rem'
@@ -89,12 +145,6 @@ const styles = {
     color: colors.text.secondary,
     whiteSpace: 'pre-line',
     fontFamily
-  },
-  navigation: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: '1rem',
-    marginTop: '2rem'
   }
 };
 
@@ -221,6 +271,9 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
       case 'wiring-step':
         return <WiringStep {...currentStep} />;
 
+      case 'dual-image':
+        return <DualImageStep {...currentStep} />;
+
       case 'code-explanation':
         return <CodeExplanationStep {...currentStep} />;
 
@@ -286,50 +339,89 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
           </div>
         );
 
+      case 'verification':
+        return (
+          <VerificationStep
+            title={currentStep.title}
+            instruction={currentStep.instruction}
+            image={currentStep.image}
+            confirmText={currentStep.confirmText}
+            troubleshootText={currentStep.troubleshootText}
+            onConfirm={handleNext}
+          />
+        );
+
       default:
         return null;
     }
   };
+
+  const isLastStep = currentStepIndex === lesson.steps.length - 1;
+  const isFirstStep = currentStepIndex === 0;
 
   return (
     <div style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <Button variant="secondary" size="small" onClick={onBack}>
-            Home
+            ← Home
           </Button>
           <h2 style={styles.title}>{lesson.title}</h2>
-          <div style={styles.stepIndicator}>
-            Step {currentStepIndex + 1} of {lesson.steps.length}
-          </div>
         </div>
         <div>
           {!isConnected ? (
             <Button onClick={handleConnect}>Connect ESP32</Button>
           ) : (
-            <div style={styles.connectedBadge}>Connected</div>
+            <div style={styles.connectedBadge}>● Connected</div>
           )}
         </div>
       </div>
 
-      <div style={styles.progressContainer}>
-        <div style={{ ...styles.progressBar, width: `${progress}%` }} />
+      <div style={styles.progressWrapper}>
+        <div style={styles.progressInfo}>
+          <span style={styles.progressLabel}>
+            Step {currentStepIndex + 1} of {lesson.steps.length}: {currentStep.title}
+          </span>
+          <span style={styles.progressPercent}>{Math.round(progress)}%</span>
+        </div>
+        <div style={styles.progressContainer}>
+          <div style={{ ...styles.progressBar, width: `${progress}%` }} />
+        </div>
       </div>
 
-      <div style={styles.content}>
-        <Card style={styles.stepCard}>
-          {renderStep()}
-        </Card>
+      <div style={styles.mainLayout}>
+        {/* Left Nav */}
+        <div style={styles.sideNav}>
+          <button
+            style={{
+              ...styles.navButton,
+              ...(isFirstStep ? styles.navButtonDisabled : {})
+            }}
+            onClick={handleBack}
+            disabled={isFirstStep}
+          >
+            Return
+          </button>
+        </div>
 
-        <div style={styles.navigation}>
-          {currentStepIndex > 0 && (
-            <Button variant="secondary" onClick={handleBack}>
-              Previous
-            </Button>
-          )}
-          <Button onClick={handleNext}>
-            {currentStepIndex === lesson.steps.length - 1 ? 'Complete Lesson' : 'Next'}
-          </Button>
+        {/* Content */}
+        <div style={styles.content}>
+          <Card style={styles.stepCard}>
+            {renderStep()}
+          </Card>
+        </div>
+
+        {/* Right Nav */}
+        <div style={styles.sideNav}>
+          <button
+            style={{
+              ...styles.navButton,
+              ...(isLastStep ? styles.navButtonComplete : {})
+            }}
+            onClick={handleNext}
+          >
+            {isLastStep ? 'Complete' : 'Next'}
+          </button>
         </div>
       </div>
 

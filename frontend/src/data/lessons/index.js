@@ -1,4 +1,4 @@
-import { lesson as lesson1Introduction } from './lesson-1-introduction';
+import { lesson as lesson1Introduction } from './mcu-breadboard/pixie-m1/lesson-1-introduction';
 import { lesson as lesson2Blinky } from './mcu-breadboard/pixie-m1/lesson-2-blinky';
 import { lesson as lesson3Button } from './mcu-breadboard/pixie-m1/lesson-3-button';
 import { lesson as lesson4Potentiometer } from './mcu-breadboard/pixie-m1/lesson-4-potentiometer';

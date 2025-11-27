@@ -3,9 +3,15 @@ import VoltageGraph from '../interactive/VoltageGraph';
 import VoltageDivider from '../interactive/VoltageDivider';
 import PotentiometerKnob from '../interactive/PotentiometerKnob';
 import ButtonPressVisualizer from '../interactive/ButtonPressVisualizer';
-import { colors, fontFamily } from '../../../styles/theme';
 import CircuitFlow from '../interactive/CircuitFlow';
-import WaterFlowAnalogy from '../interactive/WaterFlowAnalogy';
+import TransistorVisualizer from '../interactive/TransistorVisualizer';
+import OhmsLawCircuit from '../interactive/OhmsLawCircuit';
+import PowerGroundVisualizer from '../interactive/PowerGroundVisualizer';
+import ResistorVisualizer from '../interactive/ResistorVisualizer';
+import CapacitorVisualizer from '../interactive/CapacitorVisualizer';
+import InductorVisualizer from '../interactive/InductorVisualizer';
+import BreadboardVisualizer from '../interactive/BreadboardVisualizer';
+import { colors, fontFamily } from '../../../styles/theme';
 
 const styles = {
   container: {
@@ -34,7 +40,13 @@ const INTERACTIVE_COMPONENTS = {
   'potentiometer-knob': PotentiometerKnob,
   'button-press-visualizer': ButtonPressVisualizer,
   'circuit-flow': CircuitFlow,
-  'water-flow-analogy': WaterFlowAnalogy,
+  'transistor-visualizer': TransistorVisualizer,
+  'ohms-law-circuit': OhmsLawCircuit,
+  'power-ground-visualizer': PowerGroundVisualizer,
+  'resistor-visualizer': ResistorVisualizer,
+  'capacitor-visualizer': CapacitorVisualizer,
+  'inductor-visualizer': InductorVisualizer,
+  'breadboard-visualizer': BreadboardVisualizer,
 };
 
 export default function InteractiveConceptStep({ 
