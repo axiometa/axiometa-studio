@@ -4,23 +4,27 @@ import { colors, gradients, borderRadius, fontFamily } from '../../styles/theme'
 
 const styles = {
   card: {
-    background: gradients.primarySubtle,
-    border: '2px solid rgba(0, 212, 170, 0)',
+    background: 'rgba(255, 255, 255, 0.02)',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
     borderRadius: borderRadius.lg,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    transition: 'all 0.3s ease',
-    cursor: 'pointer'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    cursor: 'pointer',
+    position: 'relative'
   },
   cardHover: {
     transform: 'translateY(-4px)',
-    boxShadow: '0 8px 24px rgba(225, 241, 79, 0.2)'
+    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)'
+  },
+  cardCompleted: {
+    borderColor: 'rgba(0, 212, 170, 0.3)'
   },
   imageContainer: {
     width: '100%',
-    height: '200px',
+    height: '140px',
     background: '#000',
     overflow: 'hidden',
     position: 'relative'
@@ -28,7 +32,11 @@ const styles = {
   image: {
     width: '100%',
     height: '100%',
-    objectFit: 'cover'
+    objectFit: 'cover',
+    transition: 'transform 0.4s ease'
+  },
+  imageHover: {
+    transform: 'scale(1.05)'
   },
   imagePlaceholder: {
     width: '100%',
@@ -37,77 +45,89 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     background: 'linear-gradient(135deg, #1a1a1a, #0a0a0a)',
-    fontSize: '3rem'
-  },
-  badge: {
-    position: 'absolute',
-    top: '1rem',
-    left: '1rem',
-    background: colors.primary,
-    color: '#000',
-    padding: '0.5rem 1rem',
-    borderRadius: '20px',
-    fontSize: '0.85rem',
-    fontWeight: 'bold',
-    fontFamily
+    fontSize: '2.5rem'
   },
   statusBadge: {
     position: 'absolute',
-    top: '1rem',
-    right: '1rem',
-    padding: '0.5rem 1rem',
-    borderRadius: '20px',
-    fontSize: '0.85rem',
+    top: '0.75rem',
+    right: '0.75rem',
+    padding: '0.35rem 0.7rem',
+    borderRadius: '16px',
+    fontSize: '0.7rem',
     fontWeight: '600',
-    fontFamily
+    fontFamily,
+    backdropFilter: 'blur(8px)',
+    zIndex: 2
   },
   hasParts: {
-    background: 'rgba(0, 255, 0, 0.2)',
-    border: '1px solid rgba(0, 255, 0, 0.5)',
-    color: '#00ff00'
+    background: 'rgba(0, 212, 170, 0.2)',
+    border: '1px solid rgba(0, 212, 170, 0.4)',
+    color: '#00d4aa'
   },
   missingParts: {
-    background: 'rgba(255, 0, 0, 0.2)',
-    border: '1px solid rgba(255, 0, 0, 0.5)',
+    background: 'rgba(255, 107, 107, 0.2)',
+    border: '1px solid rgba(255, 107, 107, 0.4)',
     color: '#ff6b6b'
   },
+  completedBadge: {
+    background: 'rgba(0, 212, 170, 0.9)',
+    color: '#000',
+    border: 'none'
+  },
   content: {
-    padding: '1.5rem',
+    padding: '1.25rem',
     flex: 1,
     display: 'flex',
     flexDirection: 'column'
   },
   title: {
-    fontSize: '1.5rem',
-    marginBottom: '0.75rem',
+    fontSize: '1.1rem',
+    marginBottom: '0.5rem',
     color: '#fff',
     fontFamily,
-    fontWeight: 'bold'
+    fontWeight: '600',
+    lineHeight: '1.3'
   },
   description: {
-    color: colors.text.secondary,
-    marginBottom: '1.25rem',
-    lineHeight: '1.6',
+    color: colors.text.tertiary,
+    marginBottom: '1rem',
+    lineHeight: '1.5',
     fontFamily,
     flex: 1,
-    fontSize: '0.95rem'
+    fontSize: '0.85rem',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden'
   },
   meta: {
     display: 'flex',
-    gap: '1.5rem',
-    marginBottom: '1.25rem',
+    gap: '1rem',
+    marginBottom: '1rem',
     flexWrap: 'wrap'
   },
   metaItem: {
-    color: colors.text.tertiary,
-    fontSize: '0.9rem',
+    color: colors.text.muted,
+    fontSize: '0.8rem',
     fontFamily,
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem'
+    gap: '0.3rem'
   },
   buttonContainer: {
     marginTop: 'auto'
+  },
+  accentBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '3px',
+    opacity: 0,
+    transition: 'opacity 0.3s ease'
+  },
+  accentBarHover: {
+    opacity: 1
   }
 };
 
@@ -121,6 +141,9 @@ export default function LessonCard({
   challenges,
   hasRequiredParts,
   image,
+  isCompleted = false,
+  isLocked = false,
+  accentColor = colors.primary,
   onStart 
 }) {
   const [isHovered, setIsHovered] = React.useState(false);
@@ -129,7 +152,9 @@ export default function LessonCard({
     <div 
       style={{
         ...styles.card,
-        ...(isHovered ? styles.cardHover : {})
+        ...(isHovered ? styles.cardHover : {}),
+        ...(isCompleted ? styles.cardCompleted : {}),
+        borderColor: isHovered ? `${accentColor}40` : (isCompleted ? 'rgba(0, 212, 170, 0.3)' : 'rgba(255, 255, 255, 0.06)')
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -140,7 +165,10 @@ export default function LessonCard({
           <img 
             src={image} 
             alt={title}
-            style={styles.image}
+            style={{
+              ...styles.image,
+              ...(isHovered ? styles.imageHover : {})
+            }}
             onError={(e) => e.target.style.display = 'none'}
           />
         ) : (
@@ -148,19 +176,33 @@ export default function LessonCard({
             🎓
           </div>
         )}
-        
-        {/* Lesson Number Badge */}
-        <div style={styles.badge}>
-          Lesson {lessonNumber} • {boardName}
-        </div>
 
-        {/* Parts Status Badge */}
-        <div style={{
-          ...styles.statusBadge,
-          ...(hasRequiredParts ? styles.hasParts : styles.missingParts)
-        }}>
-          {hasRequiredParts ? '✓ Ready' : 'Missing Parts'}
-        </div>
+        {/* Status Badge */}
+        {isCompleted ? (
+          <div style={{...styles.statusBadge, ...styles.completedBadge}}>
+            ✓ Completed
+          </div>
+        ) : (
+          <div style={{
+            ...styles.statusBadge,
+            ...(hasRequiredParts ? styles.hasParts : styles.missingParts)
+          }}>
+            {hasRequiredParts ? '✓ Ready' : 'Missing Parts'}
+          </div>
+        )}
+
+        {/* Gradient overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '60px',
+            background: 'linear-gradient(transparent, rgba(10, 10, 10, 0.95))',
+            pointerEvents: 'none'
+          }}
+        />
       </div>
 
       {/* Content */}
@@ -175,21 +217,36 @@ export default function LessonCard({
           <span style={styles.metaItem}>
             ⭐ {xp} XP
           </span>
-          <span style={styles.metaItem}>
-            🎯 {challenges} Challenges
-          </span>
+          {challenges > 0 && (
+            <span style={styles.metaItem}>
+              🎯 {challenges} Challenge{challenges > 1 ? 's' : ''}
+            </span>
+          )}
         </div>
 
         <div style={styles.buttonContainer}>
           <Button 
             fullWidth
-            disabled={!hasRequiredParts}
+            disabled={!hasRequiredParts || isLocked}
             onClick={onStart}
+            style={{
+              background: isCompleted ? 'rgba(0, 212, 170, 0.2)' : undefined,
+              borderColor: isCompleted ? 'rgba(0, 212, 170, 0.4)' : undefined
+            }}
           >
-            {hasRequiredParts ? 'Start Learning' : 'Get Required Parts'}
+            {isCompleted ? 'Review Lesson' : (hasRequiredParts ? 'Start Lesson' : 'Get Required Parts')}
           </Button>
         </div>
       </div>
+
+      {/* Accent bar */}
+      <div
+        style={{
+          ...styles.accentBar,
+          ...(isHovered ? styles.accentBarHover : {}),
+          background: `linear-gradient(90deg, ${accentColor}, ${accentColor}88)`
+        }}
+      />
     </div>
   );
 }

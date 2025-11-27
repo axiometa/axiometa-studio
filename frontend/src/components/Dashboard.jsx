@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { connectionService } from '../services/connection';
 import BoardSelector from './dashboard/BoardSelector';
 import ConnectionStatus from './dashboard/ConnectionStatus';
-import LessonCard from './dashboard/LessonCard';
-import LockedLesson from './dashboard/LockedLesson';
+import KitCard from './dashboard/KitCard';
+import KitLessonsView from './dashboard/KitLessonsView';
 import ModuleCard from './dashboard/ModuleCard';
 import Card from './common/Card';
 import Button from './common/Button';
 import TabNavigation from './common/TabNavigation';
 import AIAssistant from './AIAssistant';
 import { BOARDS, getBoardById } from '../constants/boards';
+import { KITS, getKitByBoard } from '../constants/kits';
 import { ALL_MODULES, setModules, getModulesByCategory, MODULE_CATEGORIES, getModuleUsageCount } from '../constants/modules';
 import { fetchAllModulesFromShopify } from '../utils/shopifyCollectionFetcher';
 import { lessons, getLessonsByBoard, getLessonMetadata } from '../data/lessons';
@@ -94,24 +95,58 @@ const styles = {
     color: '#fff',
     fontFamily,
     fontWeight: 'bold'
+  },
+  kitsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+    gap: '1.5rem'
+  },
+  kitsHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1.5rem'
+  },
+  kitsTitle: {
+    fontSize: '1.5rem',
+    fontWeight: '700',
+    color: '#fff',
+    fontFamily,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem'
+  },
+  kitsBadge: {
+    fontSize: '0.85rem',
+    padding: '0.35rem 0.8rem',
+    borderRadius: '20px',
+    background: 'rgba(225, 241, 79, 0.15)',
+    color: colors.primary,
+    fontWeight: '600'
+  },
+  kitsSubtitle: {
+    color: colors.text.tertiary,
+    fontSize: '1rem',
+    marginTop: '0.25rem',
+    fontFamily
   }
 };
 
 const TABS = [
-  { id: 'lessons', label: 'Learning Path' },
-  { id: 'modules', label: 'My Modules & Parts' },
+  { id: 'kits', label: 'Learn' },
   { id: 'projects', label: 'Projects' },
   { id: 'sandbox', label: 'Sandbox' }
 ];
 
 export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }) {
-  const { level, xp, nextLevelXp } = userProgress;
+  const { level, xp, nextLevelXp, completedLessons = [] } = userProgress;
   const xpPercentage = (xp / nextLevelXp) * 100;
 
   const [isConnected, setIsConnected] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState('axiometa_pixie_m1');
   const [isConnecting, setIsConnecting] = useState(false);
-  const [activeTab, setActiveTab] = useState('lessons');
+  const [activeTab, setActiveTab] = useState('kits');
+  const [selectedKit, setSelectedKit] = useState(null);
   const [ownedModules, setOwnedModules] = useState([
     'MTA0007',        // PIXIE M1
     'AX22-0006',      // RGB LED
@@ -162,16 +197,15 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   };
 
   useEffect(() => {
-  // Listen for disconnect events
-  const unsubscribeDisconnect = connectionService.onDisconnect((reason) => {
-    console.log('🔴 Dashboard received disconnect:', reason);
-    setIsConnected(false);
-  });
+    const unsubscribeDisconnect = connectionService.onDisconnect((reason) => {
+      console.log('🔴 Dashboard received disconnect:', reason);
+      setIsConnected(false);
+    });
 
-  return () => {
-    unsubscribeDisconnect();
-  };
-}, []);
+    return () => {
+      unsubscribeDisconnect();
+    };
+  }, []);
 
   const toggleModule = (moduleId) => {
     setOwnedModules(prev =>
@@ -184,6 +218,19 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   const hasRequiredModules = (lesson) => {
     if (!lesson.requiredModules) return true;
     return lesson.requiredModules.every(id => ownedModules.includes(id));
+  };
+
+  const handleSelectKit = (kit) => {
+    setSelectedKit(kit);
+  };
+
+  const handleBackToKits = () => {
+    setSelectedKit(null);
+  };
+
+  // Get lesson count for each kit
+  const getKitLessonCount = (kit) => {
+    return getLessonsByBoard(kit.lessonBoard).length;
   };
 
   return (
@@ -233,14 +280,28 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
         <TabNavigation
           tabs={TABS}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setSelectedKit(null); // Reset kit selection when changing tabs
+          }}
         >
-          {activeTab === 'lessons' && (
-            <LessonsTab
-              board={currentBoard}
-              hasRequiredModules={hasRequiredModules}
-              onStartLesson={onStartLesson}
-            />
+          {activeTab === 'kits' && (
+            selectedKit ? (
+              <KitLessonsView
+                kit={selectedKit}
+                lessons={getLessonsByBoard(selectedKit.lessonBoard)}
+                completedLessons={completedLessons}
+                hasRequiredModules={hasRequiredModules}
+                onBack={handleBackToKits}
+                onStartLesson={onStartLesson}
+              />
+            ) : (
+              <KitsTab
+                kits={KITS}
+                getKitLessonCount={getKitLessonCount}
+                onSelectKit={handleSelectKit}
+              />
+            )
           )}
 
           {activeTab === 'modules' && (
@@ -270,7 +331,7 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
           id: 'dashboard',
           type: 'info',
           title: 'Getting Started',
-          instruction: 'Browse lessons, manage your modules, or ask me anything about hardware programming!'
+          instruction: 'Browse kits, manage your modules, or ask me anything about hardware programming!'
         }}
         userCode=""
         validationError={null}
@@ -279,99 +340,64 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
   );
 }
 
-function LessonsTab({ board, hasRequiredModules, onStartLesson }) {
-  if (!board?.available) {
-    return (
-      <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔒</div>
-        <h3 style={{ fontSize: '2rem', color: colors.text.muted, marginBottom: '1rem', fontFamily }}>
-          {board?.name} Learning Path
-        </h3>
-        <p style={{ fontSize: '1.125rem', color: colors.text.tertiary, marginBottom: '0.5rem', fontFamily }}>
-          {board?.lessonCount} lessons available when this board launches
-        </p>
-        <p style={{ fontSize: '1rem', color: colors.primary, fontFamily }}>
-          Select Pixie M1 above to start learning now!
-        </p>
-      </div>
-    );
-  }
-
-  const boardLessons = getLessonsByBoard(board.lessonBoard);
-
-  console.log('Board lessons:', boardLessons);
-  console.log('Lesson 3:', boardLessons[2]);
-  console.log('Required modules:', boardLessons[2]?.requiredModules);
+function KitsTab({ kits, getKitLessonCount, onSelectKit }) {
+  const availableKits = kits.filter(k => k.available);
+  const comingSoonKits = kits.filter(k => !k.available);
 
   return (
     <div>
-      <LevelSection
-        title="Available Lessons"
-        lessonCount={boardLessons.length}
-      >
-        {boardLessons.map((lesson, index) => {
-          const metadata = getLessonMetadata(lesson);
-
-          return (
-            <LessonCard
-              key={lesson.id}
-              lessonNumber={index + 1}
-              boardName={board.name}
-              title={metadata.title}
-              description={lesson.steps[0]?.content || 'Learn something new!'}
-              duration={metadata.duration}
-              xp={metadata.xpReward}
-              challenges={metadata.challenges}
-              hasRequiredParts={hasRequiredModules(lesson)}
-              image={lesson.thumbnail || null}
-              onStart={() => onStartLesson(lesson)}
-            />
-          );
-        })}
-      </LevelSection>
-
-      <LevelSection
-        title="Coming Soon"
-        description="More lessons are being created!"
-        lessonCount={3}
-      >
-        <LockedLesson title="More lessons coming soon!" unlockText="Complete available lessons" />
-      </LevelSection>
-    </div>
-  );
-}
-
-function LevelSection({ title, description, lessonCount, children }) {
-  return (
-    <div style={{ marginBottom: '3rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-        <h3 style={{ fontSize: '1.75rem', color: colors.text.primary, fontWeight: 'bold', fontFamily, margin: 0 }}>
-          {title}
-        </h3>
-        <span style={{
-          background: 'rgba(225, 241, 79, 0.88)',
-          color: '#000',
-          padding: '0.25rem 0.75rem',
-          borderRadius: '12px',
-          fontSize: '0.875rem',
-          fontWeight: '600',
-          fontFamily
-        }}>
-          {lessonCount} lessons
-        </span>
+      {/* Header */}
+      <div style={styles.kitsHeader}>
+        <div>
+          <h2 style={styles.kitsTitle}>
+            📦 Learning Kits
+            <span style={styles.kitsBadge}>
+              {availableKits.length} Available
+            </span>
+          </h2>
+          <p style={styles.kitsSubtitle}>
+            Select a kit to start your learning journey
+          </p>
+        </div>
       </div>
-      <p style={{ color: colors.text.tertiary, fontSize: '1rem', marginBottom: '1.5rem', fontFamily }}>
-        {description}
-      </p>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.5rem',
-        maxWidth: '800px',
-        margin: '0 auto'
-      }}>
-        {children}
+
+      {/* Available Kits */}
+      <div style={styles.kitsGrid}>
+        {availableKits.map(kit => (
+          <KitCard
+            key={kit.id}
+            kit={kit}
+            lessonCount={getKitLessonCount(kit)}
+            onClick={onSelectKit}
+          />
+        ))}
       </div>
+
+      {/* Coming Soon Kits */}
+      {comingSoonKits.length > 0 && (
+        <>
+          <h3 style={{ 
+            fontSize: '1.25rem', 
+            color: colors.text.muted, 
+            marginTop: '3rem', 
+            marginBottom: '1.5rem',
+            fontFamily,
+            fontWeight: '600'
+          }}>
+            Coming Soon
+          </h3>
+          <div style={styles.kitsGrid}>
+            {comingSoonKits.map(kit => (
+              <KitCard
+                key={kit.id}
+                kit={kit}
+                lessonCount={getKitLessonCount(kit)}
+                onClick={onSelectKit}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
