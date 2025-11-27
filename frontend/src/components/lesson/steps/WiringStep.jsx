@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getModuleById } from '../../../constants/modules';
 import { colors, borderRadius, fontFamily } from '../../../styles/theme';
 
 const styles = {
@@ -104,11 +105,44 @@ export default function WiringStep({
   instruction, 
   image,
   images,
-  kitItem,
+  kitItem,      // Object format: { name, image } - direct usage
+  kitItemId,    // Module ID format: "MTA0007" - lookup from modules
   stepNumber, 
   totalSteps 
 }) {
+  const [resolvedKitItem, setResolvedKitItem] = useState(null);
   const hasDualImages = images && images.length === 2;
+
+  // Resolve kit item - supports both direct object and module ID lookup
+  useEffect(() => {
+    // If kitItem object is provided directly (with name and image), use it
+    if (kitItem && kitItem.name && kitItem.image) {
+      setResolvedKitItem(kitItem);
+      return;
+    }
+
+    // If kitItemId is provided, look up the module
+    // Use a small delay to ensure Shopify modules are loaded
+    if (kitItemId) {
+      const timer = setTimeout(() => {
+        const module = getModuleById(kitItemId);
+        if (module) {
+          setResolvedKitItem({
+            name: module.name,
+            image: module.image
+          });
+        } else {
+          console.warn(`Kit item module not found: ${kitItemId}`);
+          setResolvedKitItem(null);
+        }
+      }, 150); // Small delay to let modules load
+      
+      return () => clearTimeout(timer);
+    }
+
+    // No kit item provided
+    setResolvedKitItem(null);
+  }, [kitItem, kitItemId]);
 
   return (
     <div style={styles.container}>
@@ -122,16 +156,17 @@ export default function WiringStep({
       
       <p style={styles.instruction}>{instruction}</p>
 
-      {kitItem && (
+      {resolvedKitItem && (
         <div style={styles.kitReference}>
           <img 
-            src={kitItem.image} 
-            alt={kitItem.name} 
-            style={styles.kitImage} 
+            src={resolvedKitItem.image} 
+            alt={resolvedKitItem.name} 
+            style={styles.kitImage}
+            onError={(e) => e.target.style.display = 'none'}
           />
           <div style={styles.kitInfo}>
             <div style={styles.kitLabel}>From your kit:</div>
-            <div style={styles.kitName}>{kitItem.name}</div>
+            <div style={styles.kitName}>{resolvedKitItem.name}</div>
           </div>
         </div>
       )}

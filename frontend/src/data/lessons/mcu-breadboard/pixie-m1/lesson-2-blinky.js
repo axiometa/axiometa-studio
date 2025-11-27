@@ -12,7 +12,7 @@ export const lesson = {
   steps: [
     // ========================================
     // 1: Welcome
-    // ========================================
+    // ======================================== 
     {
       id: "welcome",
       type: "info",
@@ -77,7 +77,10 @@ The power LED on the board should light up.`,
       instruction: `Insert the LED module into the breadboard.
 
 Connect the signal pin to GPIO 1.`,
-      kitItemId: "MTA0007",
+      kitItem: {
+        name: "LED Module",
+        image: "/images/misc/kit-led-module.png"
+      },
       image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s2.gif",
       stepNumber: 3,
       totalSteps: 4
