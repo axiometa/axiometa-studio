@@ -7,7 +7,7 @@ export const lesson = {
   type: "simple",
   xp_reward: 75,
   requiredModules: REQUIRED_MODULES,
-  thumbnail: "/images/lessons/lesson-1/pixie-m1/thumbnail.png",
+  thumbnail: "/images/lessons/pixie-m1/lesson-1/thumbnail.png",
 
   steps: [
     // ========================================
@@ -39,7 +39,7 @@ export const lesson = {
     },
 
     // ========================================
-    // 3: Ohm's Law - combines voltage + resistance
+    // 3: Ohm's Law
     // ========================================
     {
       id: "ohms-law",
@@ -176,7 +176,7 @@ You'll build a simple LED circuit using your PIXIE board - no code required, jus
       instruction: `Place your PIXIE M1 across the center gap of the breadboard.
 
 The USB port should face outward for easy access.`,
-      image: "/images/lessons/lesson-1/pixie-m1/bb-pixie-s1.gif",
+      image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s1.gif",
       stepNumber: 1,
       totalSteps: 6
     },
@@ -192,8 +192,8 @@ The USB port should face outward for easy access.`,
 
 The power LED on the board should light up.`,
       images: [
-        { src: "/images/lessons/lesson-1/pixie-m1/usb-to-pixie.png", label: "USB → PIXIE" },
-        { src: "/images/lessons/lesson-1/pixie-m1/usb-to-pc.png", label: "USB → PC" }
+        { src: "/images/lessons/pixie-m1/universal-images/usb-to-pixie.png", label: "USB → PIXIE" },
+        { src: "/images/lessons/pixie-m1/universal-images/usb-to-pc.png", label: "USB → PC" }
       ],
       stepNumber: 2,
       totalSteps: 6
@@ -213,7 +213,7 @@ This will be our power source for the LED.`,
         name: "Jumper Wire (Red)",
         image: "/images/misc/kit-jumper-wire.png"
       },
-      image: "/images/lessons/lesson-1/pixie-m1/bb-pixie-s2.gif",
+      image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s2.gif",
       stepNumber: 3,
       totalSteps: 6
     },
@@ -232,7 +232,7 @@ The resistor protects the LED from too much current.`,
         name: "220Ω Resistor (Red-Red-Brown)",
         image: "/images/misc/kit-resistor-220.png"
       },
-      image: "/images/lessons/lesson-1/pixie-m1/bb-pixie-s3.gif",
+      image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s3.gif",
       stepNumber: 4,
       totalSteps: 6
     },
@@ -253,7 +253,7 @@ The resistor protects the LED from too much current.`,
         name: "LED (any color)",
         image: "/images/misc/kit-led.png"
       },
-      image: "/images/lessons/lesson-1/pixie-m1/bb-pixie-s4.gif",
+      image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s4.gif",
       stepNumber: 5,
       totalSteps: 6
     },
@@ -272,7 +272,7 @@ This completes the circuit!`,
         name: "Jumper Wire (Black)",
         image: "/images/misc/kit-jumper-wire-black.png"
       },
-      image: "/images/lessons/lesson-1/pixie-m1/bb-pixie-s5.gif",
+      image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s5.gif",
       stepNumber: 6,
       totalSteps: 6
     },
@@ -290,7 +290,7 @@ If it's not lighting up, check:
 • LED direction (long leg to resistor)
 • All connections are secure
 • USB is plugged in`,
-      image: "/images/lessons/lesson-1/pixie-m1/bb-pixie-s6.gif",
+      image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s6.gif",
       confirmText: "Yes, it's on! 💡",
       troubleshootText: "It's not working"
     },

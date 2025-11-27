@@ -7,7 +7,7 @@ export const lesson = {
   type: "mcu-breadboard",
   xp_reward: 100,
   requiredModules: REQUIRED_MODULES,
-  thumbnail: "/images/lessons/lesson-2/pixie-m1/thumbnail.png",
+  thumbnail: "/images/lessons/pixie-m1/lesson-2/thumbnail.png",
 
   steps: [
     // ========================================
@@ -44,7 +44,7 @@ By the end, you'll have written and uploaded your first program to control hardw
       instruction: `Place your PIXIE M1 across the center gap of the breadboard.
 
 The USB port should face outward for easy access.`,
-      image: "/images/lessons/lesson-2/pixie-m1/bb-pixie-s1.gif",
+      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s1.gif",
       stepNumber: 1,
       totalSteps: 4
     },
@@ -60,8 +60,8 @@ The USB port should face outward for easy access.`,
 
 The power LED on the board should light up.`,
       images: [
-        { src: "/images/lessons/lesson-1/pixie-m1/usb-to-pixie.png", label: "USB → PIXIE" },
-        { src: "/images/lessons/lesson-1/pixie-m1/usb-to-pc.png", label: "USB → PC" }
+        { src: "/images/lessons/pixie-m1/universal-images/usb-to-pixie.png", label: "USB → PIXIE" },
+        { src: "/images/lessons/pixie-m1/universal-images/usb-to-pc.png", label: "USB → PC" }
       ],
       stepNumber: 2,
       totalSteps: 4
@@ -77,11 +77,8 @@ The power LED on the board should light up.`,
       instruction: `Insert the LED module into the breadboard.
 
 Connect the signal pin to GPIO 1.`,
-      kitItem: {
-        name: "LED Module",
-        image: "/images/misc/kit-led-module.png"
-      },
-      image: "/images/lessons/lesson-2/pixie-m1/bb-pixie-s2.gif",
+      kitItemId: "MTA0007",
+      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s2.gif",
       stepNumber: 3,
       totalSteps: 4
     },
@@ -96,7 +93,7 @@ Connect the signal pin to GPIO 1.`,
       instruction: `Connect the LED module's GND pin to GND on the PIXIE.
 
 Circuit complete! Now let's program it.`,
-      image: "/images/lessons/lesson-2/pixie-m1/bb-pixie-s3.gif",
+      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s3.gif",
       stepNumber: 4,
       totalSteps: 4
     },
@@ -211,7 +208,7 @@ If it's not working, check:
 • All wiring connections
 • LED direction (long leg to resistor)
 • Code uploaded successfully`,
-      image: "/images/lessons/lesson-2/pixie-m1/led-blinking.gif",
+      image: "/images/lessons/pixie-m1/lesson-2/led-blinking.gif",
       confirmText: "Yes, it's blinking! 💡",
       troubleshootText: "It's not working"
     },
