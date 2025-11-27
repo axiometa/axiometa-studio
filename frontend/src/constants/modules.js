@@ -21,13 +21,27 @@ export const STATIC_MODULES = [
     category: 'Tools',
     purchaseUrl: 'https://www.amazon.com/s?k=jumper+wires'
   },
-    {
+  {
     id: 'MTA0007',
     name: 'PIXIE M1',
     image: '/images/dev-boards/pixie-m1.png',
     description: 'The Axiometa PIXIE M1 is a small but capable development board that works well for both beginners and experienced makers. It uses the ESP32-S3-Mini-1 chip, giving you dual-core processing, Wi-Fi, and Bluetooth Low Energy in a breadboard-friendly size.',
     category: 'Dev Boards',
     purchaseUrl: 'https://www.axiometa.io/products/axiometa-pixie-m1'
+  },
+  {
+    id: 'RESISTOR',
+    name: 'Resistor Pack',
+    image: '/images/passives/resistors.png',
+    description: 'A pack of resistors',
+    category: 'Passives',
+  },
+  {
+    id: 'LEDs',
+    name: 'LEDs',
+    image: '/images/passives/red-led.png',
+    description: 'Light Emitting Diodes - LEDs',
+    category: 'Passives',
   }
 ];
 
@@ -38,7 +52,8 @@ export let ALL_MODULES = [...STATIC_MODULES];
 export const MODULE_CATEGORIES = {
   MODULES: 'Modules',
   TOOLS: 'Tools',
-  DEVBOARD: 'Dev Boards'
+  DEVBOARD: 'Dev Boards',
+  PASSIVES: 'Passives'
 };
 
 /**
@@ -48,14 +63,14 @@ export const MODULE_CATEGORIES = {
  */
 export function getModuleById(id) {
   if (!id) return null;
-  
+
   const module = ALL_MODULES.find(m => m.id === id || m.sku === id);
-  
+
   if (!module) {
     console.warn(`⚠️ Module not found: ${id}`);
     console.log(`Available modules:`, ALL_MODULES.map(m => m.id).join(', '));
   }
-  
+
   return module || null;
 }
 
@@ -75,12 +90,12 @@ export function getModulesByCategory(category) {
 export function setModules(shopifyModules) {
   // Combine static modules with Shopify modules
   ALL_MODULES = [...STATIC_MODULES, ...shopifyModules];
-  
+
   console.log(`✓ Updated ALL_MODULES with ${ALL_MODULES.length} total modules`);
   console.log(`  - Static: ${STATIC_MODULES.length}`);
   console.log(`  - Shopify: ${shopifyModules.length}`);
   console.log(`📦 All module IDs:`, ALL_MODULES.map(m => m.id).join(', '));
-  
+
   // Make globally accessible for debugging
   if (typeof window !== 'undefined') {
     window.ALL_MODULES = ALL_MODULES;
@@ -96,16 +111,16 @@ export function setModules(shopifyModules) {
  */
 export function getModulesByIds(ids) {
   if (!Array.isArray(ids)) return [];
-  
+
   const modules = ids.map(id => getModuleById(id)).filter(Boolean);
-  
+
   if (modules.length !== ids.length) {
     console.warn(`⚠️ Some modules not found. Requested: ${ids.length}, Found: ${modules.length}`);
     const foundIds = modules.map(m => m.id);
     const missingIds = ids.filter(id => !foundIds.includes(id));
     console.warn(`Missing modules:`, missingIds);
   }
-  
+
   return modules;
 }
 
@@ -117,7 +132,7 @@ export function getModulesByIds(ids) {
  */
 export function checkRequiredModules(requiredIds, ownedIds) {
   const missing = requiredIds.filter(id => !ownedIds.includes(id));
-  
+
   return {
     hasAll: missing.length === 0,
     missing: missing
@@ -132,8 +147,8 @@ export function checkRequiredModules(requiredIds, ownedIds) {
  */
 export function getModuleUsageCount(moduleId, lessons = []) {
   if (!lessons || lessons.length === 0) return 0;
-  
-  return lessons.filter(lesson => 
+
+  return lessons.filter(lesson =>
     lesson.requiredModules && lesson.requiredModules.includes(moduleId)
   ).length;
 }

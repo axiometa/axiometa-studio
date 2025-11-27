@@ -28,20 +28,63 @@ const styles = {
     fontSize: '1.1rem',
     lineHeight: '1.8',
     whiteSpace: 'pre-line',
-    marginBottom: '2rem',
+    marginBottom: '1.5rem',
     fontFamily,
     textAlign: 'left'
+  },
+  mainContent: {
+    display: 'flex',
+    gap: '1.5rem',
+    alignItems: 'flex-start'
+  },
+  kitIconContainer: {
+    flexShrink: 0,
+    width: '120px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: '1rem',
+    background: 'rgba(225, 241, 79, 0.05)',
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: borderRadius.md
+  },
+  kitIconImage: {
+    width: '80px',
+    height: '80px',
+    objectFit: 'contain',
+    marginBottom: '0.75rem'
+  },
+  kitIconLabel: {
+    color: colors.text.muted,
+    fontSize: '0.7rem',
+    textAlign: 'center',
+    marginBottom: '0.25rem',
+    fontFamily
+  },
+  kitIconName: {
+    color: colors.primary,
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    textAlign: 'center',
+    fontFamily,
+    lineHeight: '1.3'
+  },
+  imageSection: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
   },
   singleImageContainer: {
     display: 'flex',
     justifyContent: 'center',
-    marginBottom: '1.5rem'
+    width: '100%'
   },
   dualImageContainer: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '1.5rem',
-    marginBottom: '1.5rem'
+    width: '100%'
   },
   imageBox: {
     display: 'flex',
@@ -67,36 +110,10 @@ const styles = {
     borderRadius: borderRadius.lg,
     border: `2px solid ${colors.borderLight}`
   },
-  kitReference: {
+  fullWidthImageContainer: {
     display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-    padding: '1rem',
-    background: '#0a0a0a',
-    borderRadius: borderRadius.md,
-    marginBottom: '1.5rem'
-  },
-  kitImage: {
-    width: '80px',
-    height: '80px',
-    objectFit: 'contain',
-    borderRadius: borderRadius.sm,
-    border: `1px solid ${colors.borderLight}`
-  },
-  kitInfo: {
-    flex: 1
-  },
-  kitLabel: {
-    color: colors.text.muted,
-    fontSize: '0.85rem',
-    marginBottom: '0.25rem',
-    fontFamily
-  },
-  kitName: {
-    color: colors.primary,
-    fontSize: '1.1rem',
-    fontWeight: '600',
-    fontFamily
+    justifyContent: 'center',
+    marginTop: '1rem'
   }
 };
 
@@ -111,38 +128,81 @@ export default function WiringStep({
   totalSteps 
 }) {
   const [resolvedKitItem, setResolvedKitItem] = useState(null);
+  const [imageError, setImageError] = useState(false);
   const hasDualImages = images && images.length === 2;
 
-  // Resolve kit item - supports both direct object and module ID lookup
   useEffect(() => {
-    // If kitItem object is provided directly (with name and image), use it
-    if (kitItem && kitItem.name && kitItem.image) {
-      setResolvedKitItem(kitItem);
-      return;
-    }
-
-    // If kitItemId is provided, look up the module
-    // Use a small delay to ensure Shopify modules are loaded
+    setImageError(false);
+    
+    // If kitItemId is provided, look up the module first (priority)
     if (kitItemId) {
+      const module = getModuleById(kitItemId);
+      if (module && module.image) {
+        setResolvedKitItem({
+          name: module.name,
+          image: module.image
+        });
+        return;
+      }
+      
+      // If not found, wait for Shopify modules to load
       const timer = setTimeout(() => {
-        const module = getModuleById(kitItemId);
-        if (module) {
+        const delayedModule = getModuleById(kitItemId);
+        if (delayedModule && delayedModule.image) {
           setResolvedKitItem({
-            name: module.name,
-            image: module.image
+            name: delayedModule.name,
+            image: delayedModule.image
           });
         } else {
           console.warn(`Kit item module not found: ${kitItemId}`);
-          setResolvedKitItem(null);
+          if (kitItem && kitItem.name) {
+            setResolvedKitItem(kitItem);
+          } else {
+            setResolvedKitItem(null);
+          }
         }
-      }, 150); // Small delay to let modules load
+      }, 300);
       
       return () => clearTimeout(timer);
     }
 
-    // No kit item provided
+    // If kitItem object is provided directly (with name and image), use it
+    if (kitItem && kitItem.name) {
+      setResolvedKitItem(kitItem);
+      return;
+    }
+
     setResolvedKitItem(null);
   }, [kitItem, kitItemId]);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  const renderImages = () => {
+    if (hasDualImages) {
+      return (
+        <div style={styles.dualImageContainer}>
+          {images.map((img, index) => (
+            <div key={index} style={styles.imageBox}>
+              {img.label && <div style={styles.imageLabel}>{img.label}</div>}
+              <img src={img.src} alt={img.label || title} style={styles.image} />
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    if (image) {
+      return (
+        <div style={styles.singleImageContainer}>
+          <img src={image} alt={title} style={styles.singleImage} />
+        </div>
+      );
+    }
+    
+    return null;
+  };
 
   return (
     <div style={styles.container}>
@@ -156,33 +216,26 @@ export default function WiringStep({
       
       <p style={styles.instruction}>{instruction}</p>
 
-      {resolvedKitItem && (
-        <div style={styles.kitReference}>
-          <img 
-            src={resolvedKitItem.image} 
-            alt={resolvedKitItem.name} 
-            style={styles.kitImage}
-            onError={(e) => e.target.style.display = 'none'}
-          />
-          <div style={styles.kitInfo}>
-            <div style={styles.kitLabel}>From your kit:</div>
-            <div style={styles.kitName}>{resolvedKitItem.name}</div>
+      {resolvedKitItem && !imageError ? (
+        <div style={styles.mainContent}>
+          <div style={styles.kitIconContainer}>
+            <img 
+              src={resolvedKitItem.image} 
+              alt={resolvedKitItem.name} 
+              style={styles.kitIconImage}
+              onError={handleImageError}
+            />
+            <div style={styles.kitIconLabel}>From your kit:</div>
+            <div style={styles.kitIconName}>{resolvedKitItem.name}</div>
+          </div>
+          
+          <div style={styles.imageSection}>
+            {renderImages()}
           </div>
         </div>
-      )}
-
-      {hasDualImages ? (
-        <div style={styles.dualImageContainer}>
-          {images.map((img, index) => (
-            <div key={index} style={styles.imageBox}>
-              {img.label && <div style={styles.imageLabel}>{img.label}</div>}
-              <img src={img.src} alt={img.label || title} style={styles.image} />
-            </div>
-          ))}
-        </div>
-      ) : image && (
-        <div style={styles.singleImageContainer}>
-          <img src={image} alt={title} style={styles.singleImage} />
+      ) : (
+        <div style={styles.fullWidthImageContainer}>
+          {renderImages()}
         </div>
       )}
     </div>

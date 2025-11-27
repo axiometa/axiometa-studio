@@ -176,6 +176,7 @@ You'll build a simple LED circuit using your PIXIE board - no code required, jus
       instruction: `Place your PIXIE M1 across the center gap of the breadboard.
 
 The USB port should face outward for easy access.`,
+      kitItemId: "MTA0007",  // PIXIE M1 from modules
       image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s1.gif",
       stepNumber: 1,
       totalSteps: 6
@@ -209,10 +210,7 @@ The power LED on the board should light up.`,
       instruction: `Insert a jumper wire from the 3.3V pin to a free column on the breadboard.
 
 This will be our power source for the LED.`,
-      kitItem: {
-        name: "Jumper Wire (Red)",
-        image: "/images/misc/kit-jumper-wire.png"
-      },
+      kitItemId: "TOOL-JW-001",  // Jumper Wires from static modules
       image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s2.gif",
       stepNumber: 3,
       totalSteps: 6
@@ -228,10 +226,7 @@ This will be our power source for the LED.`,
       instruction: `Insert a 220Ω resistor connecting the power wire column to another column.
 
 The resistor protects the LED from too much current.`,
-      kitItem: {
-        name: "220Ω Resistor (Red-Red-Brown)",
-        image: "/images/misc/kit-resistor-220.png"
-      },
+      kitItemId: "RESISTOR",
       image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s3.gif",
       stepNumber: 4,
       totalSteps: 6
@@ -249,10 +244,7 @@ The resistor protects the LED from too much current.`,
 ⚠️ Polarity matters!
 • Long leg (anode +) → connects to the resistor
 • Short leg (cathode -) → goes to a new column`,
-      kitItem: {
-        name: "LED (any color)",
-        image: "/images/misc/kit-led.png"
-      },
+      kitItemId: "LEDs",
       image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s4.gif",
       stepNumber: 5,
       totalSteps: 6
@@ -268,10 +260,7 @@ The resistor protects the LED from too much current.`,
       instruction: `Insert a jumper wire from the LED's short leg column to GND on the PIXIE.
 
 This completes the circuit!`,
-      kitItem: {
-        name: "Jumper Wire (Black)",
-        image: "/images/misc/kit-jumper-wire-black.png"
-      },
+      kitItemId: "TOOL-JW-001",  // Jumper Wires
       image: "/images/lessons/pixie-m1/lesson-1/bb-pixie-s5.gif",
       stepNumber: 6,
       totalSteps: 6

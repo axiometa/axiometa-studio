@@ -44,6 +44,7 @@ By the end, you'll have written and uploaded your first program to control hardw
       instruction: `Place your PIXIE M1 across the center gap of the breadboard.
 
 The USB port should face outward for easy access.`,
+      kitItemId: "MTA0007",  // PIXIE M1
       image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s1.gif",
       stepNumber: 1,
       totalSteps: 4
@@ -77,10 +78,7 @@ The power LED on the board should light up.`,
       instruction: `Insert the LED module into the breadboard.
 
 Connect the signal pin to GPIO 1.`,
-      kitItem: {
-        name: "LED Module",
-        image: "/images/misc/kit-led-module.png"
-      },
+      kitItemId: "AX22-0006",  // LED Module from Shopify
       image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s2.gif",
       stepNumber: 3,
       totalSteps: 4
@@ -96,6 +94,7 @@ Connect the signal pin to GPIO 1.`,
       instruction: `Connect the LED module's GND pin to GND on the PIXIE.
 
 Circuit complete! Now let's program it.`,
+      kitItemId: "TOOL-JW-001",  // Jumper Wires
       image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s3.gif",
       stepNumber: 4,
       totalSteps: 4
