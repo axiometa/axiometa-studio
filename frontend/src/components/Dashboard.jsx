@@ -159,20 +159,26 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
 
   const currentBoard = getBoardById(selectedBoard);
 
-  // Fetch ALL modules from Shopify collection on mount
-  useEffect(() => {
-    async function loadModules() {
-      setLoadingModules(true);
-      const shopifyModules = await fetchAllModulesFromShopify();
+// Fetch ALL modules from Shopify collection on mount
+useEffect(() => {
+  async function loadModules() {
+    setLoadingModules(true);
+    const shopifyModules = await fetchAllModulesFromShopify();
 
-      if (shopifyModules.length > 0) {
-        setModules(shopifyModules);
-      }
-
-      setLoadingModules(false);
+    if (shopifyModules.length > 0) {
+      setModules(shopifyModules);
+      // AUTO-SELECT ALL MODULES - both static AND Shopify modules
+      const allModuleIds = [
+        ...ownedModules, // Your static modules
+        ...shopifyModules.map(module => module.id) // Shopify modules
+      ];
+      setOwnedModules(allModuleIds);
     }
-    loadModules();
-  }, []);
+
+    setLoadingModules(false);
+  }
+  loadModules();
+}, []);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -350,7 +356,7 @@ function KitsTab({ kits, getKitLessonCount, onSelectKit }) {
       <div style={styles.kitsHeader}>
         <div>
           <h2 style={styles.kitsTitle}>
-              Kits
+            Kits
             <span style={styles.kitsBadge}>
               {availableKits.length} Available
             </span>
@@ -376,10 +382,10 @@ function KitsTab({ kits, getKitLessonCount, onSelectKit }) {
       {/* Coming Soon Kits */}
       {comingSoonKits.length > 0 && (
         <>
-          <h3 style={{ 
-            fontSize: '1.25rem', 
-            color: colors.text.muted, 
-            marginTop: '3rem', 
+          <h3 style={{
+            fontSize: '1.25rem',
+            color: colors.text.muted,
+            marginTop: '3rem',
             marginBottom: '1.5rem',
             fontFamily,
             fontWeight: '600'
