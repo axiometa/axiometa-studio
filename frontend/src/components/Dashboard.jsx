@@ -350,7 +350,7 @@ function KitsTab({ kits, getKitLessonCount, onSelectKit }) {
       <div style={styles.kitsHeader}>
         <div>
           <h2 style={styles.kitsTitle}>
-            📦 Learning Kits
+              Kits
             <span style={styles.kitsBadge}>
               {availableKits.length} Available
             </span>
