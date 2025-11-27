@@ -45,7 +45,7 @@ By the end, you'll have written and uploaded your first program to control hardw
 
 The USB port should face outward for easy access.`,
       kitItemId: "MTA0007",  // PIXIE M1
-      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s1.gif",
+      image: "/images/lessons/pixie-m1/universal-images/bb-pixie-s1.gif",
       stepNumber: 1,
       totalSteps: 4
     },

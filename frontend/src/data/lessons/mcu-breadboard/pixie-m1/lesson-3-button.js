@@ -28,7 +28,7 @@ export const lesson = {
       title: "Step 1: Insert Pixie M1",
       instruction: "Place your Pixie M1 on the breadboard, straddling the center gap.",
       kitItemId: "MTA0007",  // PIXIE M1
-      image: "/images/lessons/lesson-3/pixie-m1/bb-pixie-s1.png", 
+      image: "/images/lessons/pixie-m1/universal-images/bb-pixie-s1.gif",
       stepNumber: 1,
       totalSteps: 5
     },
