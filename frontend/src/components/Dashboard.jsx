@@ -161,6 +161,18 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
     }
   };
 
+  useEffect(() => {
+  // Listen for disconnect events
+  const unsubscribeDisconnect = connectionService.onDisconnect((reason) => {
+    console.log('🔴 Dashboard received disconnect:', reason);
+    setIsConnected(false);
+  });
+
+  return () => {
+    unsubscribeDisconnect();
+  };
+}, []);
+
   const toggleModule = (moduleId) => {
     setOwnedModules(prev =>
       prev.includes(moduleId)

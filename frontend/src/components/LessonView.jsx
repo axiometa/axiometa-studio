@@ -47,7 +47,18 @@ const styles = {
   connectedBadge: {
     color: colors.primary,
     fontWeight: '600',
-    fontFamily
+    fontFamily,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  },
+  disconnectedBadge: {
+    color: '#ff6b6b',
+    fontWeight: '600',
+    fontFamily,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
   },
   progressWrapper: {
     padding: '0.75rem 2rem',
@@ -146,6 +157,33 @@ const styles = {
     color: colors.text.secondary,
     whiteSpace: 'pre-line',
     fontFamily
+  },
+  disconnectBanner: {
+    background: 'rgba(255, 107, 107, 0.1)',
+    border: '1px solid rgba(255, 107, 107, 0.3)',
+    borderRadius: '8px',
+    padding: '0.75rem 1rem',
+    margin: '0 2rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '1rem'
+  },
+  disconnectText: {
+    color: '#ff6b6b',
+    fontSize: '0.9rem',
+    fontFamily
+  },
+  reconnectButton: {
+    background: '#ff6b6b',
+    color: '#fff',
+    border: 'none',
+    padding: '0.5rem 1rem',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontFamily,
+    fontWeight: '600',
+    fontSize: '0.85rem'
   }
 };
 
@@ -156,6 +194,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   const [serialLogs, setSerialLogs] = useState([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [hintLevel, setHintLevel] = useState(0);
+  const [showDisconnectBanner, setShowDisconnectBanner] = useState(false);
 
   const {
     isUploading,
@@ -192,6 +231,25 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     const interval = setInterval(checkConnection, 1000);
     
     return () => clearInterval(interval);
+  }, []);
+
+  // LISTEN FOR DISCONNECT EVENTS
+  useEffect(() => {
+    const unsubscribeDisconnect = connectionService.onDisconnect((reason) => {
+      console.log('🔴 LessonView received disconnect:', reason);
+      setIsConnected(false);
+      setShowDisconnectBanner(true);
+    });
+
+    const unsubscribeReconnect = connectionService.onReconnectAvailable(() => {
+      console.log('🟢 LessonView: Reconnect available');
+      // Device plugged back in - could auto-reconnect here
+    });
+
+    return () => {
+      unsubscribeDisconnect();
+      unsubscribeReconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -243,9 +301,22 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
     try {
       await connectionService.connect();
       setIsConnected(true);
+      setShowDisconnectBanner(false);
     } catch (error) {
       console.error(error);
       setIsConnected(false);
+    }
+  };
+
+  const handleReconnect = async () => {
+    try {
+      const success = await reconnect();
+      if (success) {
+        setIsConnected(true);
+        setShowDisconnectBanner(false);
+      }
+    } catch (error) {
+      console.error('Reconnect failed:', error);
     }
   };
 
@@ -259,14 +330,15 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
       currentStep.instruction || currentStep.title
     );
 
+    // Handle reconnect needed scenario
+    if (result.needsReconnect) {
+      setShowDisconnectBanner(true);
+      setIsConnected(false);
+    }
+
     if (isChallengeStep && onChallengeComplete) {
       onChallengeComplete(challengeId, result.stars);
     }
-  };
-
-  const handleReconnect = async () => {
-    await reconnect();
-    setIsConnected(true);
   };
 
   const renderStep = () => {
@@ -303,7 +375,10 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
           <ConnectionCheckStep
             title={currentStep.title || "Connect Your PIXIE"}
             instruction={currentStep.instruction || "Make sure your PIXIE M1 is connected via USB before continuing."}
-            onConnected={() => setIsConnected(true)}
+            onConnected={() => {
+              setIsConnected(true);
+              setShowDisconnectBanner(false);
+            }}
           />
         );
 
@@ -393,10 +468,24 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
           {!isConnected ? (
             <Button onClick={handleConnect}>Connect ESP32</Button>
           ) : (
-            <div style={styles.connectedBadge}>● Connected</div>
+            <div style={styles.connectedBadge}>
+              <span style={{ color: '#00ff00' }}>●</span> Connected
+            </div>
           )}
         </div>
       </div>
+
+      {/* Disconnect Banner */}
+      {showDisconnectBanner && !isConnected && (
+        <div style={styles.disconnectBanner}>
+          <span style={styles.disconnectText}>
+            ⚠️ Device disconnected or reset. Reconnect to continue.
+          </span>
+          <button style={styles.reconnectButton} onClick={handleConnect}>
+            🔌 Reconnect
+          </button>
+        </div>
+      )}
 
       <div style={styles.progressWrapper}>
         <div style={styles.progressInfo}>
