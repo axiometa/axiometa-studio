@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { colors, borderRadius, fontFamily } from '../../../styles/theme';
+import SerialMonitor from '../../common/SerialMonitor';
 
 const styles = {
   container: {
@@ -23,6 +24,12 @@ const styles = {
     borderRadius: borderRadius.lg,
     border: `2px solid ${colors.primary}`,
     boxShadow: '0 0 30px rgba(225, 241, 79, 0.2)'
+  },
+  serialContainer: {
+    marginBottom: '2rem',
+    border: `1px solid ${colors.borderLight}`,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden'
   },
   instruction: {
     color: colors.text.secondary,
@@ -88,37 +95,71 @@ const styles = {
   }
 };
 
-export default function VerificationStep({ 
-  title, 
-  instruction, 
-  image, 
+const DEFAULT_TROUBLESHOOT_TIPS = [
+  {
+    title: "Check LED direction",
+    description: "The longer leg (anode) should connect to the resistor side (positive)"
+  },
+  {
+    title: "Verify connections",
+    description: "Make sure all components are firmly inserted into the breadboard"
+  },
+  {
+    title: "Check USB power",
+    description: "The PIXIE's power LED should be on"
+  },
+  {
+    title: "Try a different LED",
+    description: "Your LED might be damaged"
+  },
+  {
+    title: "Verify resistor value",
+    description: "Use a 330Ω resistor (orange-orange-brown)"
+  }
+];
+
+export default function VerificationStep({
+  title,
+  instruction,
+  image,
+  showSerialMonitor = false,
+  serialLogs = [],  // ← Add this
+  troubleshootTips,
   confirmText = "Yes, it works!",
   troubleshootText = "It's not working",
-  onConfirm 
+  onConfirm
 }) {
   const [showTroubleshoot, setShowTroubleshoot] = useState(false);
+
+  const tips = troubleshootTips || DEFAULT_TROUBLESHOOT_TIPS;
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>{title}</h2>
-      
+
       {image && (
         <div style={styles.imageContainer}>
           <img src={image} alt={title} style={styles.image} />
         </div>
       )}
-      
+
+      {showSerialMonitor && (
+        <div style={styles.serialContainer}>
+          <SerialMonitor logs={serialLogs} />
+        </div>
+      )}
+
       <p style={styles.instruction}>{instruction}</p>
-      
+
       <div style={styles.buttons}>
-        <button 
+        <button
           style={styles.confirmButton}
           onClick={onConfirm}
         >
           {confirmText}
         </button>
-        
-        <button 
+
+        <button
           style={styles.troubleshootButton}
           onClick={() => setShowTroubleshoot(!showTroubleshoot)}
         >
@@ -130,21 +171,11 @@ export default function VerificationStep({
         <div style={styles.troubleshootPanel}>
           <div style={styles.troubleshootTitle}>🔧 Troubleshooting Tips</div>
           <ul style={styles.troubleshootList}>
-            <li style={styles.troubleshootItem}>
-              <strong>Check LED direction</strong> — The longer leg (anode) should connect to the resistor side (positive)
-            </li>
-            <li style={styles.troubleshootItem}>
-              <strong>Verify connections</strong> — Make sure all components are firmly inserted into the breadboard
-            </li>
-            <li style={styles.troubleshootItem}>
-              <strong>Check USB power</strong> — The PIXIE's power LED should be on
-            </li>
-            <li style={styles.troubleshootItem}>
-              <strong>Try a different LED</strong> — Your LED might be damaged
-            </li>
-            <li style={styles.troubleshootItem}>
-              <strong>Verify resistor value</strong> — Use a 330Ω resistor (orange-orange-brown)
-            </li>
+            {tips.map((tip, index) => (
+              <li key={index} style={styles.troubleshootItem}>
+                <strong>{tip.title}</strong> — {tip.description}
+              </li>
+            ))}
           </ul>
         </div>
       )}

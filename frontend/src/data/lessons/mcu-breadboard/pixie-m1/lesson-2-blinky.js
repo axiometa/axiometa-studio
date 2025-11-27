@@ -44,10 +44,10 @@ By the end, you'll have written and uploaded your first program to control hardw
       instruction: `Place your PIXIE M1 across the center gap of the breadboard.
 
 The USB port should face outward for easy access.`,
-      kitItemId: "MTA0007",  // PIXIE M1
+      kitItemId: "MTA0007",
       image: "/images/lessons/pixie-m1/universal-images/bb-pixie-s1.gif",
       stepNumber: 1,
-      totalSteps: 4
+      totalSteps: 6
     },
 
     // ========================================
@@ -65,11 +65,11 @@ The power LED on the board should light up.`,
         { src: "/images/lessons/pixie-m1/universal-images/usb-to-pc.png", label: "USB → PC" }
       ],
       stepNumber: 2,
-      totalSteps: 4
+      totalSteps: 6
     },
 
     // ========================================
-    // 4.5: Connection Check (NEW!)
+    // 4.5: Connection Check
     // ========================================
     {
       id: "connection-check",
@@ -87,29 +87,56 @@ Click the button below to establish a serial connection. This is required to upl
       id: "wiring-3",
       type: "wiring-step",
       title: "Insert LED Module",
-      instruction: `Insert the LED module into the breadboard.
-
-Connect the signal pin to GPIO 1.`,
-      kitItemId: "AX22-0006",  // LED Module from Shopify
+      instruction: `Insert the LED module into the breadboard.`,
+      kitItemId: "AX22-0006",
       image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s2.gif",
       stepNumber: 3,
-      totalSteps: 4
+      totalSteps: 6
     },
 
     // ========================================
-    // 6: Connect Ground
+    // 6: Connect Data
     // ========================================
+
     {
       id: "wiring-4",
       type: "wiring-step",
-      title: "Connect Ground",
-      instruction: `Connect the LED module's GND pin to GND on the PIXIE.
+      title: "Connect Data",
+      instruction: `Connect the LED module's B pin to Pin 1 on the PIXIE.
 
 Circuit complete! Now let's program it.`,
-      kitItemId: "TOOL-JW-001",  // Jumper Wires
+      kitItemId: "TOOL-JW-001",
       image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s3.gif",
       stepNumber: 4,
-      totalSteps: 4
+      totalSteps: 6
+    },
+
+
+    // ========================================
+    // 7: Connect Ground
+    // ========================================
+    {
+      id: "wiring-5",
+      type: "wiring-step",
+      title: "Connect Ground",
+      instruction: `Connect the LED module's GND pin to GND on the PIXIE.`,
+      kitItemId: "TOOL-JW-001",
+      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s4.gif",
+      stepNumber: 5,
+      totalSteps: 6
+    },
+
+    // ========================================
+    // 8: Final Circuit
+    // ========================================
+    {
+      id: "wiring-6",
+      type: "wiring-step",
+      title: "Final Circuit",
+      instruction: `Your circuit should look like this!`,
+      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-final.png",
+      stepNumber: 6,
+      totalSteps: 6
     },
 
     // ========================================
@@ -222,7 +249,7 @@ If it's not working, check:
 • All wiring connections
 • LED direction (long leg to resistor)
 • Code uploaded successfully`,
-      image: "/images/lessons/pixie-m1/lesson-2/led-blinking.gif",
+      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s5.gif",
       confirmText: "Yes, it's blinking! 💡",
       troubleshootText: "It's not working"
     },
