@@ -184,36 +184,6 @@ const styles = {
     fontFamily,
     fontWeight: '600',
     fontSize: '0.85rem'
-  },
-  serialContainer: {
-    marginBottom: '2rem',
-    border: `1px solid ${colors.borderLight}`,
-    borderRadius: borderRadius.md,
-    overflow: 'hidden',
-    background: '#0a0a0a'
-  },
-  serialHeader: {
-    padding: '0.5rem 1rem',
-    background: 'rgba(255,255,255,0.05)',
-    color: colors.text.muted,
-    fontSize: '0.85rem',
-    fontFamily,
-    borderBottom: `1px solid ${colors.borderLight}`
-  },
-  serialOutput: {
-    padding: '1rem',
-    maxHeight: '200px',
-    overflowY: 'auto',
-    fontFamily: 'monospace',
-    fontSize: '0.9rem'
-  },
-  serialLine: {
-    color: colors.primary,
-    lineHeight: '1.5'
-  },
-  serialEmpty: {
-    color: colors.text.muted,
-    fontStyle: 'italic'
   }
 };
 
@@ -254,12 +224,12 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
       const connected = connectionService.getConnectionStatus();
       setIsConnected(connected);
     };
-
+    
     checkConnection();
-
+    
     // Check every second to sync state
     const interval = setInterval(checkConnection, 1000);
-
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -308,8 +278,8 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
       setCurrentStepIndex(currentStepIndex + 1);
       setHintLevel(0);
       setCompilationLogs('');
-      resetUploadState();
-      setSerialLogs([]);
+      resetUploadState();  
+      setSerialLogs([]);  
       const nextStep = lesson.steps[currentStepIndex + 1];
       if (nextStep.type === 'upload' || nextStep.type === 'challenge') {
         setCode(nextStep.code || lesson.steps.find(s => s.type === 'upload')?.code || '');
@@ -468,9 +438,6 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             title={currentStep.title}
             instruction={currentStep.instruction}
             image={currentStep.image}
-            showSerialMonitor={currentStep.showSerialMonitor}
-            serialLogs={serialLogs}
-            troubleshootTips={currentStep.troubleshootTips}
             confirmText={currentStep.confirmText}
             troubleshootText={currentStep.troubleshootText}
             onConfirm={handleNext}
