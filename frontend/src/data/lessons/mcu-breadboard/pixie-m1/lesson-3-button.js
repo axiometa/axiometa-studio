@@ -42,6 +42,17 @@ export const lesson = {
       stepNumber: 2,
       totalSteps: 5
     },
+    // ========================================
+    // Connection Check (NEW!)
+    // ========================================
+    {
+      id: "connection-check",
+      type: "connection-check",
+      title: "Verify Connection",
+      instruction: `Let's make sure your PIXIE is properly connected to your computer.
+
+Click the button below to establish a serial connection. This is required to upload code and see Serial Monitor output.`
+    },
     {
       id: "wiring-3",
       type: "wiring-step",

@@ -10,6 +10,7 @@ import CodeExplanationStep from './lesson/steps/CodeExplanationStep';
 import UploadStep from './lesson/steps/UploadStep';
 import ChallengeStep from './lesson/steps/ChallengeStep';
 import VerificationStep from './lesson/steps/VerificationStep';
+import ConnectionCheckStep from './lesson/steps/ConnectionCheckStep';
 import AIAssistant from './AIAssistant';
 import { colors, gradients, fontFamily } from '../styles/theme';
 import InteractiveConceptStep from './lesson/steps/InteractiveConceptStep';
@@ -174,9 +175,12 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   const challengeId = isChallengeStep ? currentStep.id : null;
   const stars = challengeId ? (challengeStars[challengeId] || 0) : 0;
 
-  // ✅ CHECK CONNECTION STATUS ON MOUNT AND PERIODICALLY
+  // Check if current step is a connection-check and if we can proceed
+  const isConnectionCheckStep = currentStep?.type === 'connection-check';
+  const canProceedFromConnectionCheck = !isConnectionCheckStep || isConnected;
+
+  // CHECK CONNECTION STATUS ON MOUNT AND PERIODICALLY
   useEffect(() => {
-    // Check immediately on mount
     const checkConnection = () => {
       const connected = connectionService.getConnectionStatus();
       setIsConnected(connected);
@@ -207,6 +211,11 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   }, [currentStepIndex, currentStep, lesson.steps]);
 
   const handleNext = () => {
+    // Block progression from connection-check if not connected
+    if (isConnectionCheckStep && !isConnected) {
+      return;
+    }
+
     if (currentStepIndex < lesson.steps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
       setHintLevel(0);
@@ -233,7 +242,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   const handleConnect = async () => {
     try {
       await connectionService.connect();
-      setIsConnected(true); // ✅ This will also be updated by the interval above
+      setIsConnected(true);
     } catch (error) {
       console.error(error);
       setIsConnected(false);
@@ -257,7 +266,7 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
 
   const handleReconnect = async () => {
     await reconnect();
-    setIsConnected(true); // ✅ This will also be updated by the interval above
+    setIsConnected(true);
   };
 
   const renderStep = () => {
@@ -286,6 +295,15 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
             config={currentStep.config}
             showControls={currentStep.showControls !== false}
             autoPlay={currentStep.autoPlay !== false}
+          />
+        );
+
+      case 'connection-check':
+        return (
+          <ConnectionCheckStep
+            title={currentStep.title || "Connect Your PIXIE"}
+            instruction={currentStep.instruction || "Make sure your PIXIE M1 is connected via USB before continuing."}
+            onConnected={() => setIsConnected(true)}
           />
         );
 
@@ -359,6 +377,9 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
   const isLastStep = currentStepIndex === lesson.steps.length - 1;
   const isFirstStep = currentStepIndex === 0;
 
+  // Determine if Next button should be disabled
+  const isNextDisabled = isConnectionCheckStep && !isConnected;
+
   return (
     <div style={styles.container}>
       <div style={styles.header}>
@@ -416,9 +437,11 @@ export default function LessonView({ lesson, onComplete, onBack, challengeStars,
           <button
             style={{
               ...styles.navButton,
-              ...(isLastStep ? styles.navButtonComplete : {})
+              ...(isLastStep ? styles.navButtonComplete : {}),
+              ...(isNextDisabled ? styles.navButtonDisabled : {})
             }}
             onClick={handleNext}
+            disabled={isNextDisabled}
           >
             {isLastStep ? 'Complete' : 'Next'}
           </button>

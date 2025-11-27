@@ -69,6 +69,18 @@ The power LED on the board should light up.`,
     },
 
     // ========================================
+    // 4.5: Connection Check (NEW!)
+    // ========================================
+    {
+      id: "connection-check",
+      type: "connection-check",
+      title: "Verify Connection",
+      instruction: `Let's make sure your PIXIE is properly connected to your computer.
+
+Click the button below to establish a serial connection. This is required to upload code later.`
+    },
+
+    // ========================================
     // 5: Insert LED Module
     // ========================================
     {
