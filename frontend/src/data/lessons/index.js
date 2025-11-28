@@ -3,6 +3,7 @@ import { lesson as lesson2Blinky } from './mcu-breadboard/pixie-m1/lesson-2-blin
 import { lesson as lesson3Button } from './mcu-breadboard/pixie-m1/lesson-3-button';
 import { lesson as lesson4Potentiometer } from './mcu-breadboard/pixie-m1/lesson-4-potentiometer';
 import { lesson as lesson5buttonAndLED } from './mcu-breadboard/pixie-m1/lesson-5-buttonAndLED';
+import { lesson as lesson6trafficLightControl } from './mcu-breadboard/pixie-m1/lesson-6-trafficLightControl';
 
 
 export const lessons = [
@@ -11,6 +12,7 @@ export const lessons = [
   lesson3Button,
   lesson4Potentiometer,
   lesson5buttonAndLED,
+  lesson6trafficLightControl,
 ];
 
 // Helper functions
