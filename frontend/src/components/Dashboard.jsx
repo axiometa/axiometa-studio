@@ -248,7 +248,7 @@ useEffect(() => {
             alt="Axiometa"
             style={styles.logo}
           />
-          <span style={styles.studioText}> - Studio</span>
+          <span style={styles.studioText}> - Learn</span>
         </div>
         <div style={styles.stats}>
           <div style={styles.statItem}>
