@@ -17,6 +17,7 @@ export default defineConfig({
     host: true,
     allowedHosts: [
       'studio.axiometa.io',
+      'learn.axiometa.io',
       'localhost',
       '.vercel.app'
     ]
