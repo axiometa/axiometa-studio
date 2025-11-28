@@ -83,17 +83,17 @@ Click the button below to establish a serial connection. This is required to upl
     },
 
     // ========================================
-    // 6: Insert Potentiometer
+    // 6: Insert Potentiometer Module
     // ========================================
     {
       id: "wiring-3",
       type: "wiring-step",
-      title: "Insert Potentiometer",
+      title: "Insert Potentiometer Module",
       instruction: `Insert the potentiometer module into the breadboard.`,
-      kitItemId: "AX22-0004-H1",
-      image: "/images/lessons/pixie-m1/lesson-4/bb-pixie-s3.gif",
+      kitItemId: "AX22-0004",
+      image: "/images/lessons/pixie-m1/lesson-4/bb-pixie-s2.gif",
       stepNumber: 3,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -102,14 +102,12 @@ Click the button below to establish a serial connection. This is required to upl
     {
       id: "wiring-4",
       type: "wiring-step",
-      title: "Connect Signal",
-      instruction: `Connect the potentiometer's SIG pin to Pin 1 on the PIXIE.
-
-This carries the variable voltage to the microcontroller.`,
+      title: "Connect Ground Wire",
+      instruction: `Connect potentiometers G to G on the PIXIE.`,
       kitItemId: "TOOL-JW-001",
-      image: "/images/lessons/pixie-m1/lesson-4/bb-pixie-s4.gif",
+      image: "/images/lessons/pixie-m1/lesson-4/bb-pixie-s3.gif",
       stepNumber: 4,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -119,25 +117,40 @@ This carries the variable voltage to the microcontroller.`,
       id: "wiring-5",
       type: "wiring-step",
       title: "Connect Power",
-      instruction: `Connect VCC to 3.3V and GND to GND on the PIXIE.`,
+      instruction: `Connect potentiometers Vin to 3V3 on the PIXIE`,
+      kitItemId: "TOOL-JW-001",
+      image: "/images/lessons/pixie-m1/lesson-4/bb-pixie-s4.gif",
+      stepNumber: 5,
+      totalSteps: 7
+    },
+
+    // ========================================
+    // 8: Connect Power
+    // ========================================
+    {
+      id: "wiring-6",
+      type: "wiring-step",
+      title: "Connect Signal",
+      instruction: `Connect potentiometers A pin to Pin 3 on the pixie.`,
       kitItemId: "TOOL-JW-001",
       image: "/images/lessons/pixie-m1/lesson-4/bb-pixie-s5.gif",
-      stepNumber: 5,
-      totalSteps: 6
+      stepNumber: 6,
+      totalSteps: 7
     },
 
     // ========================================
     // 9: Final Circuit
     // ========================================
     {
-      id: "wiring-6",
+      id: "wiring-7",
       type: "wiring-step",
       title: "Final Circuit",
       instruction: `Your circuit should look like this!`,
       image: "/images/lessons/pixie-m1/lesson-4/bb-pixie-final.png",
-      stepNumber: 6,
-      totalSteps: 6
+      stepNumber: 7,
+      totalSteps: 7
     },
+
 
     // ========================================
     // 10: Understanding Voltage Dividers
@@ -191,7 +204,7 @@ Rotate the virtual knob to see inside.`,
       id: "code-intro",
       type: "code-explanation",
       title: "Understanding the Code",
-      code: `#define POT_PIN 1
+      code: `#define POT_PIN 3
 
 void setup() {
   Serial.begin(9600);
@@ -208,8 +221,8 @@ void loop() {
       explanations: [
         {
           line: 0,
-          highlight: "#define POT_PIN 1",
-          explanation: "Creates a name 'POT_PIN' for pin 1. This pin can read analog voltages."
+          highlight: "#define POT_PIN 3",
+          explanation: "Creates a name 'POT_PIN' for pin 3. This pin can read analog voltages."
         },
         {
           line: 3,
@@ -249,7 +262,7 @@ void loop() {
       instruction: `Click 'Upload Code' to flash your PIXIE M1.
 
 Rotate your potentiometer and watch the values change from 0 to 4095!`,
-      code: `#define POT_PIN 1
+      code: `#define POT_PIN 3
 
 void setup() {
   Serial.begin(9600);
@@ -308,15 +321,7 @@ You should see:
       id: "complete",
       type: "completion",
       title: "Potentiometer Complete! 🎉",
-      content: `You've learned to read analog inputs!
-
-You learned:
-- How voltage dividers work
-- Potentiometers as adjustable voltage dividers
-- Reading analog values with analogRead()
-- ADC conversion: voltage (0-3.3V) → numbers (0-4095)
-
-Next: Combine inputs and outputs together.`,
+      content: `You've learned to read analog inputs!`,
       nextLesson: 5
     }
   ]

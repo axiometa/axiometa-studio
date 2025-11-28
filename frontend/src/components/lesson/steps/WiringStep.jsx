@@ -28,12 +28,17 @@ const styles = {
   },
   contentArea: {
     marginBottom: '1.5rem',
-    overflow: 'hidden' // clearfix
+    overflow: 'hidden'
   },
-  kitIconContainer: {
+  kitIconsWrapper: {
     float: 'left',
     marginRight: '1.5rem',
     marginBottom: '0.5rem',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '1rem'
+  },
+  kitIconContainer: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -109,49 +114,59 @@ const styles = {
   }
 };
 
-export default function WiringStep({ 
-  title, 
-  instruction, 
+export default function WiringStep({
+  title,
+  instruction,
   image,
   images,
   kitItemId,
-  stepNumber, 
-  totalSteps 
+  kitItemIds,
+  stepNumber,
+  totalSteps
 }) {
-  const [resolvedKitItem, setResolvedKitItem] = useState(null);
-  const [imageError, setImageError] = useState(false);
+  const [resolvedKitItems, setResolvedKitItems] = useState([]);
+  const [imageErrors, setImageErrors] = useState({});
   const hasDualImages = images && images.length === 2;
 
   useEffect(() => {
-    setImageError(false);
-    setResolvedKitItem(null);
-    
-    if (!kitItemId) return;
+    setImageErrors({});
+    setResolvedKitItems([]);
 
-    const module = getModuleById(kitItemId);
-    if (module && module.image) {
-      setResolvedKitItem({
-        name: module.name,
-        image: module.image
-      });
-      return;
-    }
-    
-    const timer = setTimeout(() => {
-      const delayedModule = getModuleById(kitItemId);
-      if (delayedModule && delayedModule.image) {
-        setResolvedKitItem({
-          name: delayedModule.name,
-          image: delayedModule.image
-        });
+    // Normalize to array - support both kitItemId and kitItemIds
+    const ids = kitItemIds || (kitItemId ? [kitItemId] : []);
+
+    if (ids.length === 0) return;
+
+    const resolveItems = () => {
+      const items = ids
+        .map(id => {
+          const module = getModuleById(id);
+          if (module && module.image) {
+            return {
+              id,
+              name: module.name,
+              image: module.image
+            };
+          }
+          return null;
+        })
+        .filter(Boolean);
+
+      if (items.length > 0) {
+        setResolvedKitItems(items);
       }
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, [kitItemId]);
+    };
 
-  const handleImageError = () => {
-    setImageError(true);
+    resolveItems();
+
+    // Retry after delay in case modules aren't loaded yet
+    const timer = setTimeout(resolveItems, 300);
+
+    return () => clearTimeout(timer);
+  }, [kitItemId, kitItemIds]);
+
+  const handleImageError = (itemId) => {
+    setImageErrors(prev => ({ ...prev, [itemId]: true }));
   };
 
   const renderMainImage = () => {
@@ -167,7 +182,7 @@ export default function WiringStep({
         </div>
       );
     }
-    
+
     if (image) {
       return (
         <div style={styles.imageContainer}>
@@ -175,38 +190,43 @@ export default function WiringStep({
         </div>
       );
     }
-    
+
     return null;
   };
 
-  const showKitItem = resolvedKitItem && !imageError;
+  // Filter out items with image errors
+  const visibleKitItems = resolvedKitItems.filter(item => !imageErrors[item.id]);
 
   return (
     <div style={styles.container}>
-      {/* Kit item floats left, everything else flows around it */}
-      {showKitItem && (
-        <div style={styles.kitIconContainer}>
-          <img 
-            src={resolvedKitItem.image} 
-            alt={resolvedKitItem.name} 
-            style={styles.kitIconImage}
-            onError={handleImageError}
-          />
-          <div style={styles.kitIconLabel}>You need: </div>
-          <div style={styles.kitIconName}>{resolvedKitItem.name}</div>
+      {/* Kit items float left, everything else flows around them */}
+      {visibleKitItems.length > 0 && (
+        <div style={styles.kitIconsWrapper}>
+          {visibleKitItems.map(item => (
+            <div key={item.id} style={styles.kitIconContainer}>
+              <img
+                src={item.image}
+                alt={item.name}
+                style={styles.kitIconImage}
+                onError={() => handleImageError(item.id)}
+              />
+              <div style={styles.kitIconLabel}>You need:</div>
+              <div style={styles.kitIconName}>{item.name}</div>
+            </div>
+          ))}
         </div>
       )}
-      
+
       <div style={styles.header}>
         {stepNumber && totalSteps && (
           <div style={{ textAlign: 'left' }}>
             <span style={styles.stepBadge}>Step {stepNumber} of {totalSteps}</span>
           </div>
         )}
-        
+
         <h2 style={styles.title}>{title}</h2>
       </div>
-      
+
       <div style={styles.contentArea}>
         <p style={styles.instruction}>{instruction}</p>
       </div>

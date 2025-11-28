@@ -49,7 +49,7 @@ The USB port should face outward for easy access.`,
       kitItemId: "MTA0007",
       image: "/images/lessons/pixie-m1/universal-images/bb-pixie-s1.gif",
       stepNumber: 1,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -67,7 +67,7 @@ The power LED on the board should light up.`,
         { src: "/images/lessons/pixie-m1/universal-images/usb-to-pc.png", label: "USB → PC" }
       ],
       stepNumber: 2,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -91,9 +91,9 @@ Click the button below to establish a serial connection. This is required to upl
       title: "Insert Button Module",
       instruction: `Insert the button module into the breadboard.`,
       kitItemId: "AX22-0007",
-      image: "/images/lessons/pixie-m1/lesson-3/bb-pixie-s3.gif",
+      image: "/images/lessons/pixie-m1/lesson-3/bb-pixie-s2.gif",
       stepNumber: 3,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -102,14 +102,12 @@ Click the button below to establish a serial connection. This is required to upl
     {
       id: "wiring-4",
       type: "wiring-step",
-      title: "Connect Signal",
-      instruction: `Connect the button's SIG pin to Pin 1 on the PIXIE.
-
-This is how the PIXIE will "hear" your button presses.`,
+      title: "Connect Ground Wire",
+      instruction: `Connect Push Buttons G to G on the PIXIE.`,
       kitItemId: "TOOL-JW-001",
-      image: "/images/lessons/pixie-m1/lesson-3/bb-pixie-s4.gif",
+      image: "/images/lessons/pixie-m1/lesson-3/bb-pixie-s3.gif",
       stepNumber: 4,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -119,24 +117,38 @@ This is how the PIXIE will "hear" your button presses.`,
       id: "wiring-5",
       type: "wiring-step",
       title: "Connect Power",
-      instruction: `Connect VCC to 3.3V and GND to GND on the PIXIE.`,
+      instruction: `Connect Push Buttons Vin to 3V3 on the PIXIE`,
+      kitItemId: "TOOL-JW-001",
+      image: "/images/lessons/pixie-m1/lesson-3/bb-pixie-s4.gif",
+      stepNumber: 5,
+      totalSteps: 7
+    },
+
+    // ========================================
+    // 8: Connect Power
+    // ========================================
+    {
+      id: "wiring-6",
+      type: "wiring-step",
+      title: "Connect Signal",
+      instruction: `Connect Push Buttons S pin to Pin 3 on the pixie.`,
       kitItemId: "TOOL-JW-001",
       image: "/images/lessons/pixie-m1/lesson-3/bb-pixie-s5.gif",
-      stepNumber: 5,
-      totalSteps: 6
+      stepNumber: 6,
+      totalSteps: 7
     },
 
     // ========================================
     // 9: Final Circuit
     // ========================================
     {
-      id: "wiring-6",
+      id: "wiring-7",
       type: "wiring-step",
       title: "Final Circuit",
       instruction: `Your circuit should look like this!`,
       image: "/images/lessons/pixie-m1/lesson-3/bb-pixie-final.png",
-      stepNumber: 6,
-      totalSteps: 6
+      stepNumber: 7,
+      totalSteps: 7
     },
 
     // ========================================
@@ -171,7 +183,7 @@ Try pressing the virtual button to see the voltage change.`,
       id: "code-intro",
       type: "code-explanation",
       title: "Understanding the Code",
-      code: `#define BUTTON_PIN 1
+      code: `#define BUTTON_PIN 3
 
 void setup() {
   Serial.begin(9600);
@@ -189,8 +201,8 @@ void loop() {
       explanations: [
         {
           line: 0,
-          highlight: "#define BUTTON_PIN 1",
-          explanation: "Creates a name 'BUTTON_PIN' for pin 1. Makes code readable and easy to change."
+          highlight: "#define BUTTON_PIN 3",
+          explanation: "Creates a name 'BUTTON_PIN' for pin 3. Makes code readable and easy to change."
         },
         {
           line: 3,
@@ -200,12 +212,12 @@ void loop() {
         {
           line: 4,
           highlight: "pinMode(BUTTON_PIN, INPUT_PULLUP);",
-          explanation: "Configures pin 1 as input with internal pullup. Keeps pin HIGH when button is released."
+          explanation: "Configures pin 3 as input with internal pullup. Keeps pin HIGH when button is released."
         },
         {
           line: 8,
           highlight: "int buttonState = digitalRead(BUTTON_PIN);",
-          explanation: "Reads the pin voltage. Returns 1 (HIGH) when released, 0 (LOW) when pressed."
+          explanation: "Reads the pin voltage. Returns 3 (HIGH) when released, 0 (LOW) when pressed."
         },
         {
           line: 10,
@@ -230,7 +242,7 @@ void loop() {
       instruction: `Click 'Upload Code' to flash your PIXIE M1.
 
 Watch the Serial Monitor - press your button and see the values change!`,
-      code: `#define BUTTON_PIN 1
+      code: `#define BUTTON_PIN 3
 
 void setup() {
   Serial.begin(9600);
@@ -263,7 +275,7 @@ You should see:
       troubleshootTips: [
         {
           title: "Check signal wire",
-          description: "SIG pin should connect to Pin 1 on PIXIE"
+          description: "SIG pin should connect to Pin 3 on PIXIE"
         },
         {
           title: "Verify power connections",
@@ -289,15 +301,7 @@ You should see:
       id: "complete",
       type: "completion",
       title: "Button Complete! 🎉",
-      content: `You've learned to read digital inputs!
-
-You learned:
-- Digital input pins (HIGH/LOW)
-- What INPUT_PULLUP does
-- Reading values with digitalRead()
-- Displaying data over Serial Monitor
-
-Next: Learn to read analog values with potentiometers.`,
+      content: `You've learned to read digital inputs!`,
       nextLesson: 4
     }
   ]
