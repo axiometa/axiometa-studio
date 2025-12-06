@@ -47,7 +47,7 @@ The USB port should face outward for easy access.`,
       kitItemId: "MTA0007",
       image: "/images/lessons/pixie-m1/universal-images/bb-pixie-s1.gif",
       stepNumber: 1,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -65,7 +65,7 @@ The power LED on the board should light up.`,
         { src: "/images/lessons/pixie-m1/universal-images/usb-to-pc.png", label: "USB → PC" }
       ],
       stepNumber: 2,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -91,7 +91,7 @@ Click the button below to establish a serial connection.`
       kitItemId: "AX22-0018",
       image: "/images/lessons/pixie-m1/lesson-10/bb-pixie-s2.gif",
       stepNumber: 3,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -105,7 +105,7 @@ Click the button below to establish a serial connection.`
       kitItemId: "TOOL-JW-001",
       image: "/images/lessons/pixie-m1/lesson-10/bb-pixie-s3.gif",
       stepNumber: 4,
-      totalSteps: 6
+      totalSteps: 7
     },
 
     // ========================================
@@ -119,7 +119,21 @@ Click the button below to establish a serial connection.`
       kitItemId: "TOOL-JW-001",
       image: "/images/lessons/pixie-m1/lesson-10/bb-pixie-s4.gif",
       stepNumber: 5,
-      totalSteps: 6
+      totalSteps: 7
+    },
+
+    // ========================================
+    // 9: Connect Signal
+    // ========================================
+    {
+      id: "wiring-7",
+      type: "wiring-step",
+      title: "Connect Signal",
+      instruction: `Connect the thermistor module's signal (S or AO) pin to Pin 1 on the PIXIE.`,
+      kitItemId: "TOOL-JW-001",
+      image: "/images/lessons/pixie-m1/lesson-10/bb-pixie-s5.gif",
+      stepNumber: 7,
+      totalSteps: 7
     },
 
     // ========================================
@@ -128,10 +142,10 @@ Click the button below to establish a serial connection.`
     {
       id: "wiring-6",
       type: "wiring-step",
-      title: "Connect Signal",
-      instruction: `Connect the thermistor module's signal (S or AO) pin to Pin 1 on the PIXIE.`,
+      title: "Connect the thermistor",
+      instruction: `Unscrew the block and insert the thermistor into the module, screw it tightly into place `,
       kitItemId: "TOOL-JW-001",
-      image: "/images/lessons/pixie-m1/lesson-10/bb-pixie-s5.gif",
+      image: "/images/lessons/pixie-m1/lesson-10/bb-pixie-s6.gif",
       stepNumber: 6,
       totalSteps: 6
     },
@@ -180,7 +194,7 @@ Move the temperature slider to see how heat affects resistance and voltage!`,
       id: "code-intro",
       type: "code-explanation",
       title: "Understanding the Code",
-      code: `#define THERMISTOR_PIN 1
+      code: `#define THERMISTOR_PIN 3
 
 // Thermistor parameters
 #define R_FIXED 10000.0    // 10kΩ fixed resistor
@@ -216,8 +230,8 @@ void loop() {
       explanations: [
         {
           line: 0,
-          highlight: "#define THERMISTOR_PIN 1",
-          explanation: "The thermistor is connected to analog pin 1."
+          highlight: "#define THERMISTOR_PIN 3",
+          explanation: "The thermistor is connected to analog pin 3."
         },
         {
           line: 3,
@@ -272,7 +286,7 @@ void loop() {
       instruction: `Click 'Upload Code' to flash your PIXIE M1.
 
 Watch the Serial Monitor to see real-time temperature readings!`,
-      code: `#define THERMISTOR_PIN 1
+      code: `#define THERMISTOR_PIN 3
 
 // Thermistor parameters
 #define R_FIXED 10000.0    // 10kΩ fixed resistor
