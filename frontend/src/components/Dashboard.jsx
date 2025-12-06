@@ -153,32 +153,34 @@ export default function Dashboard({ userProgress, onStartLesson, onOpenSandbox }
     'AX22-0004-H1',   // Potentiometer
     'AX22-0007',      // Push Button
     'TOOL-BB-001',    // Breadboard
-    'TOOL-JW-001'     // Jumper Wires
+    'TOOL-JW-001',    // Jumper Wires
+    'THERMISTOR',    // Thermistor
+
   ]);
   const [loadingModules, setLoadingModules] = useState(true);
 
   const currentBoard = getBoardById(selectedBoard);
 
-// Fetch ALL modules from Shopify collection on mount
-useEffect(() => {
-  async function loadModules() {
-    setLoadingModules(true);
-    const shopifyModules = await fetchAllModulesFromShopify();
+  // Fetch ALL modules from Shopify collection on mount
+  useEffect(() => {
+    async function loadModules() {
+      setLoadingModules(true);
+      const shopifyModules = await fetchAllModulesFromShopify();
 
-    if (shopifyModules.length > 0) {
-      setModules(shopifyModules);
-      // AUTO-SELECT ALL MODULES - both static AND Shopify modules
-      const allModuleIds = [
-        ...ownedModules, // Your static modules
-        ...shopifyModules.map(module => module.id) // Shopify modules
-      ];
-      setOwnedModules(allModuleIds);
+      if (shopifyModules.length > 0) {
+        setModules(shopifyModules);
+        // AUTO-SELECT ALL MODULES - both static AND Shopify modules
+        const allModuleIds = [
+          ...ownedModules, // Your static modules
+          ...shopifyModules.map(module => module.id) // Shopify modules
+        ];
+        setOwnedModules(allModuleIds);
+      }
+
+      setLoadingModules(false);
     }
-
-    setLoadingModules(false);
-  }
-  loadModules();
-}, []);
+    loadModules();
+  }, []);
 
   useEffect(() => {
     const checkConnection = async () => {

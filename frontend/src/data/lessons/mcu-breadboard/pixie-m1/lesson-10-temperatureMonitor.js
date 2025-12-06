@@ -1,4 +1,4 @@
-const REQUIRED_MODULES = ['AX22-0011', 'TOOL-JW-001', 'MTA0007'];
+const REQUIRED_MODULES = ['AX22-0011', 'TOOL-JW-001', 'MTA0007','THERMISTOR'];
 
 export const lesson = {
   id: "thermistorTemperature",
@@ -144,7 +144,7 @@ Click the button below to establish a serial connection.`
       type: "wiring-step",
       title: "Connect the thermistor",
       instruction: `Unscrew the block and insert the thermistor into the module, screw it tightly into place `,
-      kitItemId: "TOOL-JW-001",
+      kitItemId: "Thermistor",
       image: "/images/lessons/pixie-m1/lesson-10/bb-pixie-s6.gif",
       stepNumber: 6,
       totalSteps: 6

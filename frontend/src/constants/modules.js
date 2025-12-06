@@ -40,8 +40,15 @@ export const STATIC_MODULES = [
   {
     id: 'LEDs',
     name: 'LED',
-    image: '/images/misc/passives/red-led.png',  // ← FIXED
+    image: '/images/misc/passives/red-led.png',
     description: 'Light Emitting Diodes - LEDs',
+    category: 'Passives',
+  },
+  {
+    id: 'THERMISTOR',
+    name: 'Thermistor',
+    image: '/images/misc/passives/thermistor.png',
+    description: 'Thermistor - Variable temperature resistor',
     category: 'Passives',
   }
 ];
