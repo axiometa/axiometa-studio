@@ -11,6 +11,8 @@ import ResistorVisualizer from '../interactive/ResistorVisualizer';
 import CapacitorVisualizer from '../interactive/CapacitorVisualizer';
 import InductorVisualizer from '../interactive/InductorVisualizer';
 import BreadboardVisualizer from '../interactive/BreadboardVisualizer';
+import PWMVisualizer from '../interactive/PWMVisualizer';
+
 import { colors, fontFamily } from '../../../styles/theme';
 
 const styles = {
@@ -47,12 +49,13 @@ const INTERACTIVE_COMPONENTS = {
   'capacitor-visualizer': CapacitorVisualizer,
   'inductor-visualizer': InductorVisualizer,
   'breadboard-visualizer': BreadboardVisualizer,
+  'pwm-visualizer': PWMVisualizer,
 };
 
-export default function InteractiveConceptStep({ 
-  title, 
+export default function InteractiveConceptStep({
+  title,
   description,
-  component, 
+  component,
   config = {},
   showControls = true,
   autoPlay = true
@@ -75,8 +78,8 @@ export default function InteractiveConceptStep({
     <div style={styles.container}>
       {title && <h1 style={styles.title}>{title}</h1>}
       {description && <p style={styles.description}>{description}</p>}
-      
-      <InteractiveComponent 
+
+      <InteractiveComponent
         config={config}
         showControls={showControls}
         autoPlay={autoPlay}

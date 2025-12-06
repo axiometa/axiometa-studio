@@ -4,6 +4,9 @@ import { lesson as lesson3Button } from './mcu-breadboard/pixie-m1/lesson-3-butt
 import { lesson as lesson4Potentiometer } from './mcu-breadboard/pixie-m1/lesson-4-potentiometer';
 import { lesson as lesson5buttonAndLED } from './mcu-breadboard/pixie-m1/lesson-5-buttonAndLED';
 import { lesson as lesson6trafficLightControl } from './mcu-breadboard/pixie-m1/lesson-6-trafficLightControl';
+import { lesson as lesson7streetLightControl } from './mcu-breadboard/pixie-m1/lesson-7-streetLightControl';
+import { lesson as lesson8lightMusic } from './mcu-breadboard/pixie-m1/lesson-8-lightMusic';
+import { lesson as lesson9pwmControl } from './mcu-breadboard/pixie-m1/lesson-9-pwmControl';
 
 
 export const lessons = [
@@ -13,6 +16,9 @@ export const lessons = [
   lesson4Potentiometer,
   lesson5buttonAndLED,
   lesson6trafficLightControl,
+  lesson7streetLightControl,
+  lesson8lightMusic,
+  lesson9pwmControl,
 ];
 
 // Helper functions
