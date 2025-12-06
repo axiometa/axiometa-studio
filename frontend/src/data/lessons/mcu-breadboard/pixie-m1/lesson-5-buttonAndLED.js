@@ -251,60 +251,11 @@ void loop() {
             type: "verification",
             title: "Does the Button Control the LED?",
             instruction: `Press and hold the button - the LED should light up. Release the button - the LED should turn off.`,
-            image: "/images/lessons/pixie-m1/lesson-5/bb-pixie-demo-1.gif",
+            image: "/images/lessons/pixie-m1/lesson-5/bb-pixie-demo.gif",
             confirmText: "Yes, it works!",
             troubleshootText: "It's not working"
         },
 
-
-        // ========================================
-        // 14: Upload
-        // ========================================
-        {
-            id: "upload",
-            type: "upload",
-            title: "2. Upload Your Code - Toggle",
-            instruction: `Make the button toggle the LED on/off with each press (instead of holding).
-
-Press once = LED on
-Press again = LED off`,
-            code: `#define LED_PIN 1
-#define BUTTON_PIN 3
-
-bool ledOn = false;
-bool lastButtonState = HIGH;
-
-void setup() {
-  pinMode(LED_PIN, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
-}
-
-void loop() {
-  int buttonState = digitalRead(BUTTON_PIN);
-  
-  // Detect button press (HIGH to LOW transition)
-  if (buttonState == LOW && lastButtonState == HIGH) {
-    ledOn = !ledOn;  // Toggle the state
-    digitalWrite(LED_PIN, ledOn ? HIGH : LOW);
-    delay(50);  // Simple debounce
-  }
-  
-  lastButtonState = buttonState;
-}`
-        },
-
-        // ========================================
-        // 15: Verify
-        // ========================================
-        {
-            id: "verify-button-2",
-            type: "verification",
-            title: "Does the Button Control the LED?",
-            instruction: `Press the button once - the LED should light up. Press it again to turn it off.`,
-            image: "/images/lessons/pixie-m1/lesson-5/bb-pixie-demo-2.gif",
-            confirmText: "Yes, it works!",
-            troubleshootText: "It's not working"
-        },
 
         // ========================================
         // 21: Complete

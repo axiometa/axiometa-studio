@@ -249,7 +249,7 @@ If it's not working, check:
 • All wiring connections
 • LED direction (long leg to resistor)
 • Code uploaded successfully`,
-      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-s5.gif",
+      image: "/images/lessons/pixie-m1/lesson-2/bb-pixie-demo.gif",
       confirmText: "Yes, it's blinking! 💡",
       troubleshootText: "It's not working"
     },
