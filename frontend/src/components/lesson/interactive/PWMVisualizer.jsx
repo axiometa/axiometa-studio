@@ -216,9 +216,9 @@ export default function PWMVisualizer({
   const {
     title = "PWM - Pulse Width Modulation",
     explanation = "PWM controls brightness by rapidly switching the LED on and off. Adjust the duty cycle to see how it affects brightness!",
-    maxFrequency = 5000,
+    maxFrequency = 300,
     defaultDutyCycle = 50,
-    defaultFrequency = 1000
+    defaultFrequency = 200
   } = config;
 
   const [dutyCycle, setDutyCycle] = useState(defaultDutyCycle);
@@ -447,7 +447,7 @@ export default function PWMVisualizer({
         }}>
           {dutyCycle === 0 && "LED is OFF - no voltage applied"}
           {dutyCycle > 0 && dutyCycle < 30 && "LED is dim - short ON pulses"}
-          {dutyCycle >= 30 && dutyCycle < 70 && "LED is medium brightness - balanced ON/OFF"}
+          {dutyCycle >= 30 && dutyCycle < 70 && "LED is medium, balanced ON/OFF"}
           {dutyCycle >= 70 && dutyCycle < 100 && "LED is bright - long ON pulses"}
           {dutyCycle === 100 && "LED is fully ON - constant voltage"}
         </div>

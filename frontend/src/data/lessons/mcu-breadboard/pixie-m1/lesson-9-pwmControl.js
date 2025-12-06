@@ -88,7 +88,7 @@ Click the button below to establish a serial connection.`
             type: "wiring-step",
             title: "Insert Modules",
             instruction: `Insert the potentiometer module and the LED module into the breadboard.`,
-            kitItemIds: ["AX22-0012", "AX22-0008"],
+            kitItemIds: ["AX22-0004-H1", "AX22-0006"],
             image: "/images/lessons/pixie-m1/lesson-9/bb-pixie-s2.gif",
             stepNumber: 3,
             totalSteps: 7
@@ -164,9 +164,9 @@ Adjust the duty cycle to control how long the LED stays ON each cycle.`,
             config: {
                 title: "PWM - Pulse Width Modulation",
                 explanation: "Watch how changing the duty cycle affects the waveform and LED brightness.",
-                maxFrequency: 5000,
+                maxFrequency: 300,
                 defaultDutyCycle: 50,
-                defaultFrequency: 1000
+                defaultFrequency: 200
             },
             showControls: true
         },
