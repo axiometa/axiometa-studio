@@ -12,6 +12,8 @@ import CapacitorVisualizer from '../interactive/CapacitorVisualizer';
 import InductorVisualizer from '../interactive/InductorVisualizer';
 import BreadboardVisualizer from '../interactive/BreadboardVisualizer';
 import PWMVisualizer from '../interactive/PWMVisualizer';
+import Thermistorvisualizer from '../interactive/Thermistorvisualizer';
+
 
 import { colors, fontFamily } from '../../../styles/theme';
 
@@ -50,6 +52,8 @@ const INTERACTIVE_COMPONENTS = {
   'inductor-visualizer': InductorVisualizer,
   'breadboard-visualizer': BreadboardVisualizer,
   'pwm-visualizer': PWMVisualizer,
+  'thermistor-visualizer': Thermistorvisualizer,
+
 };
 
 export default function InteractiveConceptStep({

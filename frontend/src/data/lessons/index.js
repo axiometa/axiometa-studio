@@ -7,6 +7,7 @@ import { lesson as lesson6trafficLightControl } from './mcu-breadboard/pixie-m1/
 import { lesson as lesson7streetLightControl } from './mcu-breadboard/pixie-m1/lesson-7-streetLightControl';
 import { lesson as lesson8lightMusic } from './mcu-breadboard/pixie-m1/lesson-8-lightMusic';
 import { lesson as lesson9pwmControl } from './mcu-breadboard/pixie-m1/lesson-9-pwmControl';
+import { lesson as lesson10temperatureMonitor } from './mcu-breadboard/pixie-m1/lesson-10-temperatureMonitor';
 
 
 export const lessons = [
@@ -19,6 +20,7 @@ export const lessons = [
   lesson7streetLightControl,
   lesson8lightMusic,
   lesson9pwmControl,
+  lesson10temperatureMonitor,
 ];
 
 // Helper functions
